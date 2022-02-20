@@ -1,0 +1,15 @@
+module sixteen_bit_shifter (
+    input alufn[2], // SHL: 00, SHR: 01, SRA: 11
+    input x[16],
+    input shift[16],
+    output out[16]
+  ) {
+  always {
+  case(alufn) {
+      b00: out = x << shift;
+      b01: out = x >>> shift;
+      b11: out = x >> shift;
+      default: out = x;
+    }
+  }
+}

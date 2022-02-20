@@ -1,0 +1,94 @@
+module au_top (
+    input clk,              // 100MHz clock
+    input rst_n,            // reset button (active low)
+    output led [8],         // 8 user controllable LEDs
+    input usb_rx,           // USB->Serial input
+    output usb_tx,           // USB->Serial output
+    output io_led [3][8],   // LEDs on IO Shield
+    output io_seg [8],      // 7-segment LEDs on IO Shield
+    output io_sel [4],      // Digit select on IO Shield
+    input io_button [5],    // 5 buttons on IO Shield
+    input io_dip [3][8] 
+  ) {
+  
+  sig rst;                  // reset signal
+  
+  sig alufn[6];
+  sig x[16];
+  sig y[16];
+  sig z;
+  sig v;
+  sig n;
+  sig p;
+  
+  sig out[16];
+  
+  sixteen_bit_full_adder adder;
+  sixteen_bit_compare compare;
+  sixteen_bit_bool boole;
+  sixteen_bit_mult mult;
+  sixteen_bit_shifter shifter;
+  
+  .clk(clk) {
+    // The reset conditioner is used to synchronize the reset signal to the FPGA
+    // clock. This ensures the entire FPGA comes out of reset at the same time.
+    reset_conditioner reset_cond;
+  }
+  
+  always {
+    reset_cond.in = ~rst_n; // input raw inverted reset signal
+    rst = reset_cond.out;   // conditioned reset
+    
+    led = 8h00;             // turn LEDs off
+
+    usb_tx = usb_rx;        // echo the serial data
+    
+    io_led = 3x{{8h00}};    // turn LEDs off
+    io_seg = 8hff;          // turn segments off
+    io_sel = 4hf;           // select no digits
+    
+    // test ALU with 8 bit inputs
+    alufn = io_dip[0][6];
+    x[7:0] = io_dip[1];
+    
+    case(alufn[5]) {
+      b0: y[7:0] = io_dip[2];
+      b1: y[7:0] = io_dip[2]; // change to literal source
+      default: y[7:0] = io_dip[2];
+    }
+    adder.alufn = alufn[0];
+    adder.x = x;
+    adder.y = y;
+    
+    z = adder.z;
+    v = adder.v;
+    n = adder.n;
+    p = adder.p;
+    
+    compare.alufn = alufn[1:0];
+    compare.z = z;
+    compare.v = v;
+    compare.n = n;
+    
+    mult.alufn = alufn[0];
+    mult.x = x;
+    mult.y = y;
+    
+    boole.alufn = alufn[3:0];
+    boole.x = x;
+    boole.y = y;
+    
+    shifter.alufn = alufn[1:0];
+    shifter.x = x;
+    shifter.shift = y;
+    
+    case(alufn[3:0]) {
+      b000x: out = adder.s;
+      b001x: out = mult.out;
+      b01xx: out = compare.cmp;
+      b10xx: out = boole.out;
+      b11xx: out = shifter.out;
+      default: out = 0;
+    }
+    
+}

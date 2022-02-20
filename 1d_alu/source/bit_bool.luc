@@ -1,0 +1,16 @@
+module bit_bool (
+    input alufn[4],
+    input x,
+    input y,
+    output out
+  ) {
+  always {
+  case(c{x,y}) {
+      b00: out = alufn[0];
+      b10: out = alufn[1];
+      b01: out = alufn[2];
+      b11: out = alufn[3];
+      default: out = 0;
+    }
+  }
+}

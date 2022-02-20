@@ -1,0 +1,14 @@
+module sixteen_bit_bool (
+    input x[16],
+    input y[16],
+    input alufn[4],
+    output out[16]
+  ) {
+  bit_bool bitbool[16];
+  always {
+    bitbool.x = x;
+    bitbool.y = y;
+    bitbool.alufn = 16x{{alufn}};
+    out = bitbool.out;
+  }
+}

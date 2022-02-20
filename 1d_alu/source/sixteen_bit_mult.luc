@@ -1,0 +1,15 @@
+module sixteen_bit_mult (
+    input alufn,
+    input x[16],
+    input y[16],
+    output out[16]
+  ) {
+
+  always {
+  case(alufn) {
+      b0: out = x*y;
+      b1: out = x/y;
+      default: out = x*y;
+    }
+  }
+}

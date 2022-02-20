@@ -1,0 +1,32 @@
+module sixteen_bit_full_adder (
+ input alufn,    // mode
+	input x[16],
+	input y[16],
+	output s[16],
+ output z,       // is_zero
+ output v,       // did_overflow
+ output n,       // is_negative
+ output p        // parity
+) {
+  sig fulladder[16];
+  sig w[16];
+  always {
+      w = 16x{alufn} ^ y;
+      fulladder = x + w + alufn;
+      s = fulladder;
+    
+      case(fulladder[15]){
+      b0:
+        v = w[15] & x[15];
+      b1:
+        v = ~w[15] & ~x[15];
+      default:
+        v = w[15] & x[15];
+      }
+    
+      z = ~|fulladder;
+      
+      n = fulladder[15];
+      p = ~^fulladder;
+	       }
+}
