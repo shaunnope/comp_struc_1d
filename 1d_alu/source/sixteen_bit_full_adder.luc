@@ -1,3 +1,4 @@
+// add, sub, zvnp
 module sixteen_bit_full_adder (
  input alufn,    // mode
 	input x[16],

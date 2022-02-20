@@ -16,13 +16,14 @@ module au_top (
   sig alufn[6];
   sig x[16];
   sig y[16];
-  sig z;
-  sig v;
-  sig n;
-  sig p;
+  sig z;  // zero
+  sig v;  // overflow
+  sig n;  // negative
+  sig p;  // parity: 0 - odd, 1 - even
   
   sig out[16];
   
+  // components
   sixteen_bit_full_adder adder;
   sixteen_bit_compare compare;
   sixteen_bit_bool boole;
@@ -47,15 +48,18 @@ module au_top (
     io_seg = 8hff;          // turn segments off
     io_sel = 4hf;           // select no digits
     
-    // test ALU with 8 bit inputs
-    alufn = io_dip[0][6];
-    x[7:0] = io_dip[1];
+    // ----------------- TEST 16b alu with 8b in ---------------------
+    alufn = io_dip[0][6];   // 6b opcode, ala beta isa 
     
+    // x and y
+    x[7:0] = io_dip[1];
     case(alufn[5]) {
       b0: y[7:0] = io_dip[2];
       b1: y[7:0] = io_dip[2]; // change to literal source
       default: y[7:0] = io_dip[2];
     }
+    
+    // init adder
     adder.alufn = alufn[0];
     adder.x = x;
     adder.y = y;
@@ -65,23 +69,28 @@ module au_top (
     n = adder.n;
     p = adder.p;
     
+    // init compare
     compare.alufn = alufn[1:0];
     compare.z = z;
     compare.v = v;
     compare.n = n;
     
+    // init mult
     mult.alufn = alufn[0];
     mult.x = x;
     mult.y = y;
     
+    // init boole
     boole.alufn = alufn[3:0];
     boole.x = x;
     boole.y = y;
     
+    // init shifter
     shifter.alufn = alufn[1:0];
     shifter.x = x;
     shifter.shift = y;
     
+    // select output
     case(alufn[3:0]) {
       b000x: out = adder.s;
       b001x: out = mult.out;
@@ -90,5 +99,7 @@ module au_top (
       b11xx: out = shifter.out;
       default: out = 0;
     }
+    
+    // ---------------- END TEST ------------------------
     
 }

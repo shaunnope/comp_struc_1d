@@ -1,4 +1,4 @@
-module full_adder (
+module full_adder ( // not in use
 	input x, 
 	input y,
 	input cin,
