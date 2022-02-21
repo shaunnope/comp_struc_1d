@@ -9,25 +9,19 @@ module sixteen_bit_full_adder (
   output n,       // is_negative
   output p        // parity
 ) {
-  sig fulladder[16];
-  sig w[16];
+  sig s[16];
   always {
-      w = 16x{alufn} ^ y; // 2s comp
-      fulladder = x + w + alufn;
-      out = fulladder;
-    
-      case(fulladder[15]){
-      b0:
-        v = w[15] & x[15];
-      b1:
-        v = ~w[15] & ~x[15];
-      default:
-        v = w[15] & x[15];
-      }
-    
-      z = ~|fulladder;
-      
-      n = fulladder[15];
-      p = ~^fulladder;
-	       }
+    s = 16b0; 
+
+    case(alufn){
+      0: s = x+y;
+      1: s = x-y;
+      default: s = 16b0;
+  }
+    n = s[15];
+    v = (x[15] & (y[15] ^ alufn) & !s[15]) | (!x[15] & !(y[15] ^ alufn) & s[15]); 
+    z = ~|s;
+    p = ~^s;
+    out = s;
+  }
 }
