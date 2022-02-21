@@ -3,9 +3,9 @@ module alu (
     input x[16],     //
     input y[16],     //
     output z,        // zero
-    output v,        // zero
-    output n,        // zero
-    output p,        // zero
+    output v,        // overflow
+    output n,        // negative
+    output p,        // parity
     output out[16]
   ) {
 
@@ -50,7 +50,7 @@ module alu (
     
     // select output
     case(alufn[3:0]) {
-      b000x: out = adder.s;
+      b000x: out = adder.out;
       b001x: out = mult.out;
       b01xx: out = compare.cmp;
       b10xx: out = boole.out;

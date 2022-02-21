@@ -2,8 +2,8 @@
 module sixteen_bit_full_adder (
   input alufn,    // mode
   input x[16],
-	input y[16],
-	output s[16],
+  input y[16],
+  output out[16],
   output z,       // is_zero
   output v,       // did_overflow
   output n,       // is_negative
@@ -12,9 +12,9 @@ module sixteen_bit_full_adder (
   sig fulladder[16];
   sig w[16];
   always {
-      w = 16x{alufn} ^ y;
+      w = 16x{alufn} ^ y; // 2s comp
       fulladder = x + w + alufn;
-      s = fulladder;
+      out = fulladder;
     
       case(fulladder[15]){
       b0:
