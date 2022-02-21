@@ -64,3 +64,19 @@ module alu_tester (
     }
   }
 }
+
+/*
+TO DO:
+DIV
+All other truth tables for b01xxxx truth table
+Parity ZVN tester?
+
+1st clock cycle: FSM sends x, y  and ALUFN to ALU. ALU computes answer
+2nd clock cycle: FSM sends correct answer to ALU, ALU XORs correct answer and computed value, shows error code.
+
+register required to store computed answer for the next clock cycle?
+Think of possible error codes.
+
+
+
+*/

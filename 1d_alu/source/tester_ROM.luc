@@ -1,0 +1,19 @@
+module tester_ROM (
+	// 3 bit input,
+	// address[2] is x, 
+	// address[1] is y, 
+	// address[0] is cin
+	input address[3], 
+
+	// 2 bit output,
+	// value[0] is cout, 
+	// value[1] is s
+	output value[2] 
+  ) 
+{
+  const tester_ROM = {b11, b01, b01, b10, b01, b10, b10, b00};
+  
+  always {
+	value = FULL_ADDER[address];
+  }
+}
