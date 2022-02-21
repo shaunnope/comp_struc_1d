@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="1d_alu" board="Alchitry Au" language="Lucid" version="3">
   <files>
-    <src>bit_bool.luc</src>
-    <src>sixteen_bit_shifter.luc</src>
-    <src>sixteen_bit_full_adder.luc</src>
-    <src>full_adder.luc</src>
-    <src top="true">au_top.luc</src>
-    <src>sixteen_bit_bool.luc</src>
     <src>sixteen_bit_mult.luc</src>
+    <src>sixteen_bit_full_adder.luc</src>
+    <src>bit_bool.luc</src>
+    <src>sixteen_bit_bool.luc</src>
+    <src>alu.luc</src>
+    <src>sixteen_bit_shifter.luc</src>
+    <src top="true">au_top.luc</src>
     <component>reset_conditioner.luc</component>
     <src>sixteen_bit_compare.luc</src>
     <constraint lib="true">alchitry.acf</constraint>
+    <constraint lib="true">io.acf</constraint>
     <constraint lib="true">au.xdc</constraint>
   </files>
 </project>

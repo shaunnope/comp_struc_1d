@@ -1,13 +1,13 @@
 // add, sub, zvnp
 module sixteen_bit_full_adder (
- input alufn,    // mode
-	input x[16],
+  input alufn,    // mode
+  input x[16],
 	input y[16],
 	output s[16],
- output z,       // is_zero
- output v,       // did_overflow
- output n,       // is_negative
- output p        // parity
+  output z,       // is_zero
+  output v,       // did_overflow
+  output n,       // is_negative
+  output p        // parity
 ) {
   sig fulladder[16];
   sig w[16];

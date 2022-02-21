@@ -24,11 +24,7 @@ module au_top (
   sig out[16];
   
   // components
-  sixteen_bit_full_adder adder;
-  sixteen_bit_compare compare;
-  sixteen_bit_bool boole;
-  sixteen_bit_mult mult;
-  sixteen_bit_shifter shifter;
+  alu alu;
   
   .clk(clk) {
     // The reset conditioner is used to synchronize the reset signal to the FPGA
@@ -48,8 +44,11 @@ module au_top (
     io_seg = 8hff;          // turn segments off
     io_sel = 4hf;           // select no digits
     
-    // ----------------- TEST 16b alu with 8b in ---------------------
+    // ----------- TEST 16b alu with 8b inputs
     alufn = io_dip[0][6];   // 6b opcode, ala beta isa 
+    
+    x = 8b0;
+    y = 8b0;
     
     // x and y
     x[7:0] = io_dip[1];
@@ -59,47 +58,16 @@ module au_top (
       default: y[7:0] = io_dip[2];
     }
     
-    // init adder
-    adder.alufn = alufn[0];
-    adder.x = x;
-    adder.y = y;
+    alu.alufn = alufn;
+    alu.x = x;
+    alu.y = y;
     
-    z = adder.z;
-    v = adder.v;
-    n = adder.n;
-    p = adder.p;
+    z = alu.z;
+    v = alu.v;
+    n = alu.n;
+    p = alu.p;
     
-    // init compare
-    compare.alufn = alufn[1:0];
-    compare.z = z;
-    compare.v = v;
-    compare.n = n;
-    
-    // init mult
-    mult.alufn = alufn[0];
-    mult.x = x;
-    mult.y = y;
-    
-    // init boole
-    boole.alufn = alufn[3:0];
-    boole.x = x;
-    boole.y = y;
-    
-    // init shifter
-    shifter.alufn = alufn[1:0];
-    shifter.x = x;
-    shifter.shift = y;
-    
-    // select output
-    case(alufn[3:0]) {
-      b000x: out = adder.s;
-      b001x: out = mult.out;
-      b01xx: out = compare.cmp;
-      b10xx: out = boole.out;
-      b11xx: out = shifter.out;
-      default: out = 0;
-    }
-    
-    // ---------------- END TEST ------------------------
+    out = alu.out;
+    // ------------- END TEST
     
 }
