@@ -10,7 +10,7 @@ module sixteen_bit_mult (
   case(alufn) {
       b0: out = x*y;
       b1: out = x/y;
-      default: out = x*y;
+      default: out = 16b0;
     }
   }
 }

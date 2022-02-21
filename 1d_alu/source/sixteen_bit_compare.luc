@@ -3,23 +3,21 @@ module sixteen_bit_compare (
     input z,
     input v,
     input n,
-    output cmp[16]
+    output out[16]
   ) {
 
   always {
-    cmp = 16x{8b0};
+    out = 16x{8b0};
     
     case(alufn) {
-      b00:
-        cmp[0] = bx;
       b01:
-        cmp[0] = z;
+        out[0] = z;
       b10:
-        cmp[0] = n ^ v;
+        out[0] = n ^ v;
       b11:
-        cmp[0] = (n ^ v) | z;
+        out[0] = (n ^ v) | z;
       default:
-        cmp[0] = bx;
+        out[0] = b0;
     }
   }
 }

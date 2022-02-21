@@ -28,7 +28,7 @@ module alu (
     p = adder.p;
     
     // init compare
-    compare.alufn = alufn[1:0];
+    compare.alufn = alufn[2:1];
     compare.z = adder.z;
     compare.v = adder.v;
     compare.n = adder.n;
@@ -46,16 +46,19 @@ module alu (
     // init shifter
     shifter.alufn = alufn[1:0];
     shifter.x = x;
-    shifter.shift = y;
+    shifter.shift = y[3:0];
     
     // select output
-    case(alufn[3:0]) {
-      b000x: out = adder.out;
-      b001x: out = mult.out;
-      b01xx: out = compare.cmp;
-      b10xx: out = boole.out;
-      b11xx: out = shifter.out;
-      default: out = 0;
+    case(alufn[5:4]) {
+      b00: out = adder.out;
+      b01: out = boole.out;
+      b10: out = shifter.out;
+      b11: out = compare.out;
+      default: out = boole.out;
+    }
+    
+    if(alufn[5:1] == b00010) {
+      out = mult.out;
     }
 
   }
