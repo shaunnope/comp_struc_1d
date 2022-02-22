@@ -1,6 +1,6 @@
 # comp_struc_1d
 
-16 bit Arithmetic Logic Unit. Takes in two 16 bit inputs and returns one single bit output.  
+16 bit Arithmetic Logic Unit. Takes in two 16 bit inputs and returns one 16 bit output.  
 Written in Lucid Hardware Description Language, compiled in Alchitry Labs IDE and Xilinx Vivado.  
 2nd hardware deliverable for 50002 Computation Structures class in 2022 Spring.
 
