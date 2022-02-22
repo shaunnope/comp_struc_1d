@@ -5,6 +5,7 @@
     <src>sixteen_bit_full_adder.luc</src>
     <src>bit_bool.luc</src>
     <src>sixteen_bit_bool.luc</src>
+    <src>op_flags.luc</src>
     <src>alu.luc</src>
     <src>sixteen_bit_shifter.luc</src>
     <src top="true">au_top.luc</src>

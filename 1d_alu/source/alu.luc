@@ -6,9 +6,10 @@ module alu (
     output v,        // overflow
     output n,        // negative
     output p,        // parity
+    output c,        // carry out
     output out[16]
   ) {
-
+  sig w[16];
   // components
   sixteen_bit_full_adder adder;
   sixteen_bit_compare compare;
@@ -16,16 +17,17 @@ module alu (
   sixteen_bit_mult mult;
   sixteen_bit_shifter shifter;
 
+  op_flags flags;
   always {
+    //init flags
+    flags.x = x;
+    flags.y = y;
+    flags.alufn = alufn;
+    
     // init adder
     adder.alufn = alufn[0];
     adder.x = x;
     adder.y = y;
-    
-    z = adder.z;
-    v = adder.v;
-    n = adder.n;
-    p = adder.p;
     
     // init compare
     compare.alufn = alufn[2:1];
@@ -50,16 +52,23 @@ module alu (
     
     // select output
     case(alufn[5:4]) {
-      b00: out = adder.out;
-      b01: out = boole.out;
-      b10: out = shifter.out;
-      b11: out = compare.out;
-      default: out = boole.out;
+      b00: w = adder.out;
+      b01: w = boole.out;
+      b10: w = shifter.out;
+      b11: w = compare.out;
+      default: w = adder.out;
     }
     
     if(alufn[5:1] == b00010) {
-      out = mult.out;
+      w = mult.out;
     }
-
+    flags.aluout = w;
+    z = flags.z;
+    v = flags.v;
+    n = flags.n;
+    p = flags.p;
+    c = flags.c;
+    
+    out = w;
   }
 }

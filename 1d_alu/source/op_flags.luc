@@ -1,0 +1,30 @@
+module op_flags (
+    input alufn[6],
+    input aluout[16],  // clock
+    input x[16],
+    input y[16],
+    output z,
+    output v,
+    output n,
+    output p,
+    output c
+  ) {
+  sig a;
+  sig b;
+  always {
+    a = x[15];
+    case (alufn[5:4]) {
+      b00: // arith
+          b = y[15] ^ alufn[0];
+      default:
+          b = y[15]; 
+    }
+
+    n = aluout[15];
+    v = (a & b & !aluout[15]) | (!a & !b & aluout[15]); 
+    z = ~|aluout;
+    p = ~^aluout;
+    c = 0;
+    
+  }
+}

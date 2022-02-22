@@ -10,6 +10,7 @@ module sixteen_bit_full_adder (
   output p        // parity
 ) {
   sig s[16];
+  
   always {
     s = 16b0; 
 
