@@ -11,9 +11,9 @@ module tester_ROM (
 	output value[2] 
   ) 
 {
-  const tester_ROM = {b11, b01, b01, b10, b01, b10, b10, b00};
+  const TESTER_ROM = {b11, b01, b01, b10, b01, b10, b10, b00};
   
   always {
-	value = FULL_ADDER[address];
+	  value = TESTER_ROM[address];
   }
 }

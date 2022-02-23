@@ -11,6 +11,8 @@ module sixteen_bit_full_adder (
 ) {
   sig s[16];
   
+  op_flags flags;
+  
   always {
     s = 16b0; 
 
@@ -19,10 +21,14 @@ module sixteen_bit_full_adder (
       1: s = x-y;
       default: s = 16b0;
   }
-    n = s[15];
-    v = (x[15] & (y[15] ^ alufn) & !s[15]) | (!x[15] & !(y[15] ^ alufn) & s[15]); 
-    z = ~|s;
-    p = ~^s;
+    flags.x = x;
+    flags.y = y;
+    flags.aluout = s;
+    flags.alufn = c{b00000, alufn};
+    n = flags.n;
+    v = flags.v;
+    z = flags.z;
+    p = flags.p;
     out = s;
   }
 }

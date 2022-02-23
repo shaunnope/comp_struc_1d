@@ -6,7 +6,6 @@ module alu (
     output v,        // overflow
     output n,        // negative
     output p,        // parity
-    output c,        // carry out
     output out[16]
   ) {
   sig w[16];
@@ -18,12 +17,7 @@ module alu (
   sixteen_bit_shifter shifter;
 
   op_flags flags;
-  always {
-    //init flags
-    flags.x = x;
-    flags.y = y;
-    flags.alufn = alufn;
-    
+  always {   
     // init adder
     adder.alufn = alufn[0];
     adder.x = x;
@@ -62,12 +56,16 @@ module alu (
     if(alufn[5:1] == b00010) {
       w = mult.out;
     }
+    //init flags
+    flags.x = x;
+    flags.y = y;
+    flags.alufn = alufn;
     flags.aluout = w;
+    
     z = flags.z;
     v = flags.v;
     n = flags.n;
     p = flags.p;
-    c = flags.c;
     
     out = w;
   }

@@ -5,7 +5,7 @@ module alu_tester (
   ) {
   
   .clk(clk){
-    fsm testAluFsm={ADD, SUB, AND, OR, XOR, A, SHL, SHR, SRA, CMPEQ, CMPLT, CMPLE}; 
+    fsm testAluFsm={ADD, SUB, MUL, DIV, AND, OR, XOR, A, B, SHL, SHR, SRA, CMPEQ, CMPLT, CMPLE}; 
   }
 
   always {
@@ -26,7 +26,10 @@ module alu_tester (
               testAluFsm.d = testAluFsm.MUL;
       testAluFsm.MUL : 
               out = b000010;
-              testAluFsm.d = testAluFsm.AND;              
+              testAluFsm.d = testAluFsm.DIV;    
+      testAluFsm.DIV : 
+              out = b000010;
+              testAluFsm.d = testAluFsm.AND;           
       testAluFsm.AND : 
               out = b011000;
               testAluFsm.d = testAluFsm.OR;  
@@ -38,7 +41,10 @@ module alu_tester (
               testAluFsm.d = testAluFsm.A;        
       testAluFsm.A : 
               out = b011010;
-              testAluFsm.d = testAluFsm.SHL;        
+              testAluFsm.d = testAluFsm.B;    
+      testAluFsm.B : 
+              out = b011010;
+              testAluFsm.d = testAluFsm.SHL;     
       testAluFsm.SHL : 
               out = b100000;
               testAluFsm.d = testAluFsm.SHR;        

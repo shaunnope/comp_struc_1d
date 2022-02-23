@@ -16,15 +16,12 @@ module au_top (
   sig alufn[6];
   sig x[16];
   sig y[16];
-  sig z;  // zero
-  sig v;  // overflow
-  sig n;  // negative
-  sig p;  // parity: 0 - odd, 1 - even
+  sig zvnp[4];  // flags
   
   sig out[16];
   
   // components
-  alu alu;
+  alu_eight_bit_in alu;
   
   .clk(clk) {
     // The reset conditioner is used to synchronize the reset signal to the FPGA
@@ -60,21 +57,18 @@ module au_top (
     // }
     
     alu.alufn = alufn;
-    alu.x = x;
-    alu.y = y;
+    alu.a = x[7:0];
+    alu.b = y[7:0];
     
-    z = alu.z;
-    v = alu.v;
-    n = alu.n;
-    p = alu.p;
+    zvnp[0] = alu.z;
+    zvnp[1] = alu.v;
+    zvnp[2] = alu.n;
+    zvnp[3] = alu.p;
     
     out = alu.out;
     io_led[1][7:0] = out[7:0];
     io_led[2][7:0] = out[15:8];
-    io_led[0][0] = z;
-    io_led[0][1] = v;
-    io_led[0][2] = n;
-    io_led[0][3] = p;
+    io_led[0][3:0] = zvnp;
     // ------------- END TEST --------------
     
 }

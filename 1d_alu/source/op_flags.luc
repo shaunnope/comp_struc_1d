@@ -1,13 +1,12 @@
 module op_flags (
     input alufn[6],
-    input aluout[16],  // clock
+    input aluout[16],
     input x[16],
     input y[16],
     output z,
     output v,
     output n,
-    output p,
-    output c
+    output p
   ) {
   sig a;
   sig b;
@@ -24,7 +23,6 @@ module op_flags (
     v = (a & b & !aluout[15]) | (!a & !b & aluout[15]); 
     z = ~|aluout;
     p = ~^aluout;
-    c = 0;
     
   }
 }
