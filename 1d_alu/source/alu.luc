@@ -6,6 +6,7 @@ module alu (
     output v,        // overflow
     output n,        // negative
     output p,        // parity
+    output c,
     output out[16]
   ) {
   sig w[16];
@@ -53,7 +54,7 @@ module alu (
       default: w = adder.out;
     }
     
-    if(alufn[5:1] == b00010) {
+    if(alufn[5:1] == b00001) {
       w = mult.out;
     }
     //init flags
@@ -66,6 +67,7 @@ module alu (
     v = flags.v;
     n = flags.n;
     p = flags.p;
+    c = adder.cout;
     
     out = w;
   }

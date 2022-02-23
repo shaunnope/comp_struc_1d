@@ -4,31 +4,33 @@ module sixteen_bit_full_adder (
   input x[16],
   input y[16],
   output out[16],
+  output cout,
   output z,       // is_zero
   output v,       // did_overflow
   output n,       // is_negative
   output p        // parity
 ) {
-  sig s[16];
+  sig s[17];
   
   op_flags flags;
   
   always {
-    s = 16b0; 
+    s = 17b0; 
 
     case(alufn){
       0: s = x+y;
       1: s = x-y;
-      default: s = 16b0;
+      default: s = 17b0;
   }
     flags.x = x;
     flags.y = y;
-    flags.aluout = s;
+    flags.aluout = s[15:0];
     flags.alufn = c{b00000, alufn};
     n = flags.n;
     v = flags.v;
     z = flags.z;
     p = flags.p;
-    out = s;
+    out = s[15:0];
+    cout = s[16];
   }
 }
