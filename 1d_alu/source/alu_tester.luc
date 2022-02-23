@@ -1,16 +1,30 @@
 module alu_tester (
     input clk,  // clock
-    input reset,
-    output out[6] // alufn signals
+    input rst,
+    output out[6], // alufn signals
+    output x[16],
+    output y[16]
   ) {
+    
+    const SLOWCLOCK_DIV = 20;
   
-  .clk(clk){
-    fsm testAluFsm={ADD, SUB, MUL, DIV, AND, OR, XOR, A, B, SHL, SHR, SRA, CMPEQ, CMPLT, CMPLE}; 
+  .clk(clk){    
+    .rst(rst){
+      counter xClock(#SIZE(1), #DIV(SLOWCLOCK_DIV));
+      counter yClock(#SIZE(1), #DIV(2*SLOWCLOCK_DIV));
+      counter fnClock(#SIZE(1), #DIV(4*SLOWCLOCK_DIV));
+      
+      fsm testAluFsm={ADD, SUB, MUL, DIV, AND, OR, XOR, A, B, SHL, SHR, SRA, CMPEQ, CMPLT, CMPLE}; 
+      dff a[16];
+      dff b[16];
+    }
+    edge_detector clockEdges[3](#RISE(1), #FALL(0));
   }
 
   always {
+    clockEdges.in = c{fnClock.value, yClock.value,xClock.value};
   
-    if (reset & 1){
+    if (rst & 1){
         testAluFsm.d = testAluFsm.ADD;
     }
     else{
@@ -68,6 +82,17 @@ module alu_tester (
               testAluFsm.d = testAluFsm.ADD;      
                           
     }
+    
+    x = a.q;
+    y = b.q;
+    
+    if (clockEdges.out[0] == b1){ //only add when MSB of slowCLock == 1
+     a.d = a.q + 1;
+    }
+    if (clockEdges.out[1] == b1){ //only add when MSB of slowCLock == 1
+     b.d = b.q + 1;
+    }
+
   }
 }
 
