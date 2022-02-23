@@ -1,4 +1,8 @@
-// mult and div
+/** 
+mult and div
+00 0010: MUL
+00 0011: DIV
+*/
 module sixteen_bit_mult (
     input alufn,
     input x[16],

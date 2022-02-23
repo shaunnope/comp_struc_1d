@@ -1,3 +1,6 @@
+/** 
+01 ZYXW: Bool with truth table 00 - W, 01 - X, 10 - Y, 11 - Z
+*/
 module sixteen_bit_bool (
     input x[16],
     input y[16],

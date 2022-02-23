@@ -1,12 +1,15 @@
+/** 
+central module to compute znvp flags 
+*/
 module op_flags (
     input alufn[6],
     input aluout[16],
     input x[16],
     input y[16],
-    output z,
-    output v,
-    output n,
-    output p
+    output z,     // zero
+    output v,     // overflow
+    output n,     // negative
+    output p      // parity: 0 - odd bits, 1 - even bits
   ) {
   sig a;
   sig b;

@@ -1,4 +1,8 @@
-// add, sub, zvnp
+/** 
+add, sub, zvnp
+00 0000: ADD
+00 0001: SUB
+*/
 module sixteen_bit_full_adder (
   input alufn,    // mode
   input x[16],
@@ -10,9 +14,9 @@ module sixteen_bit_full_adder (
   output n,       // is_negative
   output p        // parity
 ) {
-  sig s[17];
+  sig s[17];      // sum + cout
   
-  op_flags flags;
+  op_flags flags; // to compute flags
   
   always {
     s = 17b0; 

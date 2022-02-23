@@ -1,3 +1,6 @@
+/**
+signal generator for 2 16b inputs
+*/
 module alu_tester (
     input clk,  // clock
     input rst,
@@ -98,7 +101,6 @@ module alu_tester (
 
 /*
 TO DO:
-DIV
 All other truth tables for b01xxxx truth table
 Parity ZVN tester?
 

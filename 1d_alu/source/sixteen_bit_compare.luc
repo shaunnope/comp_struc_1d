@@ -1,3 +1,8 @@
+/**
+11 0011: CMPEQ
+11 0101: CMPLT
+11 0111: CMPLE
+*/
 module sixteen_bit_compare (
     input alufn[2],
     input z,

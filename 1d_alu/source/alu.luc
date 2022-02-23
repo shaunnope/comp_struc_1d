@@ -1,3 +1,24 @@
+/**
+ALUFN signals
+00 0000: ADD
+00 0001: SUB
+00 0010: MUL
+00 0011: DIV
+01 1000: AND
+01 1110: OR
+01 0110: XOR
+01 1010: "A"
+01 1100: "B"
+01 ZYXW: Bool with truth table 00 - W, 01 - X, 10 - Y, 11 - Z
+10 0000: SHL
+10 0001: SHR
+10 0011: SRA
+10 0100: ROTL
+10 0101: ROTR
+11 0011: CMPEQ
+11 0101: CMPLT
+11 0111: CMPLE
+*/
 module alu (
     input alufn[6],  //
     input x[16],     //

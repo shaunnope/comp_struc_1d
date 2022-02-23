@@ -1,5 +1,14 @@
+
+/**
+Logical, arithmetic shifts and rotate
+10 0000: SHL
+10 0001: SHR
+10 0011: SRA
+10 0100: ROTL
+10 0101: ROTR
+*/
 module sixteen_bit_shifter (
-    input alufn[3], // SHL: 00, SHR: 01, SRA: 11
+    input alufn[3],
     input x[16],
     input shift[4],
     output out[16]
