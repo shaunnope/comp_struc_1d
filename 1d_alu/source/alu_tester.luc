@@ -6,13 +6,13 @@ module alu_tester (
     output y[16]
   ) {
     
-    const SLOWCLOCK_DIV = 20;
+    const SLOWCLOCK_DIV = 23;
   
   .clk(clk){    
     .rst(rst){
       counter xClock(#SIZE(1), #DIV(SLOWCLOCK_DIV));
-      counter yClock(#SIZE(1), #DIV(2*SLOWCLOCK_DIV));
-      counter fnClock(#SIZE(1), #DIV(4*SLOWCLOCK_DIV));
+      counter yClock(#SIZE(1), #DIV(SLOWCLOCK_DIV+1));
+      counter fnClock(#SIZE(1), #DIV(SLOWCLOCK_DIV+16));
       
       fsm testAluFsm={ADD, SUB, MUL, DIV, AND, OR, XOR, A, B, SHL, SHR, SRA, CMPEQ, CMPLT, CMPLE}; 
       dff a[16];

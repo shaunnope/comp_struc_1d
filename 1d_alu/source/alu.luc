@@ -41,7 +41,7 @@ module alu (
     boole.y = y;
     
     // init shifter
-    shifter.alufn = alufn[1:0];
+    shifter.alufn = alufn[2:0];
     shifter.x = x;
     shifter.shift = y[3:0];
     

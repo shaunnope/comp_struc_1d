@@ -1,15 +1,21 @@
 module sixteen_bit_shifter (
-    input alufn[2], // SHL: 00, SHR: 01, SRA: 11
+    input alufn[3], // SHL: 00, SHR: 01, SRA: 11
     input x[16],
     input shift[4],
     output out[16]
   ) {
   always {
   case(alufn) {
-      b00: out = x << shift;
-      b01: out = x >> shift;
-      b11: out = $signed(x) >>> shift;
+      b000: out = x << shift;
+      b001: out = x >> shift;
+      b011: out = $signed(x) >>> shift;
+      b100: out = (x << shift) | (x >> (-shift & 15));
+      b101: out = (x >> shift) | (x << (-shift & 15));
       default: out = x;
     }
   }
 }
+/** 
+  Rotate through carry: How to implement if carry-out not part of inputs
+   
+*/
