@@ -7,8 +7,7 @@ module sixteen_bit_full_adder (
   input alufn,    // mode
   input x[16],
   input y[16],
-  output out[16],
-  output cout,
+  output out[17], // output + cout
   output z,       // is_zero
   output v,       // did_overflow
   output n,       // is_negative
@@ -34,7 +33,6 @@ module sixteen_bit_full_adder (
     v = flags.v;
     z = flags.z;
     p = flags.p;
-    out = s[15:0];
-    cout = s[16];
+    out = s;
   }
 }

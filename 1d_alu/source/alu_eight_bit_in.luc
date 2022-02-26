@@ -3,10 +3,7 @@ module alu_eight_bit_in (
     input alufn[6],  // alufn signal
     input a[8],      // 
     input b[8],      // 
-    output z,     // 
-    output v,     // 
-    output n,     // 
-    output p,     // 
+    output zvnpc[5],  //
     output out[16]
   ) {
   sig x[16];
@@ -28,11 +25,7 @@ module alu_eight_bit_in (
     alu.x = x;
     alu.y = y;
     
-    z = alu.z;
-    v = alu.v;
-    n = alu.n;
-    p = alu.p;
-    
+    zvnpc = alu.zvnpc;
     out = alu.out;
   }
 }

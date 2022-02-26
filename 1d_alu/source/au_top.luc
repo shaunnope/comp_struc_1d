@@ -16,7 +16,7 @@ module au_top (
   sig alufn[6];
   sig x[16];
   sig y[16];
-  sig zvnp[4];  // flags
+  sig zvnpc[5];  // flags
   
   sig out[16];
   
@@ -69,19 +69,17 @@ module au_top (
     //   default: y[7:0] = io_dip[2];
     // }
     
+    // ------ OUTPUTS ------
     alu.alufn = alufn;
     alu.x = x;
     alu.y = y;
     
-    zvnp[0] = alu.z;
-    zvnp[1] = alu.v;
-    zvnp[2] = alu.n;
-    zvnp[3] = alu.p;
+    zvnpc = alu.zvnpc;
     
     out = alu.out;
-    io_led[1][7:0] = out[7:0];
-    io_led[2][7:0] = out[15:8];
-    io_led[0][3:0] = zvnp;
+    io_led[1] = out[7:0];
+    io_led[2] = out[15:8];
+    io_led[0][4:0] = zvnpc;
     // ------------- END TEST --------------
     
 }

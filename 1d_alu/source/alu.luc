@@ -23,14 +23,10 @@ module alu (
     input alufn[6],  //
     input x[16],     //
     input y[16],     //
-    output z,        // zero
-    output v,        // overflow
-    output n,        // negative
-    output p,        // parity
-    output c,
+    output zvnpc[5], // flags: cout only determined by ADD SUB MULT DIV 
     output out[16]
   ) {
-  sig w[16];
+  sig w[17];         // output w cout
   // components
   sixteen_bit_full_adder adder;
   sixteen_bit_compare compare;
@@ -66,6 +62,8 @@ module alu (
     shifter.x = x;
     shifter.shift = y[3:0];
     
+    w = 17b0;
+    
     // select output
     case(alufn[5:4]) {
       b00: w = adder.out;
@@ -82,14 +80,14 @@ module alu (
     flags.x = x;
     flags.y = y;
     flags.alufn = alufn;
-    flags.aluout = w;
+    flags.aluout = w[15:0];
     
-    z = flags.z;
-    v = flags.v;
-    n = flags.n;
-    p = flags.p;
-    c = adder.cout;
+    zvnpc[0] = flags.z;
+    zvnpc[1] = flags.v;
+    zvnpc[2] = flags.n;
+    zvnpc[3] = flags.p;
+    zvnpc[4] = w[16];
     
-    out = w;
+    out = w[15:0];
   }
 }

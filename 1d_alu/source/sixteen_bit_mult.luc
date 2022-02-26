@@ -7,14 +7,14 @@ module sixteen_bit_mult (
     input alufn,
     input x[16],
     input y[16],
-    output out[16]
+    output out[17] // output w cout
   ) {
 
   always {
   case(alufn) {
       b0: out = x*y;
       b1: out = x/y;
-      default: out = 16b0;
+      default: out = 17b0;
     }
   }
 }

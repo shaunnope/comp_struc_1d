@@ -12,7 +12,7 @@ module sixteen_bit_compare (
   ) {
 
   always {
-    out = 16x{8b0};
+    out = 16b0;
     
     case(alufn) {
       b01:
