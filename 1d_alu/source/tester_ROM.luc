@@ -3,17 +3,23 @@ module tester_ROM (
 	// address[2] is x, 
 	// address[1] is y, 
 	// address[0] is cin
-	input address[3], 
+	input aluout[16],
+ input flags[5], 
+ input alufn[6],
+ input x[16],
+ input y[16],
 
-	// 2 bit output,
-	// value[0] is cout, 
-	// value[1] is s
-	output value[2] 
+	// 
+	output out[16],
+ output cflags[5],
+ output p 
   ) 
 {
   const TESTER_ROM = {b11, b01, b01, b10, b01, b10, b10, b00};
   
   always {
-	  value = TESTER_ROM[address];
+	   out = TESTER_ROM[aluout];
+    cflags = 5b0;
+    p = x[0];
   }
 }
