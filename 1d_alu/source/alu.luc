@@ -1,29 +1,28 @@
 /**
 ALUFN signals
-00 0000: ADD
-00 0001: SUB
-00 0010: MUL
-00 0011: DIV
-01 1000: AND
-01 1110: OR
-01 0110: XOR
-01 1010: "A"
-01 1100: "B"
-01 ZYXW: Bool with truth table 00 - W, 01 - X, 10 - Y, 11 - Z
-10 0000: SHL
-10 0001: SHR
-10 0011: SRA
-10 0100: ROTL
-10 0101: ROTR
-11 0011: CMPEQ
-11 0101: CMPLT
-11 0111: CMPLE
+0 0000: ADD
+0 0001: SUB
+0 0010: MUL
+0 0011: DIV
+0 0100: SHL
+0 0101: SHR
+0 0110: ROL
+0 0111: SRA
+0 1011: CMPEQ
+0 1101: CMPLT
+0 1111: CMPLE
+1 1000: AND
+1 1110: OR
+1 0110: XOR
+1 1010: "A"
+1 1100: "B"
+1 ZYXW: Bool with truth table 00 - W, 01 - X, 10 - Y, 11 - Z
 */
 module alu (
-    input alufn[6],  //
+    input alufn[5],  //
     input x[16],     //
     input y[16],     //
-    output zvnpc[5], // flags: cout only determined by ADD SUB MULT DIV 
+    output zvnpc[5], // flags: c only determined by ADD SUB MULT. ordered in little endian
     output out[16]
   ) {
   sig w[17];         // output w cout
@@ -65,28 +64,32 @@ module alu (
     w = 17b0;
     
     // select output
-    case(alufn[5:4]) {
-      b00: w = adder.out;
-      b01: w = boole.out;
-      b10: w = shifter.out;
-      b11: w = compare.out;
-      default: w = adder.out;
+    if(alufn[4] & 1) {
+      w[15:0] = boole.out;
+    } else {
+      case(alufn[3:1]) {
+        b000: w = adder.out;    // ADD SUB
+        b001: w = mult.out;     // MUL DIV
+        b010: w = shifter.out;  // SHL SHR
+        b011: w = shifter.out;  // ROT SRA
+        b101: w = compare.out;  // CMPEQ
+        b110: w = compare.out;  // CMPLT
+        b111: w = compare.out;  // CMPLE
+        default: w = adder.out;
+      }
     }
     
-    if(alufn[5:1] == b00001) {
-      w = mult.out;
-    }
     //init flags
     flags.x = x;
     flags.y = y;
     flags.alufn = alufn;
     flags.aluout = w[15:0];
     
-    zvnpc[0] = flags.z;
-    zvnpc[1] = flags.v;
+    zvnpc[4] = flags.z;
+    zvnpc[3] = flags.v;
     zvnpc[2] = flags.n;
-    zvnpc[3] = flags.p;
-    zvnpc[4] = w[16];
+    zvnpc[1] = flags.p;
+    zvnpc[0] = w[16];
     
     out = w[15:0];
   }

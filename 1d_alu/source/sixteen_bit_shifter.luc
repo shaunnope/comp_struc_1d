@@ -1,11 +1,10 @@
 
 /**
 Logical, arithmetic shifts and rotate
-10 0000: SHL
-10 0001: SHR
-10 0011: SRA
-10 0100: ROTL
-10 0101: ROTR
+0 0100: SHL
+0 0101: SHR
+0 0110: ROL - rotate w/o carry: ROL and ROR are related
+0 0111: SRA
 */
 module sixteen_bit_shifter (
     input alufn[3],
@@ -14,17 +13,13 @@ module sixteen_bit_shifter (
     output out[16]
   ) {
   always {
+  out = 16b0;
   case(alufn) {
-      b000: out = x << shift;
-      b001: out = x >> shift;
-      b011: out = $signed(x) >>> shift;
-      b100: out = (x << shift) | (x >> (-shift & 15));
-      b101: out = (x >> shift) | (x << (-shift & 15));
+      b100: out = x << shift;
+      b101: out = x >> shift;
+      b111: out = $signed(x) >>> shift;
+      b110: out = (x << shift) | (x >> (-shift & 15));
       default: out = x;
     }
   }
 }
-/** 
-  Rotate through carry: How to implement if carry-out not part of inputs
-   
-*/

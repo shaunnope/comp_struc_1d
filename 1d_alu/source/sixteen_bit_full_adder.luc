@@ -1,7 +1,7 @@
 /** 
 add, sub, zvnp
-00 0000: ADD
-00 0001: SUB
+0 0000: ADD
+0 0001: SUB
 */
 module sixteen_bit_full_adder (
   input alufn,    // mode
@@ -28,7 +28,7 @@ module sixteen_bit_full_adder (
     flags.x = x;
     flags.y = y;
     flags.aluout = s[15:0];
-    flags.alufn = c{b00000, alufn};
+    flags.alufn = c{b0000, alufn};
     n = flags.n;
     v = flags.v;
     z = flags.z;

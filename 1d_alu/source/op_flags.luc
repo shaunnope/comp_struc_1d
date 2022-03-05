@@ -2,30 +2,33 @@
 central module to compute znvp flags 
 */
 module op_flags (
-    input alufn[6],
-    input aluout[16],
+    input alufn[5],
+    input aluout[17], // out + c
     input x[16],
     input y[16],
     output z,     // zero
     output v,     // overflow
     output n,     // negative
-    output p      // parity: 0 - odd bits, 1 - even bits
+    output p      // parity 0 - odd bits, 1 - even bits
   ) {
   sig a;
   sig b;
   always {
     a = x[15];
-    case (alufn[5:4]) {
-      b00: // arith
+    case (alufn[4:1]) {
+      b0000: // arith
           b = y[15] ^ alufn[0];
       default:
           b = y[15]; 
     }
 
     n = aluout[15];
-    v = (a & b & !aluout[15]) | (!a & !b & aluout[15]); 
     z = ~|aluout;
     p = ~^aluout;
     
+    case(alufn[4:1]){
+      b0000: v = (a & b & !aluout[15]) | (!a & !b & aluout[15]); // ADD SUB
+      b0001: v = aluout[16]; // MUL DIV(0)
+      default: v = 0; // SHL SHR SRA ROT BOOL
   }
 }

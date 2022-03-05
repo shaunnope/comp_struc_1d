@@ -13,7 +13,7 @@ module au_top (
   
   sig rst;                  // reset signal
   
-  sig alufn[6];
+  sig alufn[5];
   sig x[16];
   sig y[16];
   sig zvnpc[5];  // flags
@@ -31,7 +31,7 @@ module au_top (
     button_conditioner buttoncond[3];
     
     .rst(rst){
-      alu_tester tester;
+      alu_fsm tester;
     }
   }
   
@@ -49,8 +49,9 @@ module au_top (
     
     buttoncond.in = io_button[2:0]; //
     
-    // ----------- Test circuit --------
-    alufn = io_dip[0][5:0];   
+    // ----------- Test circuit out--------
+    tester.irq = 0;
+    alufn = tester.alufn;   
     x = tester.x;
     y = tester.y;
     

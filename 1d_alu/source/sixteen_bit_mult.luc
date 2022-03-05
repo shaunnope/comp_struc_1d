@@ -1,20 +1,25 @@
 /** 
 mult and div
-00 0010: MUL
-00 0011: DIV
+0 0010: MUL
+0 0011: DIV - divide without remainder
 */
 module sixteen_bit_mult (
     input alufn,
     input x[16],
     input y[16],
-    output out[17] // output w cout
+    output out[17] // out + cout/v
   ) {
+  sig a[32];
 
   always {
+  a = 32b0;
   case(alufn) {
-      b0: out = x*y;
-      b1: out = x/y;
-      default: out = 17b0;
+      b0: a = x*y;
+      b1: a[15:0] = x/y;
+      default: a = 32b0;
     }
+    
+    out[15:0] = a[15:0];
+    out[16] = |a[31:16];
   }
 }

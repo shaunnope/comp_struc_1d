@@ -1,0 +1,106 @@
+/**
+signal generator for 2 16b inputs
+*/
+module alu_fsm (
+    input clk,  // clock
+    input rst,
+    input irq,  // interrupt if no match
+    output alufn[5],
+    output x[16],
+    output y[16],
+    output index[6]
+  ) {
+    
+    const SLOWCLOCK_DIV = 23; // 26 for 1Hz
+  
+  .clk(clk){    
+    .rst(rst){
+      counter xClock(#SIZE(6), #DIV(SLOWCLOCK_DIV));
+      
+      fsm testAluFsm = {ADD, SUB, MUL, DIV, SHL, SHR, SRA, ROL, CMPEQ, CMPLT, CMPLE, AND, OR, XOR, A, B};
+      dff a[16];
+      dff b[16];
+      dff testAlu[4];
+    }
+    edge_detector clockEdges[3](#RISE(1), #FALL(0));
+  }
+
+  always {
+    clockEdges.in = c{xClock.value[5], xClock.value[1],xClock.value[0]};
+    
+    alufn = 6b0;
+    
+    x = a.q;
+    y = b.q;
+    index = xClock.value;
+    
+    if (clockEdges.out[0] == b1){ //only add when MSB of slowCLock == 1
+     a.d = a.q + 27031;
+    }
+    if (clockEdges.out[1] == b1){ //only add when MSB of slowCLock == 1
+     b.d = b.q + 27029;
+    }
+    if (clockEdges.out[2] == b1){
+     testAlu.d = testAlu.q + 1;
+    }
+    
+    if (rst & 1){
+        testAlu.d = 0;
+        a.d = 0;
+        b.d = 0;
+    }
+    
+    case(testAluFsm.q){
+      testAluFsm.ADD : 
+              alufn = b00000;
+      testAluFsm.SUB : 
+              alufn = b00001;     
+      testAluFsm.MUL : 
+              alufn = b00010; 
+      testAluFsm.DIV : 
+              alufn = b00011; 
+      testAluFsm.SHL : 
+              alufn = b00100;      
+      testAluFsm.SHR : 
+              alufn = b00101; 
+      testAluFsm.ROL : 
+              alufn = b00110;      
+      testAluFsm.SRA : 
+              alufn = b00111;
+      testAluFsm.CMPEQ : 
+              alufn = b01011;
+      testAluFsm.CMPLT : 
+              alufn = b01101;     
+      testAluFsm.CMPLE : 
+              alufn = b01111;
+      testAluFsm.XOR : 
+              alufn = b10110;
+      testAluFsm.OR : 
+              alufn = b11110;  
+      testAluFsm.A : 
+              alufn = b11010;     
+      testAluFsm.AND : 
+              alufn = b11000;
+      testAluFsm.B : 
+              alufn = b11100;        
+      default:
+              alufn = b000000;
+              testAluFsm.d = testAluFsm.ADD;
+
+  }
+}
+
+/*
+TO DO:
+All other truth tables for b01xxxx truth table
+Parity ZVN tester?
+
+1st clock cycle: FSM sends x, y  and ALUFN to ALU. ALU computes answer
+2nd clock cycle: FSM sends correct answer to ALU, ALU XORs correct answer and computed value, shows error code.
+
+register required to store computed answer for the next clock cycle?
+Think of possible error codes.
+
+
+
+*/
