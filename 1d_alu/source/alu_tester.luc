@@ -2,12 +2,30 @@ module alu_tester (
     input clk,  // clock
     input rst,  // reset
     output out[16],
-    output zvnpc[5]
+    output flags[5]
   ) {
+  .clk(clk) {
+    .rst(rst){
+      alu_fsm alufsm;
+    }
+  }
+  tester_ROM alurom;
+  
+  alu alu;
 
   always {
-    out = 0;
+    alurom.alu_mode = alufsm.alu_mode;
+    alurom.index = alufsm.index;
     
-    zvnpc = 0;
+    alufsm.irq = 0;
+    
+    alu.x = alurom.x;
+    alu.y = alurom.y;
+    
+    alu.alufn = alufsm.alufn_signal;
+    
+    
+    out = 0;
+    flags = 0;
   }
 }

@@ -31,7 +31,7 @@ module au_top (
     button_conditioner buttoncond[3];
     
     .rst(rst){
-      alu_fsm tester;
+      alu_tester tester;
     }
   }
   
@@ -50,10 +50,12 @@ module au_top (
     buttoncond.in = io_button[2:0]; //
     
     // ----------- Test circuit out--------
-    tester.irq = 0;
-    alufn = tester.alufn;   
-    x = tester.x;
-    y = tester.y;
+    //alufn = tester.alufn;   
+    //x = tester.x;
+    //y = tester.y;
+    alufn =5b00000;
+    x = 16b0;
+    y = 16b0;
     
     // ----------- TEST 16b alu with 8b inputs
     // alufn = io_dip[0][5:0];   // 6b opcode, ala beta isa 

@@ -1,6 +1,6 @@
 // ----------- TEST 16b alu with 8b inputs ----------------
 module alu_eight_bit_in (
-    input alufn[6],  // alufn signal
+    input alufn[5],  // alufn signal
     input a[8],      // 
     input b[8],      // 
     output zvnpc[5],  //

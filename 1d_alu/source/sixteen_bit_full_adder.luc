@@ -22,7 +22,7 @@ module sixteen_bit_full_adder (
 
     case(alufn){
       0: s = x+y;
-      1: s = x-y;
+      1: s = c{b1,x}-c{b0,y};
       default: s = 17b0;
   }
     flags.x = x;
@@ -33,6 +33,6 @@ module sixteen_bit_full_adder (
     v = flags.v;
     z = flags.z;
     p = flags.p;
-    out = s;
+    out = c{~s[16],s[15:0]};
   }
 }
