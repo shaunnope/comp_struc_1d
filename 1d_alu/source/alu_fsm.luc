@@ -5,9 +5,10 @@ module alu_fsm (
     input clk,  // clock
     input rst,  // reset
     input irq,  // interuppt it no match
-    output alu_mode[4],
     output alufn_signal[5],
-    output index[6]
+    output alu_mode[4],
+    output index[5],
+    output clkvalue[6]
   ) {
     
     const SLOWCLOCK_DIV = 23; // 26 for 1Hz
@@ -30,9 +31,18 @@ module alu_fsm (
   always {
     clockEdge.in = xClock.value[0];
     changeMode.in = xClock.value[5];
+    clkvalue = xClock.value;
     
-    if (testAluFsm.q != testAluFsm.HALT) { // only change state if not HALT
-      if (clockEdge.out == b1){ // only change input when LSB of slowCLock == 1
+    if (rst & 1){
+        modeidx.d = b0;
+        caseidx.d = b0;
+        alufn.d = b0;
+        testAluFsm.d = testAluFsm.ADD;
+    } else if (irq & 1) {
+      testAluFsm.d = testAluFsm.HALT;
+    }
+    else if (testAluFsm.q != testAluFsm.HALT) { // only change states if not HALT
+      if (clockEdge.out == b1){ // only change input when LSB of slowCLock changes
        caseidx.d = caseidx.q + 1;
       }
       if (changeMode.out == b1){// only change mode after 32 cases
@@ -59,16 +69,7 @@ module alu_fsm (
       }
     }
     
-    
-    
-    if (rst & 1){
-        modeidx.d = b0;
-        caseidx.d = b0;
-        alufn.d = b0;
-    }
-    
-    
-    
+    // output alufn signal
     case(testAluFsm.q){
       testAluFsm.ADD : 
               alufn.d = b00000;
