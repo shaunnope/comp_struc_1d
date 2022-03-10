@@ -27,8 +27,8 @@ module op_flags (
     p = ~^aluout;
     
     case(alufn[4:1]){
-      b0000: v = (a & b & !aluout[15]) | (!a & !b & aluout[15]); // ADD SUB
+      b0000: v = (a & b & ~aluout[15]) | (~a & ~b & aluout[15]); // ADD SUB
       b0001: v = aluout[16]; // MUL DIV(0)
-      default: v = 0; // SHL SHR SRA ROT BOOL
+      default: v = b0; // SHL SHR SRA ROT BOOL
   }
 }

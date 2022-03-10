@@ -10,22 +10,33 @@ module alu_tester (
     }
   }
   tester_ROM alurom;
-  
   alu alu;
+  
+  sig aluout[16];
+  sig aluflags[5];
 
   always {
-    alurom.alu_mode = alufsm.alu_mode;
+    //alurom.alu_mode = alufsm.alu_mode;
+    alurom.alu_mode = 0;
     alurom.index = alufsm.index;
     
-    alufsm.irq = 0;
+    alufsm.irq = (alu.out != alurom.aluout) || (alu.zvnpc != alurom.flags);
+    
+    //alu.x = 0;
+    //alu.y = 0;
     
     alu.x = alurom.x;
     alu.y = alurom.y;
     
+    aluout = alu.out;
+    aluflags = alu.zvnpc;
+    
+    // if err sim state
+    // aluout = ~alu.out
+    
     alu.alufn = alufsm.alufn_signal;
     
-    
-    out = 0;
-    flags = 0;
+    out = aluout;
+    flags = aluflags;
   }
 }
