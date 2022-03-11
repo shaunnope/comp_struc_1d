@@ -2,8 +2,10 @@ module alu_tester (
     input clk,  // clock
     input rst,  // reset
     output out[16],
-    output flags[5]
+    output flags[5],
+    output caseidx[9] // alumode + case idx
   ) {
+  
   .clk(clk) {
     .rst(rst){
       alu_fsm alufsm;
@@ -17,16 +19,13 @@ module alu_tester (
 
   always {
     //alurom.alu_mode = alufsm.alu_mode;
-    alurom.alu_mode = 0;
+    alurom.alu_mode = 1;
     alurom.index = alufsm.index;
-    
-    alufsm.irq = (alu.out != alurom.aluout) || (alu.zvnpc != alurom.flags);
-    
-    //alu.x = 0;
-    //alu.y = 0;
+    caseidx = c{alufsm.alu_mode, alufsm.index}; // signal for 7seg
     
     alu.x = alurom.x;
     alu.y = alurom.y;
+    alu.alufn = alufsm.alufn_signal;
     
     aluout = alu.out;
     aluflags = alu.zvnpc;
@@ -34,9 +33,13 @@ module alu_tester (
     // if err sim state
     // aluout = ~alu.out
     
-    alu.alufn = alufsm.alufn_signal;
+    // verify output matches expected
+    // alufsm.irq = (alu.out != alurom.aluout) || (alu.zvnpc != alurom.flags);
+    alufsm.irq = 0;
+    
     
     out = aluout;
     flags = aluflags;
+
   }
 }

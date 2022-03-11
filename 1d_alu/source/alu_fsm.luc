@@ -8,10 +8,10 @@ module alu_fsm (
     output alufn_signal[5],
     output alu_mode[4],
     output index[5],
-    output clkvalue[6]
+    output clkvalue[6] // debugging
   ) {
     
-    const SLOWCLOCK_DIV = 23; // 26 for 1Hz
+    const SLOWCLOCK_DIV = 28; // 26 for 1Hz, use 23 in final
   
   .clk(clk){    
     .rst(rst){
@@ -24,7 +24,7 @@ module alu_fsm (
       dff modeidx[4];  // mode index
       dff caseidx[5];  // case index
     }
-    edge_detector clockEdge(#RISE(1), #FALL(0));
+    edge_detector clockEdge(#RISE(1), #FALL(1));
     edge_detector changeMode(#RISE(1), #FALL(1));
   }
 
@@ -34,9 +34,9 @@ module alu_fsm (
     clkvalue = xClock.value;
     
     if (rst & 1){
-        modeidx.d = b0;
-        caseidx.d = b0;
-        alufn.d = b0;
+        modeidx.d = 4b0000;
+        caseidx.d = 5b00000;
+        alufn.d = 5b00000;
         testAluFsm.d = testAluFsm.ADD;
     } else if (irq & 1) {
       testAluFsm.d = testAluFsm.HALT;

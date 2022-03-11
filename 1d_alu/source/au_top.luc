@@ -14,8 +14,7 @@ module au_top (
   sig rst;                  // reset signal
   
   sig zvnpc[5];  // flags
-  sig out[16];
-  
+  sig out[16];  
   
   .clk(clk) {
     // The reset conditioner is used to synchronize the reset signal to the FPGA
@@ -23,10 +22,17 @@ module au_top (
     reset_conditioner reset_cond;
     button_conditioner buttoncond[3];
     
+    edge_detector clockEdges[3](#RISE(1), #FALL(0));
+    
     .rst(rst){
       alu_tester tester;
+      var_seven_seg display;
+      dff segdis[14];
     }
   }
+  
+  sig display_vals[4][4];
+  sig button_io[3];
   
   always {
     reset_cond.in = ~rst_n; // input raw inverted reset signal
@@ -41,15 +47,28 @@ module au_top (
     io_sel = 4hf;           // select no digits
     
     buttoncond.in = io_button[2:0]; //
+    button_io = buttoncond.out;
+    
+    clockEdges.in = c{button_io[2], button_io[1], button_io[0]};
     
     // ----------- Test circuit out--------
     
     out = tester.out;
     zvnpc = tester.flags;
     
-    io_led[1] = out[7:0];
     io_led[2] = out[15:8];
+    io_led[1] = out[7:0];
     io_led[0][4:0] = zvnpc;
+    
+    io_led[0][7:5] = button_io;
+    
+    if (clockEdges.out[0] == 1) segdis.d = segdis.q + 1;
+    if (clockEdges.out[1] == 1) segdis.d = segdis.q + 1111;
+    if (clockEdges.out[2] == 1) segdis.d = 0;
+    
+    display.value = segdis.q;
+    io_seg = ~display.seg;
+    io_sel = display.sel;
     // ------------- END TEST --------------
     
 }
