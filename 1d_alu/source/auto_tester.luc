@@ -1,0 +1,74 @@
+module auto_tester (
+    input clk,  // clock
+    input rst,  // reset
+    input mCon[5],
+    output out[16],
+    output flags[5],
+    output caseidx[16] // unused(4) + alumode(4) + unused(3) + case idx(5)
+  ) {
+  
+  const SLOWCLOCK_DIV = 26; // 26 for 1Hz, use 23 in final
+  
+  .clk(clk){    
+    .rst(rst){
+      counter slowClock(#SIZE(2), #DIV(SLOWCLOCK_DIV));
+      
+      // holding values
+      dff aluout[16];
+      dff aluflags[5];
+    
+    }
+    edge_detector risingEdge[2](#RISE(1), #FALL(0));  // write
+    edge_detector fallingEdge[2](#RISE(0), #FALL(1)); // read
+  }
+  
+  alu_fsm alufsm (.clk(slowClock.value[0]), .rst(rst));
+  tester_ROM alurom;
+  alu alu;
+
+  always {
+    out = 0;
+    flags = 0;
+    caseidx = 0;
+    
+    fallingEdge.in = slowClock.value;
+    risingEdge.in = slowClock.value;
+    
+    alufsm.mCon = mCon;
+    
+    // ---------- RISING EDGE ----------
+    // init ROM
+    alurom.alu_mode = alufsm.alu_mode;
+    alurom.index = alufsm.index;
+    caseidx = c{slowClock.value[0], 3b0, alufsm.alu_mode, 3b0, alufsm.index}; // signal for 7seg + display parity
+    
+    alu.x = alurom.x;
+    alu.y = alurom.y;
+    alu.alufn = alufsm.alufn_signal;
+    
+    // verify output matches expected
+    alufsm.irq = 0;
+    //alufsm.irq = (aluout.q != alurom.aluout) || (aluflags.q != alurom.flags);
+    
+    // ---------- FALLING EDGE ----------
+    
+    // update stored outputs on falling edge
+    if (fallingEdge.out[0] & 1) {
+      aluout.d = alu.out;
+      aluflags.d = alu.zvnpc; 
+    }
+    
+    
+    // if err sim state
+    // aluout = ~alu.out
+    
+    if (slowClock.value[0] & 1) {
+      out = aluout.q;
+      flags = aluflags.q;
+    } else {
+      out = alurom.aluout;
+      flags = alurom.flags;
+    }
+    
+  }
+}

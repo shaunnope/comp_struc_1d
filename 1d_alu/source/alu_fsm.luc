@@ -7,7 +7,7 @@ module alu_fsm (
     input clk,  // slowClock
     input rst,  // reset
     input irq,  // interuppt it no match
-    input mCon[3],
+    input mCon[4],
     output alufn_signal[5],
     output alu_mode[4],
     output index[5],

@@ -6,72 +6,57 @@ Interface for ROM and FSM
 module alu_tester (
     input clk,  // clock
     input rst,  // reset
-    input mCon[3],
+    input io_dip[3][8],
+    input mCon[5], // 0- toggleAuto
     output out[16],
     output flags[5],
-    output caseidx[10] // alumode + case idx
+    output caseidx[16] // alumode + case idx
   ) {
-  
-  const SLOWCLOCK_DIV = 26; // 26 for 1Hz, use 23 in final
+  sig togrst; // rst|mCon[0] - reset when toggle mode or reset
   
   .clk(clk){    
-    .rst(rst){
-      counter slowClock(#SIZE(2), #DIV(SLOWCLOCK_DIV));
-      
-      // holding values
-      dff aluout[16];    // alufn signal
-      dff aluflags[5];
-      
+    .rst(togrst) {
+      manual_tester manual;
+      auto_tester auto;
     }
-    edge_detector risingEdge[2](#RISE(1), #FALL(0));  // write
-    edge_detector fallingEdge[2](#RISE(0), #FALL(1)); // read
-  }
+    .rst(rst){
+      fsm mode = {MANUAL, AUTO};
+    }
+  } 
   
-  alu_fsm alufsm (.clk(risingEdge.out[0]), .rst(rst));
-  
-  tester_ROM alurom;
-  alu alu;
 
   always {
-    fallingEdge.in = slowClock.value;
-    risingEdge.in = slowClock.value;
+    togrst = rst|mCon[0];
+    caseidx = 0;
     
-    alufsm.mCon = mCon;
+    //init auto tester
+    auto.mCon = mCon;
     
-    // ---------- RISING EDGE ----------
-    // init ROM
-    alurom.alu_mode = alufsm.alu_mode;
-    alurom.index = alufsm.index;
-    caseidx = c{alufsm.alu_mode, alufsm.index, slowClock.value[0]}; // signal for 7seg + display parity
+    // init manual tester
+    manual.ab = c{io_dip[2],io_dip[1]};
+    manual.alufn = io_dip[0][4:0];
+    manual.nxtIn = mCon[1];
     
-    alu.x = alurom.x;
-    alu.y = alurom.y;
-    alu.alufn = alufsm.alufn_signal;
-    
-    // verify output matches expected
-    alufsm.irq = 0;
-    //alufsm.irq = (aluout.q != alurom.aluout) || (aluflags.q != alurom.flags);
-    
-    // ---------- FALLING EDGE ----------
-    
-    // update stored outputs on falling edge
-    if (fallingEdge.out[0] & 1) {
-      aluout.d = alu.out;
-      aluflags.d = alu.zvnpc; 
+    case (mode.q) {
+      mode.MANUAL:
+        out = manual.out;
+        flags = manual.flags;
+      mode.AUTO:
+        out = auto.out;
+        flags = auto.flags;
+        caseidx = auto.caseidx;
+      default:
+        out = 0;
+        flags = 0;
     }
     
-    
-    // if err sim state
-    // aluout = ~alu.out
-    
-    if (slowClock.value[0] & 1) {
-    out = aluout.q;
-    flags = aluflags.q;
-    } else {
-    out = alurom.aluout;
-    flags = alurom.flags;
+    if (mCon[0] & 1) { // toggle testing mode
+      case (mode.q) {
+        mode.MANUAL: mode.d = mode.AUTO;
+        mode.AUTO: mode.d = mode.MANUAL;
+        default: mode.d = mode.MANUAL;
+      }
     }
-    
     
     
 
