@@ -3,6 +3,7 @@
   <files>
     <component>pipeline.luc</component>
     <src>alu_fsm.luc</src>
+    <src>var_seven_seg.luc</src>
     <src>sixteen_bit_full_adder.luc</src>
     <component>counter.luc</component>
     <src>alu.luc</src>
@@ -13,13 +14,9 @@
     <src>sixteen_bit_shifter.luc</src>
     <src>seven_seg.luc</src>
     <src top="true">au_top.luc</src>
-    <src>var_seven_seg.luc</src>
-    <component>decoder.luc</component>
-    <src>alu_fsm.luc</src>
-    <src>alu_tester.luc</src>
     <src>multi_seven_seg.luc</src>
-    <src>sixteen_bit_mult.luc</src>
     <src>alu_tester.luc</src>
+    <src>sixteen_bit_mult.luc</src>
     <component>pn_gen.luc</component>
     <src>sixteen_bit_bool.luc</src>
     <src>bit_bool.luc</src>
