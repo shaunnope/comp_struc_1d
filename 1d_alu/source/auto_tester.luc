@@ -34,7 +34,7 @@ module auto_tester (
     fallingEdge.in = slowClock.value;
     risingEdge.in = slowClock.value;
     
-    alufsm.mCon = mCon;
+    alufsm.mCon = mCon[4:1];
     
     // ---------- RISING EDGE ----------
     // init ROM

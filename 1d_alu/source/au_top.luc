@@ -62,7 +62,7 @@ module au_top (
     io_led[1] = out[7:0];
     io_led[0][4:0] = zvnpc;
     
-    io_led[0][7:5] = button_io[2:0];
+    io_led[0][6:5] = button_io[4:3];
     io_led[0][7] = tester.caseidx[15]; // temp blinker
     led[7] = tester.caseidx[15];       // blinker
     
