@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="1d_alu" board="Alchitry Au" language="Lucid" version="3">
   <files>
-    <src>sixteen_bit_mult.luc</src>
+    <component>pipeline.luc</component>
+    <src>alu_fsm.luc</src>
+    <src>var_seven_seg.luc</src>
     <src>sixteen_bit_full_adder.luc</src>
     <component>pipeline.luc</component>
     <src>sixteen_bit_bool.luc</src>
@@ -12,11 +14,9 @@
     <src>tester_ROM.luc</src>
     <component>counter.luc</component>
     <src top="true">au_top.luc</src>
-    <src>var_seven_seg.luc</src>
-    <component>decoder.luc</component>
-    <src>alu_fsm.luc</src>
-    <src>alu_tester.luc</src>
     <src>multi_seven_seg.luc</src>
+    <src>alu_tester.luc</src>
+    <src>sixteen_bit_mult.luc</src>
     <component>pn_gen.luc</component>
     <src>seven_seg.luc</src>
     <src>bit_bool.luc</src>
