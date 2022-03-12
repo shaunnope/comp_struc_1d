@@ -23,8 +23,8 @@ module op_flags (
     }
 
     n = aluout[15];
-    z = ~|aluout;
-    p = ~^aluout;
+    z = ~|aluout[15:0];
+    p = ~^aluout[15:0];
     
     case(alufn[4:1]){
       b0000: v = (a & b & ~aluout[15]) | (~a & ~b & aluout[15]); // ADD SUB

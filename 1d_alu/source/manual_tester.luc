@@ -1,0 +1,57 @@
+module manual_tester (
+    input clk,  // clock
+    input rst,  // reset
+    input nxtIn,    // conditioned button input (rising edge)
+    input ab[16],   // dip switch signal for A/B
+    input alufn[5], // dip switch input for ALUFN
+    output out[16],
+    output flags[5]
+  ) {
+ 
+  .clk(clk) {
+    .rst(rst) {
+      dff a[16];
+      dff b[16];
+      fsm mode = {A,B,OUT};
+    }
+  }
+  
+  alu alu;
+
+  always {
+    out = ab;
+    flags = 0;
+    
+    // init alu
+    alu.x = 0;
+    alu.y = 0;
+    alu.alufn = 0;
+    
+    case(mode.q) {
+      mode.A:
+        a.d = ab;
+      mode.B:
+        b.d = ab;
+      mode.OUT: // set alu inputs, display outputs
+        alu.x = a.q;
+        alu.y = b.q;
+        alu.alufn = alufn;
+        out = alu.out;
+        flags = alu.zvnpc;
+      default:
+        mode.d = mode.A;
+        a.d = 0;
+        b.d = 0;
+    }
+    
+    if (nxtIn & 1) {
+      case (mode.q) {
+        mode.A: mode.d = mode.B;
+        mode.B: mode.d = mode.OUT;
+        mode.OUT: mode.d = mode.A;
+        default: mode.d = mode.A;
+      }
+    }
+    
+  }
+}

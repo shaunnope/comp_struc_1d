@@ -1,21 +1,22 @@
 /**
 test circuit FSM for two 16b inputs
+   Inputs: clk, rst, irq signals
+   Outputs: alufn signal, mode and case indices, slowClock value
 */
 module alu_fsm (
-    input clk,  // clock
+    input clk,  // slowClock
     input rst,  // reset
     input irq,  // interuppt it no match
+    input mCon[3],
     output alufn_signal[5],
     output alu_mode[4],
     output index[5],
     output clkvalue[6] // debugging
   ) {
-    
-    const SLOWCLOCK_DIV = 28; // 26 for 1Hz, use 23 in final
   
   .clk(clk){    
     .rst(rst){
-      counter xClock(#SIZE(6), #DIV(SLOWCLOCK_DIV));
+      counter xClock(#SIZE(6), #DIV(0));
       
       fsm testAluFsm = {ADD, SUB, MUL, DIV, SHL, SHR, SRA, ROL, CMPEQ, CMPLT, CMPLE, AND, OR, XOR, A, B, HALT};
       
@@ -45,7 +46,8 @@ module alu_fsm (
       if (clockEdge.out == b1){ // only change input when LSB of slowCLock changes
        caseidx.d = caseidx.q + 1;
       }
-      if (changeMode.out == b1){// only change mode after 32 cases
+      //if (changeMode.out == b1){// only change mode after 32 cases
+      if (mCon[0] == b1){
        modeidx.d = modeidx.q + 1;
        case(modeidx.q) {
         b0000: testAluFsm.d = testAluFsm.ADD;

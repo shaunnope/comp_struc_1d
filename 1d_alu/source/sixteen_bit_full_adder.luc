@@ -33,6 +33,6 @@ module sixteen_bit_full_adder (
     v = flags.v;
     z = flags.z;
     p = flags.p;
-    out = c{~s[16],s[15:0]};
+    out = c{(s[16] & ~alufn)|(~s[16] & alufn),s[15:0]};
   }
 }

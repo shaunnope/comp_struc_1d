@@ -9,7 +9,7 @@ module sixteen_bit_mult (
     input y[16],
     output out[17] // out + cout/v
   ) {
-  sig a[32];
+  sig a[32]; // 32 bit signal, MS 16 bit to determine carry
 
   always {
   a = 32b0;

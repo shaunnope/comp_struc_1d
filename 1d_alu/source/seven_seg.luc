@@ -15,6 +15,12 @@ module seven_seg (
       7: segs = 8b00000111;
       8: segs = 8b01111111;
       9: segs = 8b01100111;
+      10: segs = 8b01110111;
+      11: segs = 8b01111100;
+      12: segs = 8b00111001;
+      13: segs = 8b01011110;
+      14: segs = 8b01111001;
+      15: segs = 8b01110001;
       default: segs = 8b00000000;
     }
   }

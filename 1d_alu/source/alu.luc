@@ -83,7 +83,7 @@ module alu (
     flags.x = x;
     flags.y = y;
     flags.alufn = alufn;
-    flags.aluout = w[15:0];
+    flags.aluout = w;
     
     zvnpc[4] = flags.z;
     zvnpc[3] = flags.v;

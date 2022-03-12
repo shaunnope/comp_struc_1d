@@ -1,45 +1,79 @@
+/*
+Interface for ROM and FSM
+   Inputs: clk and rst signals
+   Outputs: alu outputs (out + flags), case index
+*/
 module alu_tester (
     input clk,  // clock
     input rst,  // reset
+    input mCon[3],
     output out[16],
     output flags[5],
-    output caseidx[9] // alumode + case idx
+    output caseidx[10] // alumode + case idx
   ) {
   
-  .clk(clk) {
+  const SLOWCLOCK_DIV = 26; // 26 for 1Hz, use 23 in final
+  
+  .clk(clk){    
     .rst(rst){
-      alu_fsm alufsm;
+      counter slowClock(#SIZE(2), #DIV(SLOWCLOCK_DIV));
+      
+      // holding values
+      dff aluout[16];    // alufn signal
+      dff aluflags[5];
+      
     }
+    edge_detector risingEdge[2](#RISE(1), #FALL(0));  // write
+    edge_detector fallingEdge[2](#RISE(0), #FALL(1)); // read
   }
+  
+  alu_fsm alufsm (.clk(risingEdge.out[0]), .rst(rst));
+  
   tester_ROM alurom;
   alu alu;
-  
-  sig aluout[16];
-  sig aluflags[5];
 
   always {
-    //alurom.alu_mode = alufsm.alu_mode;
-    alurom.alu_mode = 1;
+    fallingEdge.in = slowClock.value;
+    risingEdge.in = slowClock.value;
+    
+    alufsm.mCon = mCon;
+    
+    // ---------- RISING EDGE ----------
+    // init ROM
+    alurom.alu_mode = alufsm.alu_mode;
     alurom.index = alufsm.index;
-    caseidx = c{alufsm.alu_mode, alufsm.index}; // signal for 7seg
+    caseidx = c{alufsm.alu_mode, alufsm.index, slowClock.value[0]}; // signal for 7seg + display parity
     
     alu.x = alurom.x;
     alu.y = alurom.y;
     alu.alufn = alufsm.alufn_signal;
     
-    aluout = alu.out;
-    aluflags = alu.zvnpc;
+    // verify output matches expected
+    alufsm.irq = 0;
+    //alufsm.irq = (aluout.q != alurom.aluout) || (aluflags.q != alurom.flags);
+    
+    // ---------- FALLING EDGE ----------
+    
+    // update stored outputs on falling edge
+    if (fallingEdge.out[0] & 1) {
+      aluout.d = alu.out;
+      aluflags.d = alu.zvnpc; 
+    }
+    
     
     // if err sim state
     // aluout = ~alu.out
     
-    // verify output matches expected
-    // alufsm.irq = (alu.out != alurom.aluout) || (alu.zvnpc != alurom.flags);
-    alufsm.irq = 0;
+    if (slowClock.value[0] & 1) {
+    out = aluout.q;
+    flags = aluflags.q;
+    } else {
+    out = alurom.aluout;
+    flags = alurom.flags;
+    }
     
     
-    out = aluout;
-    flags = aluflags;
+    
 
   }
 }
