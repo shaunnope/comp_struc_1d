@@ -1,4 +1,4 @@
-/**
+/** signed comparisions
 0 1011: CMPEQ
 0 1101: CMPLT
 0 1111: CMPLE

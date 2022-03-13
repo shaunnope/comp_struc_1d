@@ -51,7 +51,7 @@ module auto_tester (
     
     // verify output matches expected
     alufsm.irq = 0;
-    //alufsm.irq = (aluout.q != alurom.aluout) || (aluflags.q != alurom.flags);
+    alufsm.irq = (aluout.q != alurom.aluout) || (aluflags.q != alurom.flags);
     
     // ---------- FALLING EDGE ----------
     
