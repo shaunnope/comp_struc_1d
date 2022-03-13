@@ -27,7 +27,7 @@ module au_top (
     .rst(rst){
       alu_tester tester;
       var_seven_seg display;
-      dff segdis[14];
+      dff segdis[4][4];
     }
   }
   
@@ -54,6 +54,7 @@ module au_top (
     
     tester.io_dip = io_dip;
     tester.mCon = manualControl.out;
+    tester.mIn = button_io;
     out = tester.out;
     zvnpc = tester.flags;
 
@@ -66,13 +67,21 @@ module au_top (
     io_led[0][7] = tester.caseidx[15]; // temp blinker
     led[7] = tester.caseidx[15];       // blinker
     
-    if (manualControl.out[0] == 1) segdis.d = segdis.q + 1;
-    if (manualControl.out[1] == 1) segdis.d = segdis.q + 1111;
-    if (manualControl.out[2] == 1) segdis.d = 0;
+    if (manualControl.out[0] == 1) segdis.d[0] = segdis.q[0] + 1;
+    if (manualControl.out[1] == 1) {
+      segdis.d[3] = segdis.q[3] + 1;
+      segdis.d[2] = segdis.q[2] + 1;
+      segdis.d[1] = segdis.q[1] + 1;
+      segdis.d[0] = segdis.q[0] + 1;
+    }
+    if (manualControl.out[2] == 1) segdis.d = 4x{{4b0}};
     
     
-    display.value = segdis.q;
-    io_seg = ~display.seg;
+    display.value[3] = tester.caseidx[15:12];
+    display.value[2] = tester.caseidx[11:8];
+    display.value[1] = tester.caseidx[7:4];
+    display.value[0] = tester.caseidx[3:0];
+    io_seg = display.seg;
     io_sel = display.sel;
     // ------------- END TEST --------------
     

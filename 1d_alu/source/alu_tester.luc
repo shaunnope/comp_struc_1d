@@ -8,6 +8,7 @@ module alu_tester (
     input rst,  // reset
     input io_dip[3][8],
     input mCon[5], // 0- toggleAuto
+    input mIn[5],
     output out[16],
     output flags[5],
     output caseidx[16] // alumode + case idx
@@ -26,12 +27,12 @@ module alu_tester (
   
 
   always {
-    togrst = rst|mCon[0];
+    togrst = rst|mIn[0];
     caseidx = 0;
     
     // init auto tester
     auto.mCon = c{mCon[4:1],b0};
-    
+    auto.mIn = c{mIn[4:1],b0};
     // init manual tester
     manual.ab = c{io_dip[2],io_dip[1]};
     manual.alufn = io_dip[0][4:0];
@@ -41,6 +42,7 @@ module alu_tester (
       mode.MANUAL:
         out = manual.out;
         flags = manual.flags;
+        caseidx = manual.display;
       mode.AUTO:
         out = auto.out;
         flags = auto.flags;

@@ -18,13 +18,14 @@ module sixteen_bit_full_adder (
   op_flags flags; // to compute flags
   
   always {
-    s = 17b0; 
-
+    s = 17b0;
+  
     case(alufn){
       0: s = x+y;
-      1: s = c{b1,x}-c{b0,y};
+      1: s = $unsigned(x)-$unsigned(y);
       default: s = 17b0;
-  }
+    }
+    
     flags.x = x;
     flags.y = y;
     flags.aluout = s[15:0];
@@ -33,6 +34,7 @@ module sixteen_bit_full_adder (
     v = flags.v;
     z = flags.z;
     p = flags.p;
-    out = c{(s[16] & ~alufn)|(~s[16] & alufn),s[15:0]};
+    //out = c{(s[16] & ~alufn)|(~s[16] & alufn),s[15:0]};
+    out = s;
   }
 }

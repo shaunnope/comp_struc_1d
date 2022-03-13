@@ -7,16 +7,17 @@ module alu_fsm (
     input clk,  // slowClock
     input rst,  // reset
     input irq,  // interuppt it no match
-    input mCon[4],
+    input slwclk,
+    input mCon[5],
+    input mIn[5],
     output alufn_signal[5],
     output alu_mode[4],
-    output index[5],
-    output clkvalue[6] // debugging
+    output index[5]
   ) {
   
-  .clk(clk){    
+  .clk(slwclk){    
     .rst(rst){
-      counter xClock(#SIZE(6), #DIV(0));
+      counter xClock(#SIZE(1), #DIV(0));
       
       fsm testAluFsm = {ADD, SUB, MUL, DIV, SHL, SHR, SRA, ROL, CMPEQ, CMPLT, CMPLE, AND, OR, XOR, A, B, HALT};
       
@@ -26,28 +27,35 @@ module alu_fsm (
       dff caseidx[5];  // case index
     }
     edge_detector clockEdge(#RISE(1), #FALL(1));
-    edge_detector changeMode(#RISE(1), #FALL(1));
+    edge_detector changeMode(#RISE(0), #FALL(1));
+    
+  }
+  
+  .clk(clk) {
+    
   }
 
   always {
-    clockEdge.in = xClock.value[0];
-    changeMode.in = xClock.value[5];
-    clkvalue = xClock.value;
+    clockEdge.in = xClock.value;
+    changeMode.in = caseidx.q[4];
     
-    if (rst & 1){
+    if ((rst | mIn[2]) & 1){ // reset cases
         modeidx.d = 4b0000;
         caseidx.d = 5b00000;
         alufn.d = 5b00000;
         testAluFsm.d = testAluFsm.ADD;
+    } else if (mIn[1] & 1) { // reset to start of current mode
+        caseidx.d = 5b00000;
+        alufn.d = 5b00000;
     } else if (irq & 1) {
       testAluFsm.d = testAluFsm.HALT;
     }
     else if (testAluFsm.q != testAluFsm.HALT) { // only change states if not HALT
-      if (clockEdge.out == b1){ // only change input when LSB of slowCLock changes
+      //if (clockEdge.out == b1){ // only change input when LSB of slowCLock changes
+      if (mIn[4] == b1){
        caseidx.d = caseidx.q + 1;
-      }
-      //if (changeMode.out == b1){// only change mode after 32 cases
-      if (mCon[0] == b1){
+      } 
+      if (changeMode.out == b1 || mIn[3] == b1){ // only change mode after 32 cases
        modeidx.d = modeidx.q + 1;
        case(modeidx.q) {
         b0000: testAluFsm.d = testAluFsm.ADD;
@@ -110,7 +118,6 @@ module alu_fsm (
       default:
               alufn.d = b000000;
               testAluFsm.d = testAluFsm.ADD;
-
   }
     
     alufn_signal = alufn.q;

@@ -1,7 +1,7 @@
 module var_seven_seg (
-    input clk,                // clock
-    input rst,                // reset
-    input value[14],     // 4 digit base-10 value to show
+    input clk,           // clock
+    input rst,           // reset
+    input value[4][7],   // 4 digit base-16 value to show
     output seg [8],      // LED segments
     output sel [4]       // Digit select
   ) {
@@ -11,21 +11,14 @@ module var_seven_seg (
   .clk(clk), .rst(rst) {
     counter ctr (#DIV(16), #SIZE(2), #TOP(3)); 
   }
-  
-  sig digits[4][4];
 
   always {
     seg = 8h0;
     
-    digits[3] = value/1000;
-    digits[2] = (value - 1000*digits[3])/100;
-    digits[1] = (value - 1000*digits[3] - 100*digits[2])/10;
-    digits[0] = value - 1000*digits[3] - 100*digits[2] - 10*digits[1];
-    
-    seg_dec.char = digits[ctr.value];     // select the value for the active digit
-    seg = seg_dec.segs;                   // output the decoded value
+    seg_dec.char = value[ctr.value];     // select the value for the active digit
+    seg = ~seg_dec.segs;                   // output the decoded value
     
     digit_dec.in = ctr.value;             // decode active digit to one-hot
-    sel = digit_dec.out;                  // output the active digit
+    sel = ~digit_dec.out;                  // output the active digit
   }
 }
