@@ -18,6 +18,9 @@ module auto_tester (
       dff aluout[16];
       dff aluflags[5];
       
+      dff aluout_rom[16];
+      dff aluflags_rom[5];
+      
       alu_fsm alufsm (.slwclk(slowClock.value[0]));
     }
     edge_detector risingEdge[2](#RISE(1), #FALL(0));
@@ -51,14 +54,17 @@ module auto_tester (
     
     // verify output matches expected
     alufsm.irq = 0;
-    alufsm.irq = (aluout.q != alurom.aluout) || (aluflags.q != alurom.flags);
+    alufsm.irq = (aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q);
     
     // ---------- FALLING EDGE ----------
     
     // update stored outputs on falling edge
     if (fallingEdge.out[0] & 1) {
       aluout.d = alu.out;
-      aluflags.d = alu.zvnpc; 
+      aluflags.d = alu.zvnpc;
+      
+      aluout_rom.d = alurom.aluout;
+      aluflags_rom.d = alurom.flags;
     }
     
     
@@ -69,8 +75,8 @@ module auto_tester (
       out = aluout.q;
       flags = aluflags.q;
     } else {
-      out = alurom.aluout;
-      flags = alurom.flags;
+      out = aluout_rom.q;
+      flags = aluflags_rom.q;
     }
     
   }
