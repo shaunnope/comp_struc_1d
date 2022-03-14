@@ -8,7 +8,6 @@ module alu_fsm (
     input rst,  // reset
     input irq,  // interuppt it no match
     input slwclk,
-    input mCon[5],
     input mIn[5],
     output alufn_signal[5],
     output alu_mode[4],
@@ -17,7 +16,7 @@ module alu_fsm (
   
   .clk(slwclk){    
     .rst(rst){
-      counter xClock(#SIZE(1), #DIV(0));
+      counter xClock(#SIZE(2), #DIV(0));
       
       fsm testAluFsm = {ADD, SUB, MUL, DIV, SHL, SHR, SRA, ROL, CMPEQ, CMPLT, CMPLE, AND, OR, XOR, A, B, HALT};
       
@@ -26,22 +25,18 @@ module alu_fsm (
       dff modeidx[4];  // mode index
       dff caseidx[5];  // case index
     }
-    edge_detector clockEdge(#RISE(1), #FALL(1));
+    edge_detector clockEdge[2](#RISE(1), #FALL(1));
     edge_detector changeMode(#RISE(0), #FALL(1));
     
   }
   
   .clk(clk) {
-    
+      
   }
 
   always {
     clockEdge.in = xClock.value;
     changeMode.in = caseidx.q[4];
-    
-    alufn_signal = alufn.q;
-    alu_mode = modeidx.q;
-    index = caseidx.q;
     
     if ((rst | mIn[2]) & 1){ // reset cases
         modeidx.d = 4b0000;
@@ -59,8 +54,9 @@ module alu_fsm (
       if (( clockEdge.out | mIn[4]) == b1){
        caseidx.d = caseidx.q + 1;
       } 
-      if (changeMode.out == b1 || mIn[3] == b1){ // only change mode after 32 cases
+      if (caseidx.q == b11111 || mIn[3] == b1){ // only change mode after 32 cases
        modeidx.d = modeidx.q + 1;
+       caseidx.d = 5b0;
        case(modeidx.q) {
         b0000: testAluFsm.d = testAluFsm.ADD;
         b0001: testAluFsm.d = testAluFsm.SUB;
@@ -123,6 +119,10 @@ module alu_fsm (
               alufn.d = b000000;
               testAluFsm.d = testAluFsm.ADD;
   }
+    
+    alufn_signal = alufn.q;
+    alu_mode = modeidx.q;
+    index = caseidx.q;
     
 }
 

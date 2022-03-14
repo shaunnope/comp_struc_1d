@@ -31,7 +31,6 @@ module alu_tester (
     caseidx = 0;
     
     // init auto tester
-    auto.mCon = c{mCon[4:1],b0};
     auto.mIn = c{mIn[4:1],b0};
     // init manual tester
     manual.ab = c{io_dip[2],io_dip[1]};

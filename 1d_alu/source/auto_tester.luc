@@ -1,14 +1,13 @@
 module auto_tester (
     input clk,  // clock
     input rst,  // reset
-    input mCon[5],
     input mIn[5],
     output out[16],
     output flags[5],
     output caseidx[16] // unused(4) + alumode(4) + unused(3) + case idx(5)
   ) {
   
-  const SLOWCLOCK_DIV = 25; // 26 for 1Hz, use 23 in final
+  const SLOWCLOCK_DIV = 24; // 26 for 1Hz, use 23 in final
   
   .clk(clk){    
     .rst(rst){
@@ -39,10 +38,8 @@ module auto_tester (
     fallingEdge.in = slowClock.value;
     risingEdge.in = slowClock.value;
     
-    alufsm.mCon = mCon;
     alufsm.mIn = mIn;
     
-    // ---------- RISING EDGE ----------
     // init ROM
     alurom.alu_mode = alufsm.alu_mode;
     alurom.index = alufsm.index;
@@ -54,9 +51,7 @@ module auto_tester (
     
     // verify output matches expected
     alufsm.irq = 0;
-    alufsm.irq = (aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q);
-    
-    // ---------- FALLING EDGE ----------
+    alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) ) && (~|alufsm.index == b1);
     
     // update stored outputs on falling edge
     if (fallingEdge.out[0] & 1) {
