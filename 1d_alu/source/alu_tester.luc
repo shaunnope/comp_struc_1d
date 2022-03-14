@@ -32,6 +32,7 @@ module alu_tester (
     
     // init auto tester
     auto.mIn = c{mIn[4:1],b0};
+    auto.alufn_in = io_dip[0][4:0];
     // init manual tester
     manual.ab = c{io_dip[2],io_dip[1]};
     manual.alufn = io_dip[0][4:0];
