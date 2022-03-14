@@ -45,8 +45,8 @@ module auto_tester (
     alurom.index = alufsm.index;
     caseidx = c{slowClock.value[0], 3b0, alufsm.alu_mode, 3b0, alufsm.index}; // signal for 7seg + display parity
     
-    alu.x = alurom.x;
-    alu.y = alurom.y;
+    alu.x = alurom.y;
+    alu.y = alurom.x;
     alu.alufn = alufsm.alufn_signal;
     
     // verify output matches expected
@@ -79,7 +79,6 @@ module auto_tester (
       3:
         out = aluout.q;
         flags = aluflags.q;
-        alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) ) && (~|alufsm.index == b1);
         
       default:
         out = aluout_rom.q;
@@ -87,11 +86,13 @@ module auto_tester (
     }
     
     if (slowClock.value[0] & 1) {
-      out = aluout.q;
+      //out = aluout.q;
       flags = aluflags.q;
+      out = alurom.x;
     } else {
-      out = aluout_rom.q;
+      //out = aluout_rom.q;
       flags = aluflags_rom.q;
+      out = alurom.y;
     }
     
   }
