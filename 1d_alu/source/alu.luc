@@ -1,25 +1,26 @@
 /**
 ALUFN signals
-0 0000: ADD
-0 0001: SUB
-0 0010: MUL
-0 0011: DIV
-0 0100: SHL
-0 0101: SHR
-0 0110: ROL
-0 0111: SRA
-0 1011: CMPEQ
-0 1101: CMPLT
-0 1111: CMPLE
-1 1000: AND
-1 1110: OR
-1 0110: XOR
-1 1010: "A"
-1 1100: "B"
+0 0 0000: ADD
+0 0 0001: SUB
+0 0 0010: MUL
+0 0 0011: DIV
+0 1 1000: AND
+0 1 1110: OR
+0 1 0110: XOR
+0 1 1010: "A"
+0 1 1100: "B" // Added
+1 0 0000: SHL
+1 0 0001: SHR
+1 0 0011: SRA
+1 0 0100: ROL // Added
+1 1 0011: CMPEQ
+1 1 0101: CMPLT
+1 1 0111: CMPLE
 1 ZYXW: Bool with truth table 00 - W, 01 - X, 10 - Y, 11 - Z
 */
+
 module alu (
-    input alufn[5],  //
+    input alufn[6],  //
     input x[16],     //
     input y[16],     //
     output zvnpc[5], // flags: c only determined by ADD SUB MULT. ordered in little endian
@@ -64,21 +65,20 @@ module alu (
     w = 17b0;
     
     // select output
-    if(alufn[4] & 1) {
-      w[15:0] = boole.out;
-    } else {
-      case(alufn[3:1]) {
-        b000: w = adder.out;    // ADD SUB
-        b001: w = mult.out;     // MUL DIV
-        b010: w = shifter.out;  // SHL SHR
-        b011: w = shifter.out;  // ROT SRA
-        b101: w = compare.out;  // CMPEQ
-        b110: w = compare.out;  // CMPLT
-        b111: w = compare.out;  // CMPLE
-        default: w = adder.out;
+    if(alufn[5] & 1) {
+      if (alufn[4] & 1) {
+        w[15:0] = compare.out; // CMPEQ, CMPLT, CMPLE
+      } else {
+        w[15:0] = shifter.out; // SHL, SHR, SRA, ROL
       }
+    } else if (alufn[4] & 1) {
+      w[15:0] = boole.out; // AND, OR, XOR, "A", "B"
+    } else if (alufn[1] & 1) {
+      w[16:0] = mult.out;
+    } else {
+      w[16:0] = adder.out;
     }
-    
+      
     //init flags
     flags.x = x;
     flags.y = y;

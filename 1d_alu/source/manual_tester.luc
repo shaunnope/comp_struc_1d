@@ -3,7 +3,7 @@ module manual_tester (
     input rst,  // reset
     input nxtIn,    // conditioned button input (rising edge)
     input ab[16],   // dip switch signal for A/B
-    input alufn[5], // dip switch input for ALUFN
+    input alufn[6], // dip switch input for ALUFN
     output out[16],
     output flags[5],
     output display[16]  // 7 seg output

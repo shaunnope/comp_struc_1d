@@ -9,7 +9,7 @@ module alu_fsm (
     input irq,  // interuppt it no match
     input slwclk,
     input mIn[5],
-    output alufn_signal[5],
+    output alufn_signal[6],
     output alu_mode[4],
     output index[5]
   ) {
@@ -21,7 +21,7 @@ module alu_fsm (
       fsm testAluFsm = {ADD, SUB, MUL, DIV, SHL, SHR, SRA, ROL, CMPEQ, CMPLT, CMPLE, AND, OR, XOR, A, B, HALT};
       
       // holding values
-      dff alufn[5];    // alufn signal
+      dff alufn[6];    // alufn signal
       dff modeidx[4];  // mode index
       dff caseidx[5];  // case index
     }
@@ -41,11 +41,11 @@ module alu_fsm (
     if ((rst | mIn[2]) & 1){ // reset cases
         modeidx.d = 4b0000;
         caseidx.d = 5b00000;
-        alufn.d = 5b00000;
+        alufn.d = 6b000000;
         testAluFsm.d = testAluFsm.ADD;
     } else if (mIn[1] & 1) { // reset to start of current mode
         caseidx.d = 5b00000;
-        alufn.d = 5b00000;
+        alufn.d = 6b000000;
     } else if (irq & 1) {
       testAluFsm.d = testAluFsm.HALT;
     }
@@ -82,37 +82,37 @@ module alu_fsm (
     // output alufn signal
     case(testAluFsm.q){
       testAluFsm.ADD : 
-              alufn.d = b00000;
+              alufn.d = b000000;
       testAluFsm.SUB : 
-              alufn.d = b00001;     
+              alufn.d = b000001;     
       testAluFsm.MUL : 
-              alufn.d = b00010; 
+              alufn.d = b000010; 
       testAluFsm.DIV : 
-              alufn.d = b00011; 
-      testAluFsm.SHL : 
-              alufn.d = b00100;      
-      testAluFsm.SHR : 
-              alufn.d = b00101; 
-      testAluFsm.ROL : 
-              alufn.d = b00110;      
-      testAluFsm.SRA : 
-              alufn.d = b00111;
-      testAluFsm.CMPEQ : 
-              alufn.d = b01011;
-      testAluFsm.CMPLT : 
-              alufn.d = b01101;     
-      testAluFsm.CMPLE : 
-              alufn.d = b01111;
-      testAluFsm.XOR : 
-              alufn.d = b10110;
-      testAluFsm.OR : 
-              alufn.d = b11110;  
-      testAluFsm.A : 
-              alufn.d = b11010;     
+              alufn.d = b000011; 
       testAluFsm.AND : 
-              alufn.d = b11000;
+              alufn.d = b011000;
+      testAluFsm.OR : 
+              alufn.d = b011110; 
+      testAluFsm.XOR : 
+              alufn.d = b010110;   
+      testAluFsm.A : 
+              alufn.d = b011010;     
       testAluFsm.B : 
-              alufn.d = b11100;
+              alufn.d = b011100;               
+      testAluFsm.SHL : 
+              alufn.d = b100000;      
+      testAluFsm.SHR : 
+              alufn.d = b100001; 
+      testAluFsm.SRA : 
+              alufn.d = b100011;        
+      testAluFsm.ROL : 
+              alufn.d = b100100;      
+      testAluFsm.CMPEQ : 
+              alufn.d = b110011;
+      testAluFsm.CMPLT : 
+              alufn.d = b110101;     
+      testAluFsm.CMPLE : 
+              alufn.d = b110111; 
       testAluFsm.HALT:
               alufn.d = alufn.q;        
       default:
