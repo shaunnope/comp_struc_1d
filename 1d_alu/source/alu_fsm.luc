@@ -45,7 +45,26 @@ module alu_fsm (
         testAluFsm.d = testAluFsm.ADD;
     } else if (mIn[1] & 1) { // reset to start of current mode
         caseidx.d = 5b00000;
-        alufn.d = 5b00000;
+        case(modeidx.q) {
+          b0000: testAluFsm.d = testAluFsm.ADD;
+          b0001: testAluFsm.d = testAluFsm.SUB;
+          b0010: testAluFsm.d = testAluFsm.MUL;
+          b0011: testAluFsm.d = testAluFsm.DIV;
+          b0100: testAluFsm.d = testAluFsm.SHL;
+          b0101: testAluFsm.d = testAluFsm.SHR;
+          b0110: testAluFsm.d = testAluFsm.SRA;
+          b0111: testAluFsm.d = testAluFsm.ROL;
+          b1000: testAluFsm.d = testAluFsm.CMPEQ;
+          b1001: testAluFsm.d = testAluFsm.CMPLT;
+          b1010: testAluFsm.d = testAluFsm.CMPLE;
+          b1011: testAluFsm.d = testAluFsm.AND;
+          b1100: testAluFsm.d = testAluFsm.OR;
+          b1101: testAluFsm.d = testAluFsm.XOR;
+          b1110: testAluFsm.d = testAluFsm.A;
+          b1111: testAluFsm.d = testAluFsm.B;
+        default: testAluFsm.d = testAluFsm.ADD;
+        }
+      
     } else if (irq & 1) {
       testAluFsm.d = testAluFsm.HALT;
     }
@@ -57,22 +76,22 @@ module alu_fsm (
        modeidx.d = modeidx.q + 1;
        caseidx.d = 5b0;
        case(modeidx.q + 1) {
-        b0000: testAluFsm.d = testAluFsm.ADD;
-        b0001: testAluFsm.d = testAluFsm.SUB;
-        b0010: testAluFsm.d = testAluFsm.MUL;
-        b0011: testAluFsm.d = testAluFsm.DIV;
-        b0100: testAluFsm.d = testAluFsm.SHL;
-        b0101: testAluFsm.d = testAluFsm.SHR;
-        b0110: testAluFsm.d = testAluFsm.SRA;
-        b0111: testAluFsm.d = testAluFsm.ROL;
-        b1000: testAluFsm.d = testAluFsm.CMPEQ;
-        b1001: testAluFsm.d = testAluFsm.CMPLT;
-        b1010: testAluFsm.d = testAluFsm.CMPLE;
-        b1011: testAluFsm.d = testAluFsm.XOR;
-        b1100: testAluFsm.d = testAluFsm.OR;
-        b1101: testAluFsm.d = testAluFsm.A;
-        b1110: testAluFsm.d = testAluFsm.AND;
-        b1111: testAluFsm.d = testAluFsm.B;
+          b0000: testAluFsm.d = testAluFsm.ADD;
+          b0001: testAluFsm.d = testAluFsm.SUB;
+          b0010: testAluFsm.d = testAluFsm.MUL;
+          b0011: testAluFsm.d = testAluFsm.DIV;
+          b0100: testAluFsm.d = testAluFsm.SHL;
+          b0101: testAluFsm.d = testAluFsm.SHR;
+          b0110: testAluFsm.d = testAluFsm.SRA;
+          b0111: testAluFsm.d = testAluFsm.ROL;
+          b1000: testAluFsm.d = testAluFsm.CMPEQ;
+          b1001: testAluFsm.d = testAluFsm.CMPLT;
+          b1010: testAluFsm.d = testAluFsm.CMPLE;
+          b1011: testAluFsm.d = testAluFsm.AND;
+          b1100: testAluFsm.d = testAluFsm.OR;
+          b1101: testAluFsm.d = testAluFsm.XOR;
+          b1110: testAluFsm.d = testAluFsm.A;
+          b1111: testAluFsm.d = testAluFsm.B;
         default: testAluFsm.d = testAluFsm.ADD;
         }
       }

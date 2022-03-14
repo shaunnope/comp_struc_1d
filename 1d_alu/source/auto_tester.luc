@@ -29,6 +29,8 @@ module auto_tester (
   
   tester_ROM alurom;
   alu alu;
+  
+  sig altout[16];
 
   always {
     out = 0;
@@ -49,9 +51,14 @@ module auto_tester (
     alu.y = alurom.y;
     alu.alufn = alufsm.alufn_signal;
     
+    altout = aluout.q;
+    if (mIn[4] == b1) {
+      altout = ~aluout.q;
+    }
+    
     // verify output matches expected
     alufsm.irq = 0;
-    alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) ) && (~|alufsm.index == b1);
+    alufsm.irq = ((altout != aluout_rom.q) || (aluflags.q != aluflags_rom.q) ) && (~|alufsm.index == b1);
     
     // update stored outputs on falling edge
     if (fallingEdge.out[0] & 1) {
@@ -89,7 +96,7 @@ module auto_tester (
     if (slowClock.value[0] & 1) {
       out = aluout.q;
       flags = aluflags.q;
-      alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) );
+      alufsm.irq = ((altout != aluout_rom.q) || (aluflags.q != aluflags_rom.q) );
     } else {
       out = aluout_rom.q;
       flags = aluflags_rom.q;
