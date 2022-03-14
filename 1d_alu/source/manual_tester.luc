@@ -1,3 +1,12 @@
+/*
+Manual tester module:
+   IO inputs:
+   io_button[0] - toggle auto/manual tester
+   io_button[1] - set A input
+   
+   io_dip[2:1]  - B input
+   io_dip[0][4:0] - ALUFN signal
+*/
 module manual_tester (
     input clk,  // clock
     input rst,  // reset

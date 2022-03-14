@@ -1,14 +1,25 @@
+/*
+Auto tester module:
+   IO inputs:
+   io_button[0] - toggle auto/manual tester
+   io_button[1] - reset case index to 0
+   io_button[2] - skip over error case
+   io_button[3] - unassigned
+   io_button[4] - simulate error (one's complement)
+   
+   io_dip[0][4:0] - ALUFN signal
+*/
 module auto_tester (
     input clk,  // clock
     input rst,  // reset
-    input mIn[5],
+    input mIn[5],  // io_button signals
     input alufn_in[5],
     output out[16],
     output flags[5],
     output caseidx[16] // unused(4) + alumode(4) + unused(3) + case idx(5)
   ) {
   
-  const SLOWCLOCK_DIV = 24; // 26 for 1Hz, use 23 in final
+  const SLOWCLOCK_DIV = 23; // 26 for 1Hz, use 23 in final
   
   .clk(clk){    
     .rst(rst){

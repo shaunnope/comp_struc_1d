@@ -11,7 +11,6 @@
     <src>tester_ROM.luc</src>
     <src>var_seven_seg.luc</src>
     <src>alu_fsm.luc</src>
-    <src>multi_seven_seg.luc</src>
     <src>bit_bool.luc</src>
     <component>reset_conditioner.luc</component>
     <src>sixteen_bit_compare.luc</src>
