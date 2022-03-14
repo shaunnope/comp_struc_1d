@@ -50,14 +50,13 @@ module alu_fsm (
       testAluFsm.d = testAluFsm.HALT;
     }
     else if (testAluFsm.q != testAluFsm.HALT) { // only change states if not HALT
-      //if (clockEdge.out == b1){ // only change input when LSB of slowCLock changes
-      if (( clockEdge.out | mIn[4]) == b1){
+      if (clockEdge.out == b1){ // only change input when LSB of slowCLock changes
        caseidx.d = caseidx.q + 1;
       } 
       if (caseidx.q == b11111 || mIn[3] == b1){ // only change mode after 32 cases
        modeidx.d = modeidx.q + 1;
        caseidx.d = 5b0;
-       case(modeidx.q) {
+       case(modeidx.q + 1) {
         b0000: testAluFsm.d = testAluFsm.ADD;
         b0001: testAluFsm.d = testAluFsm.SUB;
         b0010: testAluFsm.d = testAluFsm.MUL;

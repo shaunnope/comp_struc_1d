@@ -66,32 +66,34 @@ module auto_tester (
     // if err sim state
     // aluout = ~alu.out
     
-    case (slowClock.value) {
-      0:
-        out = aluout_rom.q;
-        flags = aluflags_rom.q;
-      1:
-        out = aluout.q;
-        flags = aluflags.q;
-      2:
-        out = aluout_rom.q;
-        flags = aluflags_rom.q;
-      3:
-        out = aluout.q;
-        flags = aluflags.q;
-        alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) ) && (~|alufsm.index == b1);
+    // case (slowClock.value) {
+    //   0:
+    //     out = aluout_rom.q;
+    //     flags = aluflags_rom.q;
+    //   1:
+    //     out = aluout.q;
+    //     flags = aluflags.q;
+    //   2:
+    //     out = aluout_rom.q;
+    //     flags = aluflags_rom.q;
+    //   3:
+    //     out = aluout.q;
+    //     flags = aluflags.q;
+    //     alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) ) && (~|alufsm.index == b1) && (&alufsm.index == b0);
         
-      default:
-        out = aluout_rom.q;
-        flags = aluflags_rom.q;
-    }
+    //   default:
+    //     out = aluout_rom.q;
+    //     flags = aluflags_rom.q;
+    // }
     
     if (slowClock.value[0] & 1) {
       out = aluout.q;
       flags = aluflags.q;
+      alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) );
     } else {
       out = aluout_rom.q;
       flags = aluflags_rom.q;
+      alufsm.irq = 0;
     }
     
   }
