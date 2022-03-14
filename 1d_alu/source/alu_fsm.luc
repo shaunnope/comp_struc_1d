@@ -27,7 +27,7 @@ module alu_fsm (
   always {
     clockEdge.in = xClock.value;
     
-    if ((rst | mIn[1]) & 1){ // reset cases
+    if ((rst | mIn[0] | mIn[1]) & 1){ // reset cases
         caseidx.d = 5b00000;
         testAluFsm.d = testAluFsm.STEP;
       

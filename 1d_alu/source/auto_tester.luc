@@ -12,7 +12,7 @@ module auto_tester (
   
   .clk(clk){    
     .rst(rst){
-      counter slowClock(#SIZE(2), #DIV(SLOWCLOCK_DIV));
+      counter slowClock(#SIZE(1), #DIV(SLOWCLOCK_DIV));
       
       // holding values
       dff aluout[16];
@@ -20,14 +20,12 @@ module auto_tester (
       
       dff aluout_rom[16];
       dff aluflags_rom[5];
-      
-      
+
     }
-    edge_detector risingEdge[2](#RISE(1), #FALL(0));
-    edge_detector fallingEdge[2](#RISE(0), #FALL(1));
+    edge_detector fallingEdge(#RISE(0), #FALL(1));
   }
   
-  alu_fsm alufsm (.clk(slowClock.value[0]), .rst(rst));
+  alu_fsm alufsm (.clk(slowClock.value), .rst(rst));
   
   
   tester_ROM alurom;
@@ -41,7 +39,6 @@ module auto_tester (
     caseidx = 0;
     
     fallingEdge.in = slowClock.value;
-    risingEdge.in = slowClock.value;
     
     alufsm.mIn = mIn;
     alufsm.irq = 0;
@@ -69,14 +66,14 @@ module auto_tester (
     // init ROM
     alurom.alu_mode = alumode;
     alurom.index = alufsm.index;
-    caseidx = c{slowClock.value[0], 3b0, alumode, 3b0, alufsm.index}; // signal for 7seg + display parity
+    caseidx = c{slowClock.value, 3b0, alumode, 3b0, alufsm.index}; // signal for 7seg + display parity
     
     alu.x = alurom.x;
     alu.y = alurom.y;
     alu.alufn = alufn_in;
     
     // update stored outputs on falling edge
-    if (fallingEdge.out[0] & 1) {
+    if (fallingEdge.out & 1) {
       case (mIn[4]) {
         0: aluout.d = alu.out;
         1: aluout.d = ~alu.out;
@@ -88,7 +85,7 @@ module auto_tester (
     }
     
 
-    if (slowClock.value[0] & 1) {
+    if (slowClock.value & 1) {
       out = aluout.q;
       flags = aluflags.q;
       alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) );
