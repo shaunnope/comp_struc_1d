@@ -7,139 +7,42 @@ module alu_fsm (
     input clk,  // slowClock
     input rst,  // reset
     input irq,  // interuppt it no match
-    input slwclk,
     input mIn[5],
-    output alufn_signal[5],
-    output alu_mode[4],
     output index[5]
   ) {
   
-  .clk(slwclk){    
+  .clk(clk){    
     .rst(rst){
       counter xClock(#SIZE(2), #DIV(0));
       
-      fsm testAluFsm = {ADD, SUB, MUL, DIV, SHL, SHR, SRA, ROL, CMPEQ, CMPLT, CMPLE, AND, OR, XOR, A, B, HALT};
+      fsm testAluFsm = {STEP, HALT};
       
       // holding values
-      dff alufn[5];    // alufn signal
-      dff modeidx[4];  // mode index
       dff caseidx[5];  // case index
     }
-    edge_detector clockEdge[2](#RISE(1), #FALL(1));
-    edge_detector changeMode(#RISE(0), #FALL(1));
-    
+    edge_detector clockEdge[2](#RISE(1), #FALL(1));    
   }
   
-  .clk(clk) {
-      
-  }
 
   always {
     clockEdge.in = xClock.value;
-    changeMode.in = caseidx.q[4];
     
-    if ((rst | mIn[2]) & 1){ // reset cases
-        modeidx.d = 4b0000;
+    if ((rst | mIn[1]) & 1){ // reset cases
         caseidx.d = 5b00000;
-        alufn.d = 5b00000;
-        testAluFsm.d = testAluFsm.ADD;
-    } else if (mIn[1] & 1) { // reset to start of current mode
-        caseidx.d = 5b00000;
-        case(modeidx.q) {
-          b0000: testAluFsm.d = testAluFsm.ADD;
-          b0001: testAluFsm.d = testAluFsm.SUB;
-          b0010: testAluFsm.d = testAluFsm.MUL;
-          b0011: testAluFsm.d = testAluFsm.DIV;
-          b0100: testAluFsm.d = testAluFsm.SHL;
-          b0101: testAluFsm.d = testAluFsm.SHR;
-          b0110: testAluFsm.d = testAluFsm.SRA;
-          b0111: testAluFsm.d = testAluFsm.ROL;
-          b1000: testAluFsm.d = testAluFsm.CMPEQ;
-          b1001: testAluFsm.d = testAluFsm.CMPLT;
-          b1010: testAluFsm.d = testAluFsm.CMPLE;
-          b1011: testAluFsm.d = testAluFsm.AND;
-          b1100: testAluFsm.d = testAluFsm.OR;
-          b1101: testAluFsm.d = testAluFsm.XOR;
-          b1110: testAluFsm.d = testAluFsm.A;
-          b1111: testAluFsm.d = testAluFsm.B;
-        default: testAluFsm.d = testAluFsm.ADD;
-        }
+        testAluFsm.d = testAluFsm.STEP;
       
     } else if (irq & 1) {
       testAluFsm.d = testAluFsm.HALT;
+    } else if (testAluFsm.q == testAluFsm.HALT && (mIn[2] & 1)) {
+      caseidx.d = caseidx.q + 1;
+      testAluFsm.d = testAluFsm.STEP;
     }
-    else if (testAluFsm.q != testAluFsm.HALT) { // only change states if not HALT
+    else if (testAluFsm.q == testAluFsm.STEP) { // only change states if not HALT
       if (clockEdge.out == b1){ // only change input when LSB of slowCLock changes
        caseidx.d = caseidx.q + 1;
       } 
-      if (caseidx.q == b11111 || mIn[3] == b1){ // only change mode after 32 cases
-       modeidx.d = modeidx.q + 1;
-       caseidx.d = 5b0;
-       case(modeidx.q + 1) {
-          b0000: testAluFsm.d = testAluFsm.ADD;
-          b0001: testAluFsm.d = testAluFsm.SUB;
-          b0010: testAluFsm.d = testAluFsm.MUL;
-          b0011: testAluFsm.d = testAluFsm.DIV;
-          b0100: testAluFsm.d = testAluFsm.SHL;
-          b0101: testAluFsm.d = testAluFsm.SHR;
-          b0110: testAluFsm.d = testAluFsm.SRA;
-          b0111: testAluFsm.d = testAluFsm.ROL;
-          b1000: testAluFsm.d = testAluFsm.CMPEQ;
-          b1001: testAluFsm.d = testAluFsm.CMPLT;
-          b1010: testAluFsm.d = testAluFsm.CMPLE;
-          b1011: testAluFsm.d = testAluFsm.AND;
-          b1100: testAluFsm.d = testAluFsm.OR;
-          b1101: testAluFsm.d = testAluFsm.XOR;
-          b1110: testAluFsm.d = testAluFsm.A;
-          b1111: testAluFsm.d = testAluFsm.B;
-        default: testAluFsm.d = testAluFsm.ADD;
-        }
-      }
     }
     
-    // output alufn signal
-    case(testAluFsm.q){
-      testAluFsm.ADD : 
-              alufn.d = b00000;
-      testAluFsm.SUB : 
-              alufn.d = b00001;     
-      testAluFsm.MUL : 
-              alufn.d = b00010; 
-      testAluFsm.DIV : 
-              alufn.d = b00011; 
-      testAluFsm.SHL : 
-              alufn.d = b00100;      
-      testAluFsm.SHR : 
-              alufn.d = b00101; 
-      testAluFsm.ROL : 
-              alufn.d = b00110;      
-      testAluFsm.SRA : 
-              alufn.d = b00111;
-      testAluFsm.CMPEQ : 
-              alufn.d = b01011;
-      testAluFsm.CMPLT : 
-              alufn.d = b01101;     
-      testAluFsm.CMPLE : 
-              alufn.d = b01111;
-      testAluFsm.XOR : 
-              alufn.d = b10110;
-      testAluFsm.OR : 
-              alufn.d = b11110;  
-      testAluFsm.A : 
-              alufn.d = b11010;     
-      testAluFsm.AND : 
-              alufn.d = b11000;
-      testAluFsm.B : 
-              alufn.d = b11100;
-      testAluFsm.HALT:
-              alufn.d = alufn.q;        
-      default:
-              alufn.d = b000000;
-              testAluFsm.d = testAluFsm.ADD;
-  }
-    
-    alufn_signal = alufn.q;
-    alu_mode = modeidx.q;
     index = caseidx.q;
     
 }
