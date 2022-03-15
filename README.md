@@ -7,8 +7,8 @@ Written in Lucid Hardware Description Language, compiled in Alchitry Labs IDE an
 ## Description of each file
 au_top.luc contains the top level functions that deal with physical IO.  
 alu.luc ties together the 16 bit adder, multiplier, compare, boolean and shifter modules.  
-alu_tester serves as an interface between the auto and manual testers.
-manual_tester implements manual testing capabilities for the ALU.
-auto_tester connects the tester FSM to the ROM to retrieve test cases and inputs to feed into the ALU.
-alu_fsm defines the FSM that advances to the next test case.
+alu_tester serves as an interface between the auto and manual testers.  
+manual_tester implements manual testing capabilities for the ALU. 
+auto_tester connects the tester FSM to the ROM to retrieve test cases and inputs to feed into the ALU.  
+alu_fsm defines the FSM that advances to the next test case.  
 tester_ROM.luc contains the correct answers for each function. 
