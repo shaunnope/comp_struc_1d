@@ -1,6 +1,7 @@
 module bop_controlunit (
     input clk,  // clock
     input rst,  // reset
+    input slwclk,
     output out
   ) {
 

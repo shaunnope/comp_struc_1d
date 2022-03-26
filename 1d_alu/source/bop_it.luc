@@ -1,10 +1,43 @@
+/*
+  Interface for game modules
+   TODO: add IO ports
+   
+   Note: condition external inputs before passing into this module
+*/
 module bop_it (
     input clk,  // clock
     input rst,  // reset
+    input u_input[4],
     output out
   ) {
+  .clk(clk) {
+    .rst(rst) {
+    bop_slwclk_rng slwclk;
+    bop_regfile regfile;
+    bop_controlunit ctrlunit(.slwclk(slwclk.st));
+    }
+    
+  }
+  
+  bop_alu_wdsel alu;
 
   always {
+    
+    slwclk.level = 0;
+    regfile.werf = 0;
+    regfile.reg_abc = 0;
+    regfile.w_data = 0;
+    
+    alu.u_input = 0;
+    alu.wdsel = 0;
+    alu.alufn = 0;
+    alu.asel = 0;
+    alu.bsel = 0;
+    alu.ra_data = regfile.ra_data;
+    alu.rb_data = regfile.rb_data;
+    alu.action = slwclk.action;
+    alu.u_input = u_input;
+    
     out = 0;
   }
 }
