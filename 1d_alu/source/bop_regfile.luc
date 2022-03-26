@@ -1,10 +1,24 @@
 module bop_regfile (
     input clk,  // clock
     input rst,  // reset
+    input w_data[16],
+    input werf,
+    input reg_abc[6], // 5:4 - a, 3:2 - b, 1:0 - c
+    output ra_data[16],
+    output rb_data[16],
+    output rc_data[16],
     output out
   ) {
+  .clk(clk) {
+    .rst(rst) {
+      dff regfile[16][16];
+    }
 
+  }
   always {
     out = 0;
+    ra_data = regfile.q[reg_abc[5:4]];
+    rb_data = regfile.q[reg_abc[3:2]];
+    rc_data = regfile.q[reg_abc[1:0]];
   }
 }
