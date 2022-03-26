@@ -7,13 +7,14 @@
     <src>alu_eight_bit_in.luc</src>
     <src>alu.luc</src>
     <src>manual_tester.luc</src>
+    <src>bop_slwclk_rng.luc</src>
     <component>counter.luc</component>
     <src>tester_ROM.luc</src>
     <src>var_seven_seg.luc</src>
+    <src>bop_it.luc</src>
     <src>alu_fsm.luc</src>
     <src>bit_bool.luc</src>
     <src>bop_regfile.luc</src>
-    <src>bop_slowclock.luc</src>
     <component>reset_conditioner.luc</component>
     <src>sixteen_bit_compare.luc</src>
     <component>button_conditioner.luc</component>

@@ -1,4 +1,4 @@
-module bop_slowclock (
+module bop_it (
     input clk,  // clock
     input rst,  // reset
     output out

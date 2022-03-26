@@ -1,0 +1,37 @@
+module bop_slwclk_rng (
+    input clk,  // clock
+    input rst,  // reset
+    input level[2],
+    output st,
+    output action[4]
+  ) {
+  
+  sig slwclk;
+  
+  const SLOWCLOCK_DIV = 28; // 26 for 1Hz
+  
+  .clk(clk){
+      edge_detector gen_next(#RISE(0), #FALL(1));
+    
+      .rst(rst){    
+        counter slowClock(#SIZE(3), #DIV(SLOWCLOCK_DIV));
+        pn_gen rng(.next(gen_next.out), .seed(32h129));
+      }
+   }
+  
+  always {
+    
+    case(level) {
+      b00: slwclk = b0;
+      b01: slwclk = slowClock.value[2];
+      b10: slwclk = slowClock.value[1];
+      b11: slwclk = slowClock.value[0];
+      default: slwclk = b0;
+    }
+    
+    gen_next.in = slwclk;
+    
+    st = slwclk;
+    action = rng.num[1:0];
+  }
+}
