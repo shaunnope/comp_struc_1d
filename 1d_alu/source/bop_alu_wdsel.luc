@@ -4,10 +4,12 @@ module bop_alu_wdsel (
     input asel[2],
     input bsel[2],
     input alufn[5],
+    
     input action[4],
     input u_input[4],
     input wdsel[2],
-    output out[16]
+    output out[16],
+    output aluflags[5]
   ) {
   
   sig alu_a[16];
@@ -36,7 +38,9 @@ module bop_alu_wdsel (
     alu.x = alu_a;
     alu.y = alu_b;
     alu.alufn = alufn;
+    
     alu_out = alu.out;
+    aluflags = alu.zvnpc;
     
     case(wdsel) {
       b00: out = alu_out;
