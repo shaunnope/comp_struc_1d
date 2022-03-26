@@ -12,18 +12,25 @@
     <src>var_seven_seg.luc</src>
     <src>alu_fsm.luc</src>
     <src>bit_bool.luc</src>
+    <src>bop_regfile.luc</src>
+    <src>bop_slowclock.luc</src>
     <component>reset_conditioner.luc</component>
     <src>sixteen_bit_compare.luc</src>
     <component>button_conditioner.luc</component>
+    <src>bop_fsm.luc</src>
+    <component>wave.luc</component>
     <src>sixteen_bit_bool.luc</src>
+    <component>pwm.luc</component>
     <src>sixteen_bit_shifter.luc</src>
     <src top="true">au_top.luc</src>
     <component>decoder.luc</component>
+    <src>bop_alu_wdsel.luc</src>
     <src>alu_tester.luc</src>
     <src>auto_tester.luc</src>
     <component>pn_gen.luc</component>
     <src>seven_seg.luc</src>
     <src>op_flags.luc</src>
+    <src>bop_controlunit.luc</src>
     <component>edge_detector.luc</component>
     <constraint lib="true">alchitry.acf</constraint>
     <constraint lib="true">io.acf</constraint>

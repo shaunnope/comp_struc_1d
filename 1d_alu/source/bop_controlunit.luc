@@ -1,0 +1,10 @@
+module bop_controlunit (
+    input clk,  // clock
+    input rst,  // reset
+    output out
+  ) {
+
+  always {
+    out = 0;
+  }
+}
