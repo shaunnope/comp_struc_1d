@@ -1,11 +1,46 @@
 module bop_controlunit (
     input clk,  // clock
     input rst,  // reset
-    input slwclk,
+    
+    input button[3], // 3 buttons
+    input start, // start button
+    input level[2], // 2 bit to represent 3 levels, 01 = level 1
+    input slwclk, // Used for stages
+    
+    output alufn[5],
+    output asel[2], 
+    output bsel[2],
+    output we,
+    output wdsel[2],
+    output rc[3],
+    output ra[3],
+    output rb[3],
+    output bzsel, // Used for sound buzzer
+    
     output out
   ) {
-
+  
+  .clk(clk){
+    .rst(rst){
+    }
+  }
+  
+  // Connect ALU and bsel all in a top circuit
+  
   always {
     out = 0;
+    alufn[3:0] = 0;
+    asel[1:0] = 0;
+    bsel[1:0] = 0;
+    we = 0;
+    wdsel[1:0] = 0;
+    rc[2:0] = 0;
+    ra[2:0] = 0;
+    rb[2:0] = 0;
+    bzsel = 0;
+    
+    
+    
+    
   }
 }
