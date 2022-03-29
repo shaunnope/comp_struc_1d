@@ -24,6 +24,7 @@ module bop_controlunit (
   
   .clk(clk){
     fsm game_fsm = {
+      // Varshini
       START,
       START_LEVEL,
       IDLE,
@@ -37,6 +38,8 @@ module bop_controlunit (
       INCREASE_T0,
       CHECK_ACTION,
       RESET_T0,
+
+      // Zhao
       CHECK_LEVEL_1,
       BRANCH_LEVEL_1,
       LEVEL1_CHECK,
@@ -52,6 +55,8 @@ module bop_controlunit (
       LEVEL3_WRONG,
       RESET_INPUT,
       CHECK_ROUND_END,
+
+      // CS
       BRANCH_GAME_TIMER,
       INCREASE_T4,
       CHECK_LEVEL_INCREASE,
@@ -97,78 +102,115 @@ module bop_controlunit (
       case(game_fsm.q) {
         game_fsm.START:
           out = 0;
+
         game_fsm.START_LEVEL:
           out = 0;
+
         game_fsm.IDLE:
           out = 0;
+
         game_fsm.STORE_INPUT:
           out = 0;
+
         game_fsm.CHECK_SOUND:
           out = 0;
+
         game_fsm.BRANCH_ACTION:
           out = 0;
+
         game_fsm.STORE_GEN_ACTION:
           out = 0;
+
         game_fsm.PLAY_SOUND:
           out = 0;
+
         game_fsm.CHECK_INPUT:
           out = 0;
+
         game_fsm.BRANCH_CHECK_INPUT:
           out = 0;
+
         game_fsm.INCREASE_T0:
           out = 0;
+
         game_fsm.CHECK_ACTION:
           out = 0;
+
         game_fsm.RESET_T0:
           out = 0;
+
         game_fsm.CHECK_LEVEL_1:
           out = 0;
+
         game_fsm.BRANCH_LEVEL_1:
           out = 0;
+
         game_fsm.LEVEL1_CHECK:
           out = 0;
+
         game_fsm.LEVEL1_CORRECT:
           out = 0;
+
         game_fsm.LEVEL1_WRONG:
           out = 0;
+
         game_fsm.CHECK_LEVEL_2:
           out = 0;
+
         game_fsm.BRANCH_LEVEL_2:
           out = 0;
+
         game_fsm.LEVEL2_CHECK:
           out = 0;
+
         game_fsm.LEVEL2_CORRECT:
           out = 0;
+
         game_fsm.LEVEL2_WRONG:
           out = 0;
+
         game_fsm.LEVEL3_CHECK:
           out = 0;
+
         game_fsm.LEVEL3_CORRECT:
           out = 0;
+
         game_fsm.LEVEL3_WRONG:
           out = 0;
+
         game_fsm.RESET_INPUT:
           out = 0;
+
         game_fsm.CHECK_ROUND_END:
           out = 0;
+
         game_fsm.BRANCH_GAME_TIMER:
           out = 0;
+
         game_fsm.INCREASE_T4:
           out = 0;
+
         game_fsm.CHECK_LEVEL_INCREASE:
           out = 0;
+          
         game_fsm.BRANCH_LEVEL_INCREASE:
           out = 0;
+
         game_fsm.ADD_LEVEL:
           out = 0;
+
         game_fsm.RESET_T4:
           out = 0;
+
         game_fsm.GAME_END:
           out = 0;
+
         game_fsm.FREEPLAY_STORE_INPUT:
           out = 0;
+
         game_fsm.FREEPLAY_SOUND:
           out = 0;
+
         default:
           game_fsm.d = game_fsm.START;
 
