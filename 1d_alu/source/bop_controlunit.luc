@@ -95,7 +95,7 @@ module bop_controlunit (
   const LEVEL = 3b100;
   const T0 = 3b101;
   const CORRECT = 3b110;
-  const RANDOM_MEMOR = 3b110;
+  const RANDOM_MEMOR = 3b111;
   
   always {
     // Standard setting unless overwritten by cases
