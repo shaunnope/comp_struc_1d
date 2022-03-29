@@ -7,7 +7,8 @@
 module bop_it (
     input clk,  // clock
     input rst,  // reset
-    input u_input[4],
+    input u_input[3],
+    input start,
     output out
   ) {
   .clk(clk) {
@@ -18,21 +19,27 @@ module bop_it (
     }
     
   }
+  sig inputs[4];
   
   bop_alu_wdsel alu;
 
   always {
+    inputs = c{u_input, ~|u_input};
     
-    slwclk.level = 0;
-    regfile.werf = 0;
-    regfile.reg_abc = 0;
-    regfile.w_data = 0;
+    slwclk.level = regfile.level_data[1:0];
+    regfile.werf = ctrlunit.werf;
+    regfile.reg_abc = c{ctrlunit.ra, ctrlunit.rb, ctrlunit.rc};
+    regfile.w_data = alu.out;
     
-    alu.u_input = 0;
-    alu.wdsel = 0;
-    alu.alufn = 0;
-    alu.asel = 0;
-    alu.bsel = 0;
+    ctrlunit.inputs = inputs;
+    ctrlunit.start = start;
+    ctrlunit.level = regfile.level_data[1:0];
+    
+    alu.u_input = inputs;
+    alu.wdsel = ctrlunit.wdsel;
+    alu.alufn = ctrlunit.alufn;
+    alu.asel = ctrlunit.asel;
+    alu.bsel = ctrlunit.bsel;
     alu.ra_data = regfile.ra_data;
     alu.rb_data = regfile.rb_data;
     alu.action = slwclk.action;
