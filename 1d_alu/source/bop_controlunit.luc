@@ -20,50 +20,159 @@ module bop_controlunit (
     output bzsel, // Used for sound buzzer
     
     output out
-  )
+  ) {
+  
+  .clk(clk){
+    fsm game_fsm = {
+      START,
+      START_LEVEL,
+      IDLE,
+      STORE_INPUT,
+      CHECK_SOUND,
+      BRANCH_ACTION,
+      STORE_GEN_ACTION,
+      PLAY_SOUND,
+      CHECK_INPUT,
+      BRANCH_CHECK_INPUT,
+      INCREASE_T0,
+      CHECK_ACTION,
+      RESET_T0,
+      CHECK_LEVEL_1,
+      BRANCH_LEVEL_1,
+      LEVEL1_CHECK,
+      LEVEL1_CORRECT,
+      LEVEL1_WRONG,
+      CHECK_LEVEL_2,
+      BRANCH_LEVEL_2,
+      LEVEL2_CHECK,
+      LEVEL2_CORRECT,
+      LEVEL2_WRONG,
+      LEVEL3_CHECK,
+      LEVEL3_CORRECT,
+      LEVEL3_WRONG,
+      RESET_INPUT,
+      CHECK_ROUND_END,
+      BRANCH_GAME_TIMER,
+      INCREASE_T4,
+      CHECK_LEVEL_INCREASE,
+      BRANCH_LEVEL_INCREASE,
+      ADD_LEVEL,
+      RESET_T4,
+      GAME_END,
 
-  {
-    .clk(clk){
-      fsm game_fsm = {
-        START,
-        START_LEVEL,
-        IDLE,
-        STORE_INPUT,
-        CHECK_SOUND,
-        BRANCH_ACTION,
-        STORE_GEN_ACTION,
-        PLAY_SOUND,
-        CHECK_INPUT,
-        BRANCH_CHECK_INPUT,
-        INCREASE_T0,
-        CHECK_ACTION,
-        RESET_T0,
-        CHECK_LEVEL_1,
-        BRANCH_LEVEL_1,
-        LEVEL1_CHECK,
-        LEVEL1_CORRECT,
-        LEVEL1_WRONG,
-        CHECK_LEVEL_2,
-        BRANCH_LEVEL_2,
-        LEVEL2_CHECK,
-        LEVEL2_CORRECT,
-        LEVEL2_WRONG,
-        LEVEL3_CHECK,
-        LEVEL3_CORRECT,
-        LEVEL3_WRONG,
-        RESET_INPUT,
-        CHECK_ROUND_END,
-        BRANCH_GAME_TIMER,
-        INCREASE_T4,
-        CHECK_LEVEL_INCREASE,
-        BRANCH_LEVEL_INCREASE,
-        ADD_LEVEL,
-        RESET_T4,
-        GAME_END,
+      // For freeplay usage
+      FREEPLAY_STORE_INPUT,
+      FREEPLAY_SOUND    
+    }; 
+  }
+  
+  const SCORE = 3b000;
+  const ACTION = 3b001;
+  const INPUT = 3b010;
+  const T4 = 3b011;
+  const LEVEL = 3b100;
+  const T0 = 3b101;
+  const CORRECT = 3b110;
+  const RANDOM_MEMOR = 3b110;
+  
+  always {
+    // Standard setting unless overwritten by cases
+    alufn = 0;
+    asel = 0;
+    bsel = 0;
+    werf = 0;
+    wdsel = 0;
+    rc = 0;
+    ra = 0;
+    rb = 0;
+    bzsel = 0;
+    out = 0;
 
-        // For freeplay usage
-        FREEPLAY_STORE_INPUT,
-        FREEPLAY_SOUND    
-      }
+    if (rst) {
+      game_fsm.d = game_fsm.START;
+
+    } 
+    else {
+    
+      case(game_fsm.q) {
+        game_fsm.START:
+          out = 0;
+        game_fsm.START_LEVEL:
+          out = 0;
+        game_fsm.IDLE:
+          out = 0;
+        game_fsm.STORE_INPUT:
+          out = 0;
+        game_fsm.CHECK_SOUND:
+          out = 0;
+        game_fsm.BRANCH_ACTION:
+          out = 0;
+        game_fsm.STORE_GEN_ACTION:
+          out = 0;
+        game_fsm.PLAY_SOUND:
+          out = 0;
+        game_fsm.CHECK_INPUT:
+          out = 0;
+        game_fsm.BRANCH_CHECK_INPUT:
+          out = 0;
+        game_fsm.INCREASE_T0:
+          out = 0;
+        game_fsm.CHECK_ACTION:
+          out = 0;
+        game_fsm.RESET_T0:
+          out = 0;
+        game_fsm.CHECK_LEVEL_1:
+          out = 0;
+        game_fsm.BRANCH_LEVEL_1:
+          out = 0;
+        game_fsm.LEVEL1_CHECK:
+          out = 0;
+        game_fsm.LEVEL1_CORRECT:
+          out = 0;
+        game_fsm.LEVEL1_WRONG:
+          out = 0;
+        game_fsm.CHECK_LEVEL_2:
+          out = 0;
+        game_fsm.BRANCH_LEVEL_2:
+          out = 0;
+        game_fsm.LEVEL2_CHECK:
+          out = 0;
+        game_fsm.LEVEL2_CORRECT:
+          out = 0;
+        game_fsm.LEVEL2_WRONG:
+          out = 0;
+        game_fsm.LEVEL3_CHECK:
+          out = 0;
+        game_fsm.LEVEL3_CORRECT:
+          out = 0;
+        game_fsm.LEVEL3_WRONG:
+          out = 0;
+        game_fsm.RESET_INPUT:
+          out = 0;
+        game_fsm.CHECK_ROUND_END:
+          out = 0;
+        game_fsm.BRANCH_GAME_TIMER:
+          out = 0;
+        game_fsm.INCREASE_T4:
+          out = 0;
+        game_fsm.CHECK_LEVEL_INCREASE:
+          out = 0;
+        game_fsm.BRANCH_LEVEL_INCREASE:
+          out = 0;
+        game_fsm.ADD_LEVEL:
+          out = 0;
+        game_fsm.RESET_T4:
+          out = 0;
+        game_fsm.GAME_END:
+          out = 0;
+        game_fsm.FREEPLAY_STORE_INPUT:
+          out = 0;
+        game_fsm.FREEPLAY_SOUND:
+          out = 0;
+        default:
+          game_fsm.d = game_fsm.START;
+
+
     }
+
   }
