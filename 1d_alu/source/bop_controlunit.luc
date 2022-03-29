@@ -3,8 +3,12 @@ module bop_controlunit (
     input rst,  // reset
     input slwclk,   // Used for stages
     
-    input inputs[4], // 3 buttons, 1 nothing
-    input start,     // start button
+    //input inputs[4], // 3 buttons, 1 nothing
+    input inputs1, //edge detector of the button 1
+    input inputs2,//edge detector of the button 2
+    input inputs3,//edge detector of the button 3
+    
+    input start,     // start button need edge detector
     input level[2], // 2 bit to represent 3 levels, 01 = level 1
     
     input rb_data[16],
@@ -70,7 +74,24 @@ module bop_controlunit (
       FREEPLAY_SOUND    
     }; 
   }
-  
+
+  const ADD = 5b00000;
+  const SUB = 5b00001;
+  const MUL = 5b00010;
+  const DIV = 5b00011;
+  const SHL = 5b00100;
+  const SHR = 5b00101;
+  const ROL = 5b00110;
+  const SRA = 5b00111;
+  const CMPEQ = 5b01011;
+  const CMPLT = 5b01101;
+  const CMPLE = 5b01111;
+  const AND = 5b11000;
+  const OR = 5b11110;
+  const XOR = 5b10110;
+  const A = 5b11010;
+  const B = 5b11100;
+
   const SCORE = 3b000;
   const ACTION = 3b001;
   const INPUT = 3b010;
@@ -114,49 +135,136 @@ module bop_controlunit (
 
     if (rst) {
       game_fsm.d = game_fsm.START;
-
+      // I think we do need set to set all the register to 0 though
+      // Currently coded in the same manner as GAME_END, both should be the same
     } 
     else {
     
       case(game_fsm.q) {
-        game_fsm.START:
-          out = 0;
+        game_fsm.START: // not sure what to add for here
+          if(start){
+            game_fsm.d=game_fsm.START_LEVEL;
+          }
+
+          if(inputs1 || inputs2 || inputs3){
+            game_fsm.d=game_fsm.FREEPLAY_STORE_INPUT;
+          }
 
         game_fsm.START_LEVEL:
-          out = 0;
+          alufn=ADD;
+          asel=b00
+          bsel=b01
+          werf=b1;
+          ra=LEVEL;
+          rc=LEVEL;
+          wdsel=b00;
+          bzsel=b00;
+          game_fsm.d=game_fsm.IDLE
+          
 
         game_fsm.IDLE:
-          out = 0;
+          if(slwclk){
+            game_fsm.d=game_fsm.CHECK_SOUND;
+          }
+
+          if(inputs1 || inputs2 || inputs3){
+            game_fsm.d=game_fsm.STORE_INPUT;
+          }
 
         game_fsm.STORE_INPUT:
-          out = 0;
+          werf=b1;
+          rc=INPUT;
+          wdsel=b10;
+          bzsel=b0
 
         game_fsm.CHECK_SOUND:
-          out = 0;
+          alufn=CMPEQ;
+          asel=b10;
+          bsel=b00;
+          werf=b1;
+          rb=T0;
+          rc=RANDOM_MEMOR;
+          wdsel=b00;
+          bzsel=b0;
+          game_fsm.d=game_fsm.BRANCH_ACTION;
 
         game_fsm.BRANCH_ACTION:
-          out = 0;
+          werf=b0;
+          rb=RANDOM_MEMOR;
+          bzsel=b0;
+
+          if(rb_data==1){
+            game_fsm.d=game_fsm.STORE_GEN_ACTION;
+          }
+
+          else{
+            game_fsm.d=game_fsm.CHECK_INPUT;
+          }
 
         game_fsm.STORE_GEN_ACTION:
-          out = 0;
+          we=b1;
+          rc=ACTION;
+          wdsel=b10;
+          bzsel=b0;
+          game_fsm.d=game_fsm.PLAY_SOUND;
 
         game_fsm.PLAY_SOUND:
-          out = 0;
+          we=b0;
+          bzsel=b1;
+          game_fsm.d=game_fsm.IDLE;
 
         game_fsm.CHECK_INPUT:
-          out = 0;
+          alufn=CMPLT;
+          asel=b00;
+          bsel=b10;
+          werf=b1;
+          ra=T0;
+          rc=RANDOM_MEMOR;
+          wdsel=b00;
+          bzsel=b0;
+          game_fsm.d=game_fsm.BRANCH_CHECK_INPUT;
 
         game_fsm.BRANCH_CHECK_INPUT:
-          out = 0;
+          werf=b0;
+          rb=RANDOM_MEMOR;
+          bzsel=b0;
+
+          if(rb_data==1){
+            game_fsm.d=game_fsm.INCREASE_T0;
+          }
+          else{
+            game_fsm.d=game_fsm.CHECK_ACTION;
+          }
 
         game_fsm.INCREASE_T0:
-          out = 0;
+          alufn=ADD;
+          asel=b00;
+          bsel=b01;
+          werf=b1;
+          ra=T0;
+          rc=T0;
+          wdsel=b00;
+          bzsel=b0;
+          game_fsm.d=game_fsm.IDLE;
 
         game_fsm.CHECK_ACTION:
-          out = 0;
+          alufn=CMPEQ;
+          asel=b00;
+          bsel=b00;
+          werf=b1;
+          ra=INPUT;
+          rb=ACTION;
+          rc=CORRECT;
+          wdsel=b00;
+          bzsel=b0;
+          game_fsm.d=game_fsm.RESET_T0;
 
         game_fsm.RESET_T0:
-          out = 0;
+          we=b1;
+          rc=T0;
+          wdsel=b11;
+          bzsel=b0;
+          game_fsm.d=game_fsm.CHECK_LEVEL_1;
 
         game_fsm.CHECK_LEVEL_1:
           alufn = CMPEQ; //CMPEQ
@@ -319,31 +427,85 @@ module bop_controlunit (
           game_fsm.d = game_fsm.BRANCH_GAME_TIMER;
 
         game_fsm.BRANCH_GAME_TIMER:
-          out = 0;
-
+          werf = b0; // No write
+          rb = RANDOM_MEMOR;
+          bzsel = b0; // No sound
+          
+          if (rb_data == 1) {
+            game_fsm.d = game_fsm.INCREASE_T4; // If less than 8 rounds
+          } else {
+            game_fsm.d = game_fsm.CHECK_LEVEL_INCREASE; // If more than 8 rounds
+          }
+          
         game_fsm.INCREASE_T4:
-          out = 0;
+          alufn = ADD; // ADD 1 to T4 register
+          asel = b00;
+          bsel = b01; // Constant 1
+          werf = b1;
+          ra = T4;
+          rc = T4; // Write to rc
+          wdsel = b00;
+          bzsel = b0;
+          game_fsm.d = game_fsm.IDLE;
 
         game_fsm.CHECK_LEVEL_INCREASE:
-          out = 0;
+          alufn = CMPLT; // Check that level < 3, 1 if level < 3, 0 otherwise
+          asel = b01; // Constant 3
+          bsel = b00;
+          werf = b1; // Write to reg 7
+          ra = LEVEL;
+          rc = RANDOM_MEMOR;
+          wdsel = b00;
+          bzsel = b00;
+          
+          game_fsm.d = game_fsm.BRANCH_LEVEL_INCREASE;
           
         game_fsm.BRANCH_LEVEL_INCREASE:
-          out = 0;
+          werf = b0;
+          rb = RANDOM_MEMOR; // Read from reg 7
+          
+          if (rb_data == 0) { // 0 if LEVEL < 3
+            game_fsm.d = game_fsm.ADD_LEVEL;
+          } else {
+            game_fsm.d = game_fsm.GAME_END;
+          }
 
         game_fsm.ADD_LEVEL:
-          out = 0;
+          alufn = ADD; // ADD 1 to level
+          asel = b00;
+          bsel = b01; // constant 1
+          werf = b1;
+          ra = LEVEL;
+          rc = LEVEL; // Write to LEVEL register
+          wdsel = b00;
+          bzsel = b0;
+          game_fsm.d = game_fsm.RESET_T4;
 
         game_fsm.RESET_T4:
-          out = 0;
+          werf = b1;
+          rc = T4; // Setting T4 to 0
+          wdsel = b11; // Constant 0
+          bzsel = b0;
+          game_fsm.d = game_fsm.IDLE;
 
         game_fsm.GAME_END:
-          out = 0;
-
+          if (rst) { // Check for reset button for game
+            game_fsm.d = game_fsm.START;
+          } else {
+            game_fsm.d = game_fsm.GAME_END;
+          }
+        
         game_fsm.FREEPLAY_STORE_INPUT:
-          out = 0;
+          werf = b1;
+          rc = INPUT;
+          wdsel = b10;
+          bzsel = b0;
+          game_fsm.d = game_fsm.FREEPLAY_SOUND;
 
         game_fsm.FREEPLAY_SOUND:
-          out = 0;
+          werf = b0;
+          bzsel = b1;
+          game_fsm.d = game_fsm.START;
 
         default:
           game_fsm.d = game_fsm.START;
