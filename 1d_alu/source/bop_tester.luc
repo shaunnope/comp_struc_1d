@@ -1,0 +1,50 @@
+/*
+  Tester module
+*/
+module bop_tester (
+    input clk,  // clock
+    input rst,  // reset
+    input u_input[3],
+    input start,
+    
+    input level[2],
+    output action[4],
+    output o_level[2],
+    output o_input[4],
+    output o_start,
+    output st,
+    
+    output out
+  ) {
+  .clk(clk) {
+    .rst(rst) {
+    bop_slwclk_rng slwclk;
+    bop_regfile regfile;
+    //bop_controlunit ctrlunit(.slwclk(slwclk.st));
+    }
+    
+  }
+  sig inputs[4];
+  
+  //bop_alu_wdsel alu;
+
+  always {
+    inputs = c{u_input, ~|u_input};
+    
+    slwclk.level = level;
+    
+    
+    regfile.reg_abc = 0;
+    regfile.w_data = 0;
+    regfile.werf = 0;
+    
+    
+    o_level = level;
+    o_input = inputs;
+    o_start = start;
+    st = slwclk.st;
+    action = slwclk.action;
+    
+    out = 0;
+  }
+}

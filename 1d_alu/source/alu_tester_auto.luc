@@ -40,7 +40,7 @@ module alu_tester_auto (
   alu_fsm alufsm (.clk(slowClock.value), .rst(rst));
   
   
-  tester_ROM alurom;
+  alu_tester_ROM alurom;
   alu alu;
   
   sig alumode[4];
