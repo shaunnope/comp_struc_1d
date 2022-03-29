@@ -26,6 +26,7 @@
     <component>decoder.luc</component>
     <src>bop_alu_wdsel.luc</src>
     <src>alu_tester.luc</src>
+    <src>ws2812b_writer.luc</src>
     <src>auto_tester.luc</src>
     <component>pn_gen.luc</component>
     <src>seven_seg.luc</src>
