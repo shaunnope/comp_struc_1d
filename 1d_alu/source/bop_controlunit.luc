@@ -112,7 +112,8 @@ module bop_controlunit (
 
     if (rst) {
       game_fsm.d = game_fsm.START;
-
+      // I think we do need set to set all the register to 0 though
+      // Currently coded in the same manner as GAME_END, both should be the same
     } 
     else {
     
@@ -213,30 +214,75 @@ module bop_controlunit (
           }
           
         game_fsm.INCREASE_T4:
-          out = 0;
-          alufn = ADD;
-          
+          alufn = ADD; // ADD 1 to T4 register
+          asel = b00;
+          bsel = b01; // Constant 1
+          werf = b1;
+          ra = T4;
+          rc = T4; // Write to rc
+          wdsel = b00;
+          bzsel = b0;
+          game_fsm.d = game_fsm.IDLE;
 
         game_fsm.CHECK_LEVEL_INCREASE:
-          out = 0;
+          alufn = CMPLT; // Check that level < 3, 1 if level < 3, 0 otherwise
+          asel = b01; // Constant 3
+          bsel = b00;
+          werf = b1; // Write to reg 7
+          ra = LEVEL;
+          rc = RANDOM_MEMOR;
+          wdsel = b00;
+          bzsel = b00;
+          
+          game_fsm.d = game_fsm.BRANCH_LEVEL_INCREASE;
           
         game_fsm.BRANCH_LEVEL_INCREASE:
-          out = 0;
+          werf = b0;
+          rb = RANDOM_MEMOR; // Read from reg 7
+          
+          if (rb_data == 0) { // 0 if LEVEL < 3
+            game_fsm.d = game_fsm.ADD_LEVEL;
+          } else {
+            game_fsm.d = game_fsm.GAME_END;
+          }
 
         game_fsm.ADD_LEVEL:
-          out = 0;
+          alufn = ADD; // ADD 1 to level
+          asel = b00;
+          bsel = b01; // constant 1
+          werf = b1;
+          ra = LEVEL;
+          rc = LEVEL; // Write to LEVEL register
+          wdsel = b00;
+          bzsel = b0;
+          game_fsm.d = game_fsm.RESET_T4;
 
         game_fsm.RESET_T4:
-          out = 0;
+          werf = b1;
+          rc = T4; // Setting T4 to 0
+          wdsel = b11; // Constant 0
+          bzsel = b0;
+          game_fsm.d = game_fsm.IDLE;
 
         game_fsm.GAME_END:
-          out = 0;
-
+          if (rst) { // Check for reset button for game
+            game_fsm.d = game_fsm.START;
+          } else {
+            game_fsm.d = game_fsm.GAME_END;
+          }
+        
         game_fsm.FREEPLAY_STORE_INPUT:
-          out = 0;
+          werf = b1;
+          rc = INPUT;
+          wdsel = b10;
+          bzsel = b0;
+          game_fsm.d = game_fsm.FREEPLAY_SOUND;
 
         game_fsm.FREEPLAY_SOUND:
-          out = 0;
+          werf = b1;
+          rc = INPUT;
+          bzsel = 1;
+          game_fsm.d = game_fsm.START;
 
         default:
           game_fsm.d = game_fsm.START;
