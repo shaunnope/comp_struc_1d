@@ -3,21 +3,22 @@
   <files>
     <src>sixteen_bit_mult.luc</src>
     <src>sixteen_bit_full_adder.luc</src>
+    <src>alu_tester_manual.luc</src>
     <component>pipeline.luc</component>
     <src>alu_eight_bit_in.luc</src>
     <src>alu.luc</src>
-    <src>manual_tester.luc</src>
     <src>bop_slwclk_rng.luc</src>
     <component>counter.luc</component>
     <src>tester_ROM.luc</src>
     <src>var_seven_seg.luc</src>
     <src>bop_it.luc</src>
     <src>alu_fsm.luc</src>
-    <src>bit_bool.luc</src>
     <src>bop_regfile.luc</src>
     <component>reset_conditioner.luc</component>
     <src>sixteen_bit_compare.luc</src>
+    <src>alu_tester_auto.luc</src>
     <component>button_conditioner.luc</component>
+    <src>alu_bit_bool.luc</src>
     <component>wave.luc</component>
     <src>sixteen_bit_bool.luc</src>
     <component>pwm.luc</component>
@@ -27,7 +28,6 @@
     <src>bop_alu_wdsel.luc</src>
     <src>alu_tester.luc</src>
     <src>ws2812b_writer.luc</src>
-    <src>auto_tester.luc</src>
     <component>pn_gen.luc</component>
     <src>seven_seg.luc</src>
     <src>op_flags.luc</src>

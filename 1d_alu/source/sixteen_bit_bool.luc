@@ -7,7 +7,7 @@ module sixteen_bit_bool (
     input alufn[4],
     output out[16]
   ) {
-  bit_bool bitbool[16];
+  alu_bit_bool bitbool[16];
   always {
     bitbool.x = x;
     bitbool.y = y;

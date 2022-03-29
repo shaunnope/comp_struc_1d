@@ -17,8 +17,8 @@ module alu_tester (
   
   .clk(clk){    
     .rst(togrst) {
-      manual_tester manual;
-      auto_tester auto;
+      alu_tester_manual manual;
+      alu_tester_auto auto;
     }
     .rst(rst){
       fsm mode = {MANUAL, AUTO};
