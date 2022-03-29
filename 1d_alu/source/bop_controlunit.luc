@@ -70,7 +70,24 @@ module bop_controlunit (
       FREEPLAY_SOUND    
     }; 
   }
-  
+
+  const ADD = 5b00000;
+  const SUB = 5b00001;
+  const MUL = 5b00010;
+  const DIV = 5b00011;
+  const SHL = 5b00100;
+  const SHR = 5b00101;
+  const ROL = 5b00110;
+  const SRA = 5b00111;
+  const CMPEQ = 5b01011;
+  const CMPLT = 5b01101;
+  const CMPLE = 5b01111;
+  const AND = 5b11000;
+  const OR = 5b11110;
+  const XOR = 5b10110;
+  const A = 5b11010;
+  const B = 5b11100;
+
   const SCORE = 3b000;
   const ACTION = 3b001;
   const INPUT = 3b010;
@@ -185,10 +202,20 @@ module bop_controlunit (
           out = 0;
 
         game_fsm.BRANCH_GAME_TIMER:
-          out = 0;
-
+          werf = b0; // No write
+          rb = RANDOM_MEMOR;
+          bzsel = b0; // No sound
+          
+          if (rb_data == 1) {
+            game_fsm.d = game_fsm.INCREASE_T4; // If less than 8 rounds
+          } else {
+            game_fsm.d = game_fsm.CHECK_LEVEL_INCREASE; // If more than 8 rounds
+          }
+          
         game_fsm.INCREASE_T4:
           out = 0;
+          alufn = ADD;
+          
 
         game_fsm.CHECK_LEVEL_INCREASE:
           out = 0;
