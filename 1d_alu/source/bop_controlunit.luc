@@ -75,6 +75,7 @@ module bop_controlunit (
     }; 
   }
 
+  // ALUFN[4:0] operations
   const ADD = 5b00000;
   const SUB = 5b00001;
   const MUL = 5b00010;
@@ -100,25 +101,6 @@ module bop_controlunit (
   const T0 = 3b101;
   const CORRECT = 3b110;
   const RANDOM_MEMOR = 3b110;
-
-  // ALUFN[4:0] operations
-  const ADD = b00000;
-  const SUB = b00001;
-  const MUL = b00010;
-  const DIV = b00011;
-  const SHL = b00100;
-  const SHR = b00101;
-  const ROTL = b00110;
-  const SRA = b00111;
-  const CMPEQ = b01011;
-  const CMPLT = b01101;
-  const CMPLE = b01111;
-  const AND = b11000;
-  const OR = b11110;
-  const XOR = b10110;
-  const A = b11010;
-  const B = b11100;
-  
   
   always {
     // Standard setting unless overwritten by cases
@@ -385,7 +367,7 @@ module bop_controlunit (
           }
 
         game_fsm.LEVEL3_CORRECT:
-          alufn = ROTL; // ROTL
+          alufn = ROL; // ROL
           asel = b00; // ra_data
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
@@ -396,7 +378,7 @@ module bop_controlunit (
           game_fsm.d = game_fsm.RESET_INPUT;
 
         game_fsm.LEVEL3_WRONG:
-          alufn = ROTL // ROTL
+          alufn = ROL // ROL
           asel = b11; // value 15 for ROL computation
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
