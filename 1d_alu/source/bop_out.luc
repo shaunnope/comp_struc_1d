@@ -1,0 +1,17 @@
+/*
+  Output module for game: buzzer + display
+*/
+module bop_out (
+    input level[2],
+    input action[4],
+    input bzsel,
+    input score[16],
+    output bz_out,
+    output score_led[16]
+  ) {
+
+  always {
+    bz_out = 0;
+    score_led = 0;
+  }
+}

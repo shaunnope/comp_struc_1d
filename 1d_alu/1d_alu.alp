@@ -31,6 +31,7 @@
     <src>seven_seg.luc</src>
     <src>op_flags.luc</src>
     <src>bop_controlunit.luc</src>
+    <src>bop_out.luc</src>
     <component>edge_detector.luc</component>
     <constraint lib="true">alchitry.acf</constraint>
     <constraint lib="true">io.acf</constraint>

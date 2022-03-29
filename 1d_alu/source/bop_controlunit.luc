@@ -23,12 +23,56 @@ module bop_controlunit (
   
   .clk(clk){
     .rst(rst){
+      fsm bop_fsm = {START, IDLE, ST_INPUT0, SOUND0, SCORE};
+      fsm bop_func = {IDLE, ST_INPUT, PLAY_SND, ADD_LVL};
+      dff func_done;
     }
   }
   
   // Connect ALU and bsel all in a top circuit
   
   always {
+    case(bop_func.q) {
+      bop_func.ST_INPUT:
+        alufn = 5bzzzzz;
+        asel = 2bzz;
+        bsel = 2bzz;
+        werf = b1;
+        ra = 3bzzz;
+        rb = 3bzzz;
+        rc = 3h2;
+        wdsel = 2b10;
+        bzsel = b0;
+        if(slwclk & 1) {
+          bop_func.d = bop_func.PLAY_SND;
+        }
+      bop_func.PLAY_SND:
+        alufn = 5bzzzzz;
+        asel = 2bzz;
+        bsel = 2bzz;
+        werf = b1;
+        ra = 3bzzz;
+        rb = 3bzzz;
+        rc = 3h2;
+        wdsel = 2bzz;
+        bzsel = b0;
+        if(slwclk & 1) {
+          bop_func.d = bop_func.PLAY_SND;
+        }
+    
+      default: bop_func.d = bop_func.IDLE;
+    }
+  
+    case(bop_fsm.q) {
+      bop_fsm.START:
+        if (start & 1) {
+          
+        } else if (|inputs & 1) {
+        
+        }
+      default: bop_fsm.d = bop_fsm.START;
+    }
+    
     out = 0;
     alufn[3:0] = 0;
     asel[1:0] = 0;
