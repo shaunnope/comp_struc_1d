@@ -9,7 +9,7 @@ Auto tester module:
    io_dip[0][4:0] - ALUFN signal
    io_dip[0][7] - simulate error (one's complement)
 */
-module auto_tester (
+module alu_tester_auto (
     input clk,  // clock
     input rst,  // reset
     input mIn[5],  // io_button signals
@@ -40,7 +40,7 @@ module auto_tester (
   alu_fsm alufsm (.clk(slowClock.value), .rst(rst));
   
   
-  tester_ROM alurom;
+  alu_tester_ROM alurom;
   alu alu;
   
   sig alumode[4];

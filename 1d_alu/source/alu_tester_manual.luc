@@ -7,7 +7,7 @@ Manual tester module:
    io_dip[2:1]  - B input
    io_dip[0][4:0] - ALUFN signal
 */
-module manual_tester (
+module alu_tester_manual (
     input clk,  // clock
     input rst,  // reset
     input nxtIn,    // conditioned button input (rising edge)

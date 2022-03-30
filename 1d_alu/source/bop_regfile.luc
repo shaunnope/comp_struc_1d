@@ -4,6 +4,7 @@ module bop_regfile (
     input w_data[16],
     input werf,
     input reg_abc[9], // 8:6 - a, 5:3 - b, 2:0 - c
+    
     output ra_data[16],
     output rb_data[16],
     output score_data[16],
@@ -16,15 +17,23 @@ module bop_regfile (
     .rst(rst) {
       dff regfile[16][16];
     }
-
   }
+  
+  sig ra[3];
+  sig rb[3];
+  sig rc[3];
+  
   always {
+    ra = reg_abc[8:6];
+    rb = reg_abc[5:3];
+    rc = reg_abc[2:0];
+    
     out = 0;
-    ra_data = regfile.q[reg_abc[8:6]];
-    rb_data = regfile.q[reg_abc[5:3]];
+    ra_data = regfile.q[ra];
+    rb_data = regfile.q[rb];
     
     if (werf & 1) {
-      regfile.d[reg_abc[2:0]] = w_data;
+      regfile.d[rc] = w_data;
     }
     
     score_data = regfile.q[0];

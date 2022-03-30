@@ -1,5 +1,5 @@
 // bool with mux
-module bit_bool (
+module alu_bit_bool (
     input alufn[4],
     input x,
     input y,

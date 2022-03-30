@@ -1,7 +1,7 @@
 /*
   ROM to store inputs and verify outputs
 */
-module tester_ROM (
+module alu_tester_ROM (
  input alu_mode[4],   // alufn in
  input index[5],      // test case in index
 

@@ -8,7 +8,7 @@ module bop_slwclk_rng (
   
   sig slwclk;
   
-  const SLOWCLOCK_DIV = 28; // 26 for 1Hz
+  const SLOWCLOCK_DIV = 26; // 26 for 1Hz
   
   .clk(clk){
       edge_detector gen_next(#RISE(0), #FALL(1));

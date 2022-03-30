@@ -13,20 +13,14 @@ module au_top (
   
   sig rst;                  // reset signal
   
-  sig zvnpc[5];  // flags
-  sig out[16];  
-  
   .clk(clk) {
     // The reset conditioner is used to synchronize the reset signal to the FPGA
     // clock. This ensures the entire FPGA comes out of reset at the same time.
     reset_conditioner reset_cond;
     button_conditioner buttoncond[5];
     
-    edge_detector manualControl[5](#RISE(1), #FALL(0));
-    
     .rst(rst){
-      alu_tester tester;
-      var_seven_seg display;
+      tester_bop tester;
     }
   }
   
@@ -44,33 +38,20 @@ module au_top (
     io_seg = 8hff;          // turn segments off
     io_sel = 4hf;           // select no digits
     
-    buttoncond.in = io_button; //
+    buttoncond.in = io_button;      //
     button_io = buttoncond.out;     // conditioned button inputs
     
-    manualControl.in = button_io; // rising edge button inputs
+    // --------------  END INIT  --------------------
     
-    // ----------- Test circuit out --------
-    
+    tester.usb_rx = usb_rx;
+    tester.io_button = button_io;
     tester.io_dip = io_dip;
-    tester.mCon = manualControl.out;
-    tester.mIn = button_io;
-    out = tester.out;
-    zvnpc = tester.flags;
+    
+    usb_tx = tester.usb_tx;
+    io_seg = tester.io_seg;
+    io_sel = tester.io_sel;
+    io_led = tester.io_led;
+    led = tester.led;
 
-    
-    io_led[2] = out[15:8];
-    io_led[1] = out[7:0];
-    io_led[0][4:0] = zvnpc;
-    
-    led[7] = tester.caseidx[15];       // blinker
-    
-    
-    display.value[3] = tester.caseidx[15:12];
-    display.value[2] = tester.caseidx[11:8];
-    display.value[1] = tester.caseidx[7:4];
-    display.value[0] = tester.caseidx[3:0];
-    io_seg = display.seg;
-    io_sel = display.sel;
-    // ------------- END TEST --------------
     
 }
