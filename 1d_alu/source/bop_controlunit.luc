@@ -164,14 +164,14 @@ module bop_controlunit (
           bsel=b00;
           werf=b1;
           rb=T0;
-          rc=RANDOM_MEMOR;
+          rc=R7;
           wdsel=b00;
           bzsel=b0;
           game_fsm.d=game_fsm.BRANCH_ACTION;
 
         game_fsm.BRANCH_ACTION:
           werf=b0;
-          rb=RANDOM_MEMOR;
+          rb=R7;
           bzsel=b0;
 
           if(rb_data==1){
@@ -200,14 +200,14 @@ module bop_controlunit (
           bsel=b10;
           werf=b1;
           ra=T0;
-          rc=RANDOM_MEMOR;
+          rc=R7;
           wdsel=b00;
           bzsel=b0;
           game_fsm.d=game_fsm.BRANCH_CHECK_INPUT;
 
         game_fsm.BRANCH_CHECK_INPUT:
           werf=b0;
-          rb=RANDOM_MEMOR;
+          rb=R7;
           bzsel=b0;
 
           if(rb_data==1){
@@ -253,14 +253,14 @@ module bop_controlunit (
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
           ra = LEVEL; // reg for level
-          rc = RANDOM_MEMOR; // intermediate reg to store random values
+          rc = R7; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.BRANCH_LEVEL_1;
 
         game_fsm.BRANCH_LEVEL_1:
           werf = b0; // write disabled
-          rb = RANDOM_MEMOR; // intermediate reg to store random values
+          rb = R7; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           if (rb_data == 1) { // if level 1
@@ -271,7 +271,7 @@ module bop_controlunit (
 
         game_fsm.LEVEL1_CHECK:
           werf = b0; // write enabled
-          rb = RANDOM_MEMOR; // intermediate reg to store random values
+          rb = R7; // intermediate reg to store random values
           bzsel = b0; // no sound
           if (rb_data == 1) { // if action correct
             game_fsm.d = game_fsm.LEVEL1_CORRECT;
@@ -307,14 +307,14 @@ module bop_controlunit (
           bsel = b10; // compare with timer; check if LSB != 1 (timer < 2)
           werf = b1; // write enabled
           ra = LEVEL; // reg for level
-          rc = RANDOM_MEMOR; // intermediate reg to store random values
+          rc = R7; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.BRANCH_LEVEL_2;
 
         game_fsm.BRANCH_LEVEL_2:
           werf = b0; // write disabled
-          rb = RANDOM_MEMOR; // intermediate reg to store random values
+          rb = R7; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           if (rb_data == 1) { // if level 2
@@ -325,7 +325,7 @@ module bop_controlunit (
 
         game_fsm.LEVEL2_CHECK:
           werf = b0; // write disabled
-          rb = RANDOM_MEMOR; // intermediate reg to store random values
+          rb = R7; // intermediate reg to store random values
           bzsel = b0; // no sound
           if (rb_data == 1) { // if action correct
             game_fsm.d = game_fsm.LEVEL2_CORRECT;
@@ -357,7 +357,7 @@ module bop_controlunit (
 
         game_fsm.LEVEL3_CHECK:
           werf = b0; // write disabled
-          rb = RANDOM_MEMOR; // intermediate reg to store random values
+          rb = R7; // intermediate reg to store random values
           bzsel = b0; // no sound
           if (rb_data == 1) { // if action correct
             game_fsm.d = game_fsm.LEVEL3_CORRECT;
@@ -402,14 +402,14 @@ module bop_controlunit (
           bsel = b11; // compare with timer check MSB == 1 (timer == 16)
           werf = b1; // write enabled
           ra = T4; // T4
-          rc = RANDOM_MEMOR; // intermediate reg to store random values
+          rc = R7; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.BRANCH_GAME_TIMER;
 
         game_fsm.BRANCH_GAME_TIMER:
           werf = b0; // No write
-          rb = RANDOM_MEMOR;
+          rb = R7;
           bzsel = b0; // No sound
           
           if (rb_data == 1) {
@@ -435,7 +435,7 @@ module bop_controlunit (
           bsel = b00;
           werf = b1; // Write to reg 7
           ra = LEVEL;
-          rc = RANDOM_MEMOR;
+          rc = R7;
           wdsel = b00;
           bzsel = b00;
           
@@ -443,7 +443,7 @@ module bop_controlunit (
           
         game_fsm.BRANCH_LEVEL_INCREASE:
           werf = b0;
-          rb = RANDOM_MEMOR; // Read from reg 7
+          rb = R7; // Read from reg 7
           
           if (rb_data == 0) { // 0 if LEVEL < 3
             game_fsm.d = game_fsm.ADD_LEVEL;
