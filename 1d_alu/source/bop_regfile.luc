@@ -19,6 +19,7 @@ module bop_regfile (
     }
   }
   
+  //shorthand
   sig ra[3];
   sig rb[3];
   sig rc[3];

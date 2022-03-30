@@ -24,7 +24,7 @@ module bop_it (
   bop_alu_wdsel alu;
 
   always {
-    inputs = c{u_input, ~|u_input};
+    inputs = c{u_input, |u_input};
     
     slwclk.level = regfile.level_data[1:0];
     regfile.werf = ctrlunit.werf;

@@ -3,10 +3,10 @@ module bop_controlunit (
     input rst,  // reset
     input slwclk,   // Used for stages
     
-    //input inputs[4], // 3 buttons, 1 nothing
-    input inputs1, //edge detector of the button 1
-    input inputs2,//edge detector of the button 2
-    input inputs3,//edge detector of the button 3
+    input inputs[4],   // 3 buttons, 1 did smth
+    input inputs1,     //edge detector of the button 1
+    input inputs2,     //edge detector of the button 2
+    input inputs3,     //edge detector of the button 3
     
     input start,     // start button need edge detector
     input level[2], // 2 bit to represent 3 levels, 01 = level 1
@@ -27,6 +27,7 @@ module bop_controlunit (
   ) {
   
   .clk(clk){
+    edge_detector input_edges[4] (#RISE(1), #FALL(0));
     fsm game_fsm = {
       // Varshini
       START,
@@ -93,9 +94,11 @@ module bop_controlunit (
   const A = 5b11010;
   const B = 5b11100;
 
+  // reg addresses
   const SCORE = 3b000;
   const ACTION = 3b001;
   const INPUT = 3b010;
+  const TIMER = 3b011;
   const T4 = 3b011;
   const LEVEL = 3b100;
   const T0 = 3b101;
@@ -103,6 +106,8 @@ module bop_controlunit (
   const R7 = 3b110;
   
   always {
+    input_edges.in = c{inputs[3:1], ~inputs[0]};
+    
     // Standard setting unless overwritten by cases
     alufn = 0;
     asel = 0;
@@ -126,9 +131,7 @@ module bop_controlunit (
         game_fsm.START: // not sure what to add for here
           if(start){
             game_fsm.d=game_fsm.START_LEVEL;
-          }
-
-          if(inputs1 || inputs2 || inputs3){
+          } else if(input_edges.out[0] & 1){
             game_fsm.d=game_fsm.FREEPLAY_STORE_INPUT;
           }
 
