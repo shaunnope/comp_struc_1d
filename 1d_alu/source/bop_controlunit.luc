@@ -100,7 +100,7 @@ module bop_controlunit (
   const LEVEL = 3b100;
   const T0 = 3b101;
   const CORRECT = 3b110;
-  const RANDOM_MEMOR = 3b110;
+  const R7 = 3b110;
   
   always {
     // Standard setting unless overwritten by cases
@@ -134,16 +134,15 @@ module bop_controlunit (
 
         game_fsm.START_LEVEL:
           alufn=ADD;
-          asel=b00
-          bsel=b01
+          asel=b00;
+          bsel=b01;
           werf=b1;
           ra=LEVEL;
           rc=LEVEL;
           wdsel=b00;
           bzsel=b00;
-          game_fsm.d=game_fsm.IDLE
+          game_fsm.d=game_fsm.IDLE;
           
-
         game_fsm.IDLE:
           if(slwclk){
             game_fsm.d=game_fsm.CHECK_SOUND;
@@ -157,7 +156,7 @@ module bop_controlunit (
           werf=b1;
           rc=INPUT;
           wdsel=b10;
-          bzsel=b0
+          bzsel=b0;
 
         game_fsm.CHECK_SOUND:
           alufn=CMPEQ;
@@ -184,14 +183,14 @@ module bop_controlunit (
           }
 
         game_fsm.STORE_GEN_ACTION:
-          we=b1;
+          werf=b1;
           rc=ACTION;
           wdsel=b10;
           bzsel=b0;
           game_fsm.d=game_fsm.PLAY_SOUND;
 
         game_fsm.PLAY_SOUND:
-          we=b0;
+          werf=b0;
           bzsel=b1;
           game_fsm.d=game_fsm.IDLE;
 
@@ -242,7 +241,7 @@ module bop_controlunit (
           game_fsm.d=game_fsm.RESET_T0;
 
         game_fsm.RESET_T0:
-          we=b1;
+          werf=b1;
           rc=T0;
           wdsel=b11;
           bzsel=b0;
@@ -253,15 +252,15 @@ module bop_controlunit (
           asel = b00; // ra_data
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
-          ra = 0x04; // reg for level
-          rc = 0x07; // intermediate reg to store random values
+          ra = LEVEL; // reg for level
+          rc = RANDOM_MEMOR; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.BRANCH_LEVEL_1;
 
         game_fsm.BRANCH_LEVEL_1:
           werf = b0; // write disabled
-          rb = 0x07; // intermediate reg to store random values
+          rb = RANDOM_MEMOR; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           if (rb_data == 1) { // if level 1
@@ -272,7 +271,7 @@ module bop_controlunit (
 
         game_fsm.LEVEL1_CHECK:
           werf = b0; // write enabled
-          rb = 0x06; // intermediate reg to store random values
+          rb = RANDOM_MEMOR; // intermediate reg to store random values
           bzsel = b0; // no sound
           if (rb_data == 1) { // if action correct
             game_fsm.d = game_fsm.LEVEL1_CORRECT;
@@ -285,8 +284,8 @@ module bop_controlunit (
           asel = b00; // ra_data
           bsel = b00; // rb_data
           werf = b1; // write enabled
-          ra = 0x00; // reg for score
-          rc = 0x00; // reg for score
+          ra = SCORE; // reg for score
+          rc = SCORE; // reg for score
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.RESET_INPUT;
@@ -296,8 +295,8 @@ module bop_controlunit (
           asel = b00; // ra_data
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
-          ra = 0x00; // reg for score
-          rc = 0x00; // reg for score
+          ra = SCORE; // reg for score
+          rc = SCORE; // reg for score
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.RESET_INPUT;
@@ -307,15 +306,15 @@ module bop_controlunit (
           asel = b00; // ra_data
           bsel = b10; // compare with timer; check if LSB != 1 (timer < 2)
           werf = b1; // write enabled
-          ra = 0x04; // reg for level
-          rc = 0x07; // intermediate reg to store random values
+          ra = LEVEL; // reg for level
+          rc = RANDOM_MEMOR; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.BRANCH_LEVEL_2;
 
         game_fsm.BRANCH_LEVEL_2:
           werf = b0; // write disabled
-          rb = 0x07; // intermediate reg to store random values
+          rb = RANDOM_MEMOR; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           if (rb_data == 1) { // if level 2
@@ -326,7 +325,7 @@ module bop_controlunit (
 
         game_fsm.LEVEL2_CHECK:
           werf = b0; // write disabled
-          rb = 0x06; // intermediate reg to store random values
+          rb = RANDOM_MEMOR; // intermediate reg to store random values
           bzsel = b0; // no sound
           if (rb_data == 1) { // if action correct
             game_fsm.d = game_fsm.LEVEL2_CORRECT;
@@ -339,8 +338,8 @@ module bop_controlunit (
           asel = b00; // ra_data
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
-          ra = 0x00; // reg for score
-          rc = 0x00; // reg for score
+          ra = SCORE; // reg for score
+          rc = SCORE; // reg for score
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.RESET_INPUT;
@@ -350,15 +349,15 @@ module bop_controlunit (
           asel = b00; // ra_data
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
-          ra = 0x00; // reg for score
-          rc = 0x00; // reg for score
+          ra = SCORE; // reg for score
+          rc = SCORE; // reg for score
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.RESET_INPUT;
 
         game_fsm.LEVEL3_CHECK:
           werf = b0; // write disabled
-          rb = 0x06; // intermediate reg to store random values
+          rb = RANDOM_MEMOR; // intermediate reg to store random values
           bzsel = b0; // no sound
           if (rb_data == 1) { // if action correct
             game_fsm.d = game_fsm.LEVEL3_CORRECT;
@@ -371,28 +370,28 @@ module bop_controlunit (
           asel = b00; // ra_data
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
-          ra = 0x00; // reg for score
-          rc = 0x00; // reg for score
+          ra = SCORE; // reg for score
+          rc = SCORE; // reg for score
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.RESET_INPUT;
 
         game_fsm.LEVEL3_WRONG:
-          alufn = ROL // ROL
+          alufn = ROL; // ROL
           asel = b11; // value 15 for ROL computation
           bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
-          ra = 0x00; // reg for score
-          rc = 0x00; // reg for score
+          ra = SCORE; // reg for score
+          rc = SCORE; // reg for score
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.RESET_INPUT;
 
         game_fsm.RESET_INPUT:
           alufn = B; // B
-          bsel = b01 // value of 1 to use for increment
+          bsel = b01; // value of 1 to use for increment
           werf = b1; // write enabled
-          rc = 0x02 // input
+          rc = INPUT; // input
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.CHECK_ROUND_END;
@@ -402,8 +401,8 @@ module bop_controlunit (
           asel = b00; // ra_data
           bsel = b11; // compare with timer check MSB == 1 (timer == 16)
           werf = b1; // write enabled
-          ra = 0x03; // T4
-          rc = 0x07; // intermediate reg to store random values
+          ra = T4; // T4
+          rc = RANDOM_MEMOR; // intermediate reg to store random values
           wdsel = b00; // alu_data
           bzsel = b0; // no sound
           game_fsm.d = game_fsm.BRANCH_GAME_TIMER;
