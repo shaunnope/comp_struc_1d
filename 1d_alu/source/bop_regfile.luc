@@ -10,8 +10,20 @@ module bop_regfile (
     output score_data[16],
     output action_data[16],
     output input_data[16],
+    output timer_data[16], 
     output level_data[16],
     output out
+    
+    // REGFILE Addresses-------------
+    // 0x00: SCORE --> score_data[16]
+    // 0x01: ACTION --> action_data[16]
+    // 0x02: INPUT --> input_data[16]
+    // 0x03: TIMER --> timer_data[16]
+    // 0x04: LEVEL --> level_data[16]
+    // 0x05: LSCORE
+    // 0x06: CORRECT
+    // 0x07: TEMP
+    
   ) {
   .clk(clk) {
     .rst(rst) {
@@ -40,6 +52,8 @@ module bop_regfile (
     score_data = regfile.q[0];
     action_data = regfile.q[1];
     input_data = regfile.q[2];
+    timer_data = regfile.q[3];
     level_data = regfile.q[4];
+    
   }
 }
