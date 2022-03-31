@@ -51,10 +51,8 @@ module bop_regfile (
     score_data = regfile.q[0];
     action_data = regfile.q[1];
     input_data = regfile.q[2];
+    timer_data = regfile.q[3];
     level_data = regfile.q[4];
     
-    // timer_data = 0#11,TIMER[4:0]
-    timer_data[4:0] = regfile.q[3][4:0];
-    timer_data[15:5] = 11b0;
   }
 }
