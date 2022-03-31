@@ -14,14 +14,14 @@ module bop_regfile (
     output level_data[16],
     output out
     
-    // REGFILE Addresses-------------
-    // 0x00: SCORE --> score_data[16]
+    // REGFILE Addresses --> Persistent read ports  ------
+    // 0x00: SCORE 
     // 0x01: ACTION --> action_data[16]
     // 0x02: INPUT --> input_data[16]
     // 0x03: TIMER --> timer_data[16]
     // 0x04: LEVEL --> level_data[16]
     // 0x05: LSCORE
-    // 0x06: CORRECT
+    // 0x06: SCORE_OUT --> score_data[16]
     // 0x07: TEMP
     
   ) {
@@ -48,11 +48,11 @@ module bop_regfile (
       regfile.d[rc] = w_data;
     }
     
-    score_data = regfile.q[0];
     action_data = regfile.q[1];
     input_data = regfile.q[2];
     timer_data = regfile.q[3];
     level_data = regfile.q[4];
+    score_data = regfile.q[6];
     
   }
 }
