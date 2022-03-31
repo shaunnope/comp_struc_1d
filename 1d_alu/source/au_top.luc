@@ -8,7 +8,8 @@ module au_top (
     output io_seg [8],      // 7-segment LEDs on IO Shield
     output io_sel [4],      // Digit select on IO Shield
     input io_button [5],    // 5 buttons on IO Shield
-    input io_dip [3][8] 
+    input io_dip [3][8],
+    output customout[3]
   ) {
   
   sig rst;                  // reset signal
@@ -40,6 +41,8 @@ module au_top (
     
     buttoncond.in = io_button;      //
     button_io = buttoncond.out;     // conditioned button inputs
+    
+    customout = 0;
     
     // --------------  END INIT  --------------------
     

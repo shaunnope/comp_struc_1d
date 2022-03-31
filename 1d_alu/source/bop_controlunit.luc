@@ -289,13 +289,13 @@ module bop_controlunit (
 
         game_fsm.LEVEL1_CORRECT:
           alufn = ADD; // ADD
-          asel = b00; // ra_data
-          bsel = b00; // rb_data
-          werf = b1; // write enabled
-          ra = SCORE; // reg for score
-          rc = SCORE; // reg for score
+          asel = b00;  // ra_data
+          bsel = b00;  // rb_data
+          werf = b1;   // write enabled
+          ra = SCORE;  // reg for score
+          rc = SCORE;  // reg for score
           wdsel = b00; // alu_data
-          bzsel = b0; // no sound
+          bzsel = b0;  // no sound
           game_fsm.d = game_fsm.RESET_INPUT;
 
         game_fsm.LEVEL1_WRONG:
@@ -307,7 +307,7 @@ module bop_controlunit (
           ra = SCORE; // reg for score
           rc = SCORE; // reg for score
           wdsel = b00; // alu_data
-          bzsel = b0; // no sound
+          bzsel = b0;  // no sound
           game_fsm.d = game_fsm.RESET_INPUT;
 
         game_fsm.CHECK_LEVEL_2:
