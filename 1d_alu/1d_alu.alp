@@ -40,8 +40,7 @@
     <src>bop_controlunit.luc</src>
     <src>bop_out.luc</src>
     <component>edge_detector.luc</component>
-    <constraint lib="true">alchitry.acf</constraint>
-    <constraint lib="true">io.acf</constraint>
-    <constraint lib="true">au.xdc</constraint>
+    <constraint>custom.acf</constraint>
+    <constraint>br_io.xdc</constraint>
   </files>
 </project>
