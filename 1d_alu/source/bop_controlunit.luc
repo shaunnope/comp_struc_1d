@@ -15,7 +15,7 @@ module bop_controlunit (
     output bsel[2],
     output werf,
     output wdsel[2],
-    output lit[4],
+    output lit[8],
     output rc[3],
     output ra[3],
     output rb[3],
@@ -29,48 +29,50 @@ module bop_controlunit (
     fsm game_fsm = {
       // Varshini
       START,
-      START_LEVEL,
+      INCREASE_LEVEL,
+      
+      // For round & input purposes
       IDLE,
       STORE_INPUT,
       CHECK_SOUND,
       BRANCH_ACTION,
       STORE_ACTION,
-      PLAY_SOUND,
-      CHECK_INPUT,
-      BRANCH_CHECK_INPUT,
-      INCREASE_T0,
-      CHECK_ACTION,
-      RESET_T0,
-
-      // Zhao
-      CHECK_LEVEL_1,
-      BRANCH_LEVEL_1,
-      LEVEL1_CHECK,
-      LEVEL1_CORRECT,
-      LEVEL1_WRONG,
-      CHECK_LEVEL_2,
-      BRANCH_LEVEL_2,
-      LEVEL2_CHECK,
-      LEVEL2_CORRECT,
-      LEVEL2_WRONG,
-      LEVEL3_CHECK,
-      LEVEL3_CORRECT,
-      LEVEL3_WRONG,
+      INPUT_IDLE,
       RESET_INPUT,
+      PLAY_SOUND,
+      CHECK_ACTION,
+      UPDATE_LSCORE,
+      UPDATE_OSCORE,
+      
+      // For scoring systems
+      ADD_SCORE_LEVEL_1,
+      MUL_SCORE_LEVEL_2,
+      DIV_SCORE_NEG,
+      DIV_SCORE_LEVEL_2,
+      ROTL_SCORE_LEVEL_3,
+      
+      // Handling if end of round
+      DISPLAY_SCORE,
+      RESET_INPUT,
+      INCREASE_TIMER,
       CHECK_ROUND_END,
-
-      // CS
-      BRANCH_GAME_TIMER,
-      INCREASE_T4,
-      CHECK_LEVEL_INCREASE,
-      BRANCH_LEVEL_INCREASE,
-      ADD_LEVEL,
-      RESET_T4,
+      BRANCH_ROUND_END,
+      
+      // Handling if end of game
+      RESET_CORRECT,
+      UPDATE_SCORE,
+      CHECK_LEVEL,
+      BRANCH_LEVEL,
+      RESET_TIMER,
+      
       GAME_END,
 
       // For freeplay usage
       FP_SOUND,
       FREEPLAY_SOUND    
+      
+      // Testing sound purposes
+      TEST_SOUND
     }; 
   }
 
@@ -81,7 +83,7 @@ module bop_controlunit (
   const DIV = 5b00011;
   const SHL = 5b00100;
   const SHR = 5b00101;
-  const ROL = 5b00110;
+  const ROTL = 5b00110;
   const SRA = 5b00111;
   const CMPEQ = 5b01011;
   const CMPLT = 5b01101;
@@ -92,16 +94,14 @@ module bop_controlunit (
   const A = 5b11010;
   const B = 5b11100;
 
-  // reg addresses
-  const SCORE = 3b000;
-  const ACTION = 3b001;
-  const INPUT = 3b010;
-  const TIMER = 3b011;
-  const T4 = 3b011;
-  const LEVEL = 3b100;
-  const T0 = 3b101;
-  const CORRECT = 3b110;
-  const R7 = 3b110;
+  const SCORE = b000;
+  const INPUT = b001;
+  const TIMER = b010;
+  const LEVEL = b011;
+  const LSCORE = b100;
+  const OSCORE = b101;
+  const CORRECT = b110;
+  const R7 = b110;
   
   sig str;
   sig stf;
@@ -127,11 +127,8 @@ module bop_controlunit (
 
     if (rst) {
       game_fsm.d = game_fsm.START;
-      // I think we do need set to set all the register to 0 though
-      // Currently coded in the same manner as GAME_END, both should be the same
     } 
     else {
-    
       case(game_fsm.q) {
         game_fsm.START: // not sure what to add for here
           if(start){
@@ -270,26 +267,23 @@ module bop_controlunit (
             game_fsm.d = game_fsm.CHECK_LEVEL_2; //Might be too fast
           }
 
-        game_fsm.LEVEL1_CHECK:
-          werf = b0; // write enabled
-          rb = R7; // intermediate reg to store random values
-          bzsel = b0; // no sound
-          if (rb_data == 1) { // if action correct
-            game_fsm.d = game_fsm.LEVEL1_CORRECT;
-          } else { // if action wrong
-            game_fsm.d = game_fsm.LEVEL1_WRONG;
+        game_fsm.UPDATE_LSCORE:
+          alufn = ADD;
+          asel = b0;
+          bsel = b01;
+          werf = b01;
+
+          // Not sure if this is right
+          if (flags[4] == 0) {
+            lit = b1;
+          } else {
+            lit = b0;
           }
 
-        game_fsm.LEVEL1_CORRECT:
-          alufn = ADD; // ADD
-          asel = b00;  // ra_data
-          bsel = b00;  // rb_data
-          werf = b1;   // write enabled
-          ra = SCORE;  // reg for score
-          rc = SCORE;  // reg for score
-          wdsel = b00; // alu_data
-          bzsel = b0;  // no sound
-          game_fsm.d = game_fsm.RESET_INPUT;
+          ra = LSCORE;
+          rc = LSCORE;
+          wdsel = b00;
+          bzsel = b0;
 
         game_fsm.LEVEL1_WRONG:
           alufn = SUB; // SUB
@@ -326,14 +320,17 @@ module bop_controlunit (
             game_fsm.d = game_fsm.LEVEL3_CHECK;
           }
 
-        game_fsm.LEVEL2_CHECK:
-          werf = b0; // write disabled
-          rb = R7; // intermediate reg to store random values
-          bzsel = b0; // no sound
-          if (rb_data == 1) { // if action correct
-            game_fsm.d = game_fsm.LEVEL2_CORRECT;
-          } else { // if action wrong
-            game_fsm.d = game_fsm.LEVEL2_WRONG;
+          if (level == b01) {
+            game_fsm.d = game_fsm.ADD_SCORE_LEVEL_1;
+          } else if (level == b10) {
+            // Checking for n flag, this means if its negative LSCORE
+            if (flags[2] == 0) {
+              game_fsm.d = game_fsm.MUL_SCORE_LEVEL_2;
+            } else if (flags[2] == 1) {
+              game_fsm.d = game_fsm.DIV_SCORE_LEVEL_2;
+            }
+          } else if (level == b11) {
+            game_fsm.d = game_fsm.ROTL_SCORE_LEVEL_3;
           }
 
         game_fsm.LEVEL2_CORRECT:
@@ -419,18 +416,28 @@ module bop_controlunit (
         game_fsm.BRANCH_GAME_TIMER:
           werf = b0; // No write
           rb = R7;
-          bzsel = b0; // No sound
-          
-          if (rb_data == 1) {
-            game_fsm.d = game_fsm.INCREASE_T4; // If less than 8 rounds
-          } else {
-            game_fsm.d = game_fsm.CHECK_LEVEL_INCREASE; // If more than 8 rounds
+          bzsel = b0;
+
+          if (flags[4] == 1) {
+            game_fsm.d = game_fsm.IDLE;
+          } else if (flags[4] == 0) {
+            game_fsm.d = game_fsm.RESET_CORRECT;
           }
+
+        game_fsm.RESET_CORRECT:
+          alufn = B;
+          bsel = b01;
+          werf = b1;
+          lit = 8h01;
+          rc = CORRECT;
+          wdsel = b00;
+          bzsel = b0;
+
+          game_fsm.d = game_fsm.UPDATE_SCORE;
           
-        game_fsm.INCREASE_T4:
-          alufn = ADD; // ADD 1 to T4 register
-          asel = b00;
-          bsel = b01; // Constant 1
+        game_fsm.UPDATE_SCORE:
+          alufn = A;
+          asel = b0;
           werf = b1;
           lit = 4h1;
           ra = T4;
@@ -454,18 +461,17 @@ module bop_controlunit (
           
         game_fsm.BRANCH_LEVEL_INCREASE:
           werf = b0;
-          rb = R7; // Read from reg 7
-          
-          if (rb_data == 0) { // 0 if LEVEL < 3
-            game_fsm.d = game_fsm.ADD_LEVEL;
+          rb = R7;
+          bzsel = b0;
+
+          if (rb_data == 0) {
+            game_fsm.d = game_fsm.RESET_TIMER;
           } else {
             game_fsm.d = game_fsm.GAME_END; //Might be too fast
           }
 
-        game_fsm.ADD_LEVEL:
-          alufn = ADD; // ADD 1 to level
-          asel = b00;
-          bsel = b01; // constant 1
+        game_fsm.RESET_TIMER:
+          bsel = b01;
           werf = b1;
           lit = 4h1;
           ra = LEVEL;
@@ -482,7 +488,7 @@ module bop_controlunit (
           game_fsm.d = game_fsm.IDLE; //Might be too fast
 
         game_fsm.GAME_END:
-          if (rst) { // Check for reset button for game
+          if (rst == 1) {
             game_fsm.d = game_fsm.START;
           }
         

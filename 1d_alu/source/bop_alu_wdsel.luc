@@ -29,6 +29,10 @@ module bop_alu_wdsel (
       b0: alu_a = ra_data;
       b1: alu_a = sxt_lit;
       default: alu_a = 16h0;
+      
+      // New Datapath
+      // b00: alu_a = ra_data;
+      // b01: alu_a = SEXT(lit) (from Control Unit)
     }
     
     case(bsel) {
