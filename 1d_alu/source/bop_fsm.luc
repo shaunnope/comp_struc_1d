@@ -1,0 +1,149 @@
+module bop_fsm (
+    input clk,  // clock
+    input rst,  // reset
+    input slwclk,   // Used for stages
+    
+    input inputs[4],   // 3 buttons, 1 did smth
+    input start,     // start button need edge detector
+    
+    input level[2], // 2 bit to represent 3 levels, 01 = level 1
+    input rb_data[16],
+    input zvnpc[5],
+
+    output alufn[5],
+    output asel, 
+    output bsel[2],
+    output werf,
+    output wdsel,
+    output lit[4],
+    output rc[3],
+    output ra[3],
+    output rb[3],
+    output bzsel // Used for sound buzzer
+  ) {
+  
+  .clk(clk){
+    edge_detector input_edges[4] (#RISE(1), #FALL(0));
+    edge_detector clk_edge[2] (#RISE(1), #FALL(0));
+    
+    fsm game_fsm (.rst(rst)) = {
+      IDLE,
+      INPUT_STORE,
+      INPUT_IDLE,
+      INPUT_RST,
+      PLAY_SOUND,
+      CHECK_ACTION,
+      UPDATE_LSCORE
+    }; 
+  }
+
+  // ALUFN[4:0] operations
+  const ADD = 5b00000;
+  const SUB = 5b00001;
+  const MUL = 5b00010;
+  const DIV = 5b00011;
+  const SHL = 5b00100;
+  const SHR = 5b00101;
+  const ROL = 5b00110;
+  const SRA = 5b00111;
+  const CMPEQ = 5b01011;
+  const CMPLT = 5b01101;
+  const CMPLE = 5b01111;
+  const AND = 5b11000;
+  const OR = 5b11110;
+  const XOR = 5b10110;
+  const A = 5b11010;
+  const B = 5b11100;
+
+  // reg addresses
+  const SCORE = 3b000;
+  const INPUT = 3b001;
+  const TIMER = 3b010;
+  const LEVEL = 3b011;
+  const LSCORE = 3b100;
+  const OSCORE = 3b101;
+  const CORRECT = 3b110;
+  const R7 = 3b111;
+  
+  sig str;
+  sig stf;
+
+  always {
+    input_edges.in = inputs;
+    clk_edge.in = c{slwclk, ~slwclk};
+    str = clk_edge.out[1];
+    stf = clk_edge.out[0];
+    
+    // Standard setting unless overwritten by cases
+    alufn = 0;
+    asel = 0;
+    bsel = 0;
+    werf = 0;
+    wdsel = 0;
+    lit = 0;
+    rc = 0;
+    ra = 0;
+    rb = 0;
+    bzsel = 0;
+    
+    case(game_fsm.q) {
+     game_fsm.IDLE:
+        if (|inputs) {
+          game_fsm.d = game_fsm.INPUT_STORE;
+        } else if (str) {
+          game_fsm.d = game_fsm.INPUT_RST;
+        } else if (stf) {
+          game_fsm.d = game_fsm.CHECK_ACTION;
+        }
+        
+     game_fsm.INPUT_STORE:
+       werf = b1;
+       rc = INPUT;
+       wdsel = b1;
+       game_fsm.d = game_fsm.INPUT_IDLE;
+        
+     game_fsm.INPUT_IDLE:
+       if (str) {
+         game_fsm.d = game_fsm.INPUT_RST;
+       } else if (stf) {
+         game_fsm.d = game_fsm.CHECK_ACTION;
+       }
+        
+      game_fsm.INPUT_RST:
+        alufn = B;
+        bsel = b01;
+        werf = b1;
+        lit = 8h0;
+        rc = INPUT;
+        wdsel = b0;
+        game_fsm.d = game_fsm.PLAY_SOUND;
+       
+      game_fsm.PLAY_SOUND:
+        game_fsm.d = game_fsm.IDLE;
+        
+      game_fsm.CHECK_ACTION:
+        alufn = CMPEQ;
+        asel = b0;
+        bsel = b10;
+        werf = b1;
+        ra = INPUT;
+        rc = CORRECT;
+        wdsel = b0;
+        game_fsm.d = game_fsm.UPDATE_LSCORE;
+        
+      game_fsm.UPDATE_LSCORE:
+        alufn = ADD;
+        asel = b0;
+        bsel = b01;
+        werf = b1;
+        lit = c{7x{~zvnpc[0]}, b1};
+        ra = LSCORE;
+        rc = LSCORE;
+        wdsel = b0;
+        game_fsm.d = game_fsm.IDLE;
+        
+      default: game_fsm.d = game_fsm.IDLE;
+    }
+    
+  }
+}

@@ -44,9 +44,10 @@ module tester_bop (
     io_led[0][3:0] = tester.o_input;
     io_led[2][7] = tester.o_start;
     
-    display.value = c{{7d66},{7d66},{7d66},{c{3b0,tester.action}}};
+    display.value = c{{8d66},{8d66},{c{tester.st,7d66}},{c{4b0,tester.action}}};
     
     io_seg = display.seg;
     io_sel = display.sel;
     // ------------- END TEST --------------
+    
 }
