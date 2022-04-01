@@ -12,7 +12,7 @@ module bop_out (
   ) {
   
   
-  sig levelsel[1];
+  sig levelsel;
   sig act_mux[4];
   sig bz_mux[4];
 
