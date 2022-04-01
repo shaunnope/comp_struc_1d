@@ -4,14 +4,45 @@
 module bop_out (
     input level[2],
     input action[4],
+    input in[4],
     input bzsel,
     input score[16],
-    output bz_out,
+    output bz_out[4],
     output score_led[16]
   ) {
+  
+  
+  sig levelsel[1];
+  sig act_mux[4];
+  sig bz_mux[4];
 
+  
   always {
-    bz_out = 0;
-    score_led = 0;
+   
+    // Buzzer Output
+    levelsel = ~(level[0] | level[1]);
+    
+    case(levelsel) {
+      b0: act_mux = action;
+      b1: act_mux = in;
+      
+      default: act_mux = 4h0;
+    }
+    
+    case(bzsel) {
+      b0: bz_mux = 0;
+      b1: bz_mux = act_mux;
+      
+      default: bz_mux = 4h0;
+    }
+    
+    
+    // Buzzer Output
+    bz_out = bz_mux;
+    
+    // LED Output
+    score_led = score;
+   
+    
   }
 }
