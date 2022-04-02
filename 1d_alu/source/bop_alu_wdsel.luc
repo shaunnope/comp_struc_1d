@@ -1,62 +1,45 @@
 module bop_alu_wdsel (
-
     input ra_data[16],
     input rb_data[16],
     
-    input asel[2],
-    input bsel[2],
-    input alufn[5],
     input lit[8],
-    input timer[4],
+    input asel,
+    input bsel[2],
+    
+    input alufn[5],
+    input timer[5],
     input action[4],
     input u_input[4],
-    input wdsel[2],
-    
+    input wdsel,
     output out[16],
     output aluflags[5]
   ) {
   
+  sig sxt_lit[16];
   sig alu_a[16];
   sig alu_b[16];
   sig alu_out[16];
-  
-  sig sext_lit[16];
   
   alu alu;
 
   always {
   
     // Sign extension of literal for asel
-    sext_lit = c{ 8x{lit[7]}, lit };
+    sxt_lit = c{ 8x{lit[7]}, lit };
     
     
     case(asel) {
-
-      b00: alu_a = ra_data;
-      b01: alu_a = sext_lit;
-      
-      // b00: alu_a = ra_data;
-      // b01: alu_a = 16h3;
-      // b10: alu_a = 16h0;
-      // b11: alu_a = 16hF; //changed this to 15 for ror
+      b0: alu_a = ra_data;
+      b1: alu_a = sxt_lit;
       
       default: alu_a = 16h0;
-      
-
     }
     
     case(bsel) {
-
       b00: alu_b = rb_data;
-      b01: alu_b = sext_lit;
+      b01: alu_b = sxt_lit;
       b10: alu_b = c{12b0, action};
       b11: alu_b = c{15b0, timer[3]};
-      
-      // b00: alu_b = rb_data;
-      // b01: alu_b = 16h1;
-      // b10: alu_b = 16h2;
-      // b11: alu_b = 16h8; //changed this to 8 to track no.of rounds in level
-      
       default: alu_b = 16h0;
     }
     
@@ -68,14 +51,8 @@ module bop_alu_wdsel (
     aluflags = alu.zvnpc;
     
     case(wdsel) {
-      b00: out = alu_out;
-      b01: out = c{12b0, u_input};
-      
-      // b00: out = alu_out;
-      // b01: out = c{12b0, action};
-      // b10: out = c{12b0, u_input};
-      // b11: out = 16b0;
-        
+      b0: out = alu_out;
+      b1: out = c{12b0, u_input};
       default: out = alu_out;
     }
   }

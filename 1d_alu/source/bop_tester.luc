@@ -18,29 +18,42 @@ module bop_tester (
   ) {
   .clk(clk) {
     .rst(rst) {
-    bop_slwclk_rng slwclk;
-    bop_regfile regfile;
-    //bop_controlunit ctrlunit(.slwclk(slwclk.st));
+      bop_slwclk_rng slwclk(#FREQ(28));
+      bop_regfile regfile;
+      
+      bop_fsm ctrlunit(.slwclk(slwclk.st));
     }
-    
   }
-  sig inputs[4];
   
-  //bop_alu_wdsel alu;
+  bop_alu_wdsel alu;
+  
 
   always {
-    inputs = c{u_input, ~|u_input};
-    
     slwclk.level = level;
-    
     
     regfile.reg_abc = 0;
     regfile.w_data = 0;
     regfile.werf = 0;
     
+    ctrlunit.level = level;
+    ctrlunit.start = start;
+    ctrlunit.rb_data = regfile.rb_data;
+    ctrlunit.inputs = u_input;
+    ctrlunit.zvnpc = alu.aluflags;
+    
+    alu.alufn = ctrlunit.alufn;
+    alu.asel = ctrlunit.asel;
+    alu.bsel = ctrlunit.bsel;
+    alu.lit = ctrlunit.lit;
+    alu.action = slwclk.action;
+    alu.timer = regfile.timer_data[4:0];
+    alu.wdsel = ctrlunit.wdsel;
+    alu.u_input = u_input;
+    alu.ra_data = regfile.ra_data;
+    alu.rb_data = regfile.rb_data;
     
     o_level = level;
-    o_input = inputs;
+    o_input = u_input;
     o_start = start;
     st = slwclk.st;
     action = slwclk.action;

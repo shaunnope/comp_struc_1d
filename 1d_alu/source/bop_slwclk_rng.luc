@@ -1,4 +1,7 @@
-module bop_slwclk_rng (
+module bop_slwclk_rng #(
+    FREQ = 26 : FREQ > 0, // 26 for 1Hz
+    SEED = 32h129 : SEED > 0
+  )(
     input clk,  // clock
     input rst,  // reset
     input level[2],
@@ -8,14 +11,11 @@ module bop_slwclk_rng (
   
   sig slwclk;
   
-  const SLOWCLOCK_DIV = 26; // 26 for 1Hz
-  const SEED = 32h129;
-  
   .clk(clk){
       edge_detector gen_next(#RISE(1), #FALL(0));
     
       .rst(rst){    
-        counter slowClock(#SIZE(3), #DIV(SLOWCLOCK_DIV));
+        counter slowClock(#SIZE(3), #DIV(FREQ));
         pn_gen rng(.next(gen_next.out), .seed(SEED));
       }
    }

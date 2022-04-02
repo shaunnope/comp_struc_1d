@@ -4,18 +4,15 @@ module bop_controlunit (
     input slwclk,   // Used for stages
     
     input inputs[4], // 3 buttons, 1 nothing
-    // input inputs1, //edge detector of the button 1
-    // input inputs2,//edge detector of the button 2
-    // input inputs3,//edge detector of the button 3
     
-    input start,     // start button need edge detector??
+    input start,     // start button need edge detector
     input level[2], // 2 bit to represent 3 levels, 01 = level 1
     
     input rb_data[16],
     input flags[5], // zvnpc
 
     output alufn[5],
-    output asel[2], 
+    output asel, 
     output bsel[2],
     output werf,
     output wdsel[2],
@@ -23,15 +20,15 @@ module bop_controlunit (
     output rc[3],
     output ra[3],
     output rb[3],
-    output bzsel, // Used for sound buzzer
-    
-    output out
+    output bzsel // Used for sound buzzer
   ) {
   
   .clk(clk){
+    edge_detector input_edges[4] (#RISE(1), #FALL(0));
+    edge_detector clk_edge[2] (#RISE(1), #FALL(0));
     fsm game_fsm = {  
       START,
-      INCREASE_LEVEL,
+      INC_LEVEL,
       
       // For round & input purposes
       IDLE,
@@ -44,16 +41,16 @@ module bop_controlunit (
       UPDATE_OSCORE,
       
       // For scoring systems
-      ADD_SCORE_LEVEL_1,
-      MUL_SCORE_LEVEL_2,
+      L1_SCORE_ADD,
+      L2_SCORE_MUL,
       DIV_SCORE_NEG,
-      DIV_SCORE_LEVEL_2,
-      ROTL_SCORE_LEVEL_3,
+      L2_SCORE_DIV,
+      L3_SCORE_ROTL,
       
       // Handling if end of round
       DISPLAY_SCORE,
-      RESET_INPUT,
-      INCREASE_TIMER,
+      RESET_INPUT1,
+      INC_TIMER,
       CHECK_ROUND_END,
       BRANCH_ROUND_END,
       
@@ -97,8 +94,16 @@ module bop_controlunit (
   const OSCORE = b101;
   const CORRECT = b110;
   const R7 = b110;
+
+  sig str;
+  sig stf;
   
   always {
+    input_edges.in = inputs;
+    clk_edge.in = c{slwclk, ~slwclk};
+    str = clk_edge.out[1];
+    stf = clk_edge.out[0];
+    
     // Standard setting unless overwritten by cases
     alufn = 0;
     asel = 0;
@@ -110,41 +115,40 @@ module bop_controlunit (
     ra = 0;
     rb = 0;
     bzsel = 0;
-    out = 0;
 
     if (rst) {
       game_fsm.d = game_fsm.START;
     } 
     else {
       case(game_fsm.q) {
-        game_fsm.START: // not sure what to add for here
+        game_fsm.START:
           if(start){
-            game_fsm.d = game_fsm.INCREASE_LEVEL;
-          }
-
-          if (inputs != 0) {
+            game_fsm.d = game_fsm.INC_LEVEL;
+          } else if (|input_edges.out & 1) {
             game_fsm.d = game_fsm.TEST_SOUND;
           }
 
-        game_fsm.INCREASE_LEVEL:
+        game_fsm.INC_LEVEL:
           alufn = ADD;
           asel = b00;
           bsel = b01;
           werf = b1;
           ra = LEVEL;
           rc = LEVEL;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = 0;
 
           game_fsm.d = game_fsm.IDLE;
 
         game_fsm.IDLE:
-          if (inputs == 0) {
+          if (str & 1) {
+            game_fsm.d = game_fsm.RESET_INPUT;
+          } else if (stf & 1) {
             game_fsm.d = game_fsm.CHECK_ACTION;
-          } else {
+          } else if (|input_edges.out) {
             game_fsm.d = game_fsm.STORE_INPUT;
-          }
-
+           } 
+          
         game_fsm.STORE_INPUT:
           werf = b1;
           rc = INPUT;
@@ -153,7 +157,11 @@ module bop_controlunit (
           game_fsm.d = game_fsm.INPUT_IDLE;
 
         game_fsm.INPUT_IDLE:
-          game_fsm.d = game_fsm.CHECK_ACTION;
+          if (str & 1) {
+            game_fsm.d = game_fsm.RESET_INPUT;
+           } else if (stf & 1) {
+              game_fsm.d = game_fsm.CHECK_ACTION;
+           }
 
         game_fsm.RESET_INPUT:
           alufn = B;
@@ -161,22 +169,24 @@ module bop_controlunit (
           werf = b1;
           lit = 8h00;
           rc = INPUT;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
           
           game_fsm.d = game_fsm.PLAY_SOUND;
 
         game_fsm.PLAY_SOUND:
+          // prob need more ctrl signals
+          bzsel = b1;
           game_fsm.d = game_fsm.IDLE;
 
         game_fsm.CHECK_ACTION:
           alufn = CMPEQ;
-          asel = b00;
+          asel = b0;
           bsel = b10;
           werf = b1;
           ra = INPUT;
           rc = CORRECT;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.UPDATE_LSCORE;
@@ -186,38 +196,31 @@ module bop_controlunit (
           asel = b0;
           bsel = b01;
           werf = b01;
-
-          // Not sure if this is right
-          if (flags[4] == 0) {
-            lit = b1;
-          } else {
-            lit = b0;
-          }
-
+          lit = c{7x{~flags[0]}, b1};
           ra = LSCORE;
           rc = LSCORE;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.UPDATE_OSCORE;
 
         game_fsm.UPDATE_OSCORE:
           bzsel = b0;
-
-          if (level == b01) {
-            game_fsm.d = game_fsm.ADD_SCORE_LEVEL_1;
-          } else if (level == b10) {
-            // Checking for n flag, this means if its negative LSCORE
-            if (flags[2] == 0) {
-              game_fsm.d = game_fsm.MUL_SCORE_LEVEL_2;
-            } else if (flags[2] == 1) {
-              game_fsm.d = game_fsm.DIV_SCORE_LEVEL_2;
-            }
-          } else if (level == b11) {
-            game_fsm.d = game_fsm.ROTL_SCORE_LEVEL_3;
+          
+          case(level) {
+            b01: game_fsm.d = game_fsm.L1_SCORE_ADD;
+            b10:
+              if(flags[2] & 1) {
+                game_fsm.d = game_fsm.DIV_SCORE_NEG;
+              } else {
+                game_fsm.d = game_fsm.L2_SCORE_MUL;
+              }
+            b11:
+              game_fsm.d = game_fsm.L3_SCORE_ROTL;
+            default: game_fsm.d = game_fsm.START;
           }
 
-        game_fsm.ADD_SCORE_LEVEL_1:
+        game_fsm.L1_SCORE_ADD:
           alufn = ADD;
           asel = b0;
           bsel = b00;
@@ -225,12 +228,12 @@ module bop_controlunit (
           ra = SCORE;
           rb = LSCORE;
           rc = OSCORE;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.DISPLAY_SCORE;
 
-        game_fsm.MUL_SCORE_LEVEL_2:
+        game_fsm.L2_SCORE_MUL:
           alufn = MUL;
           asel = b0;
           bsel = b00;
@@ -238,7 +241,7 @@ module bop_controlunit (
           ra = SCORE;
           rb = LSCORE;
           rc = OSCORE;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.DISPLAY_SCORE;
@@ -249,27 +252,27 @@ module bop_controlunit (
           bsel = b00;
           werf = b1;
           lit = 8h00;
-          rb = OSCORE;
+          rb = LSCORE;
           rc = R7;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
-          game_fsm.d = game_fsm.DIV_SCORE_LEVEL_2;
+          game_fsm.d = game_fsm.L2_SCORE_DIV;
 
-        game_fsm.DIV_SCORE_LEVEL_2:
+        game_fsm.L2_SCORE_DIV:
           alufn = DIV;
           asel = b0;
           bsel = b00;
           werf = b1;
           ra = SCORE;
-          rb = LSCORE;
+          rb = R7;
           rc = OSCORE;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.DISPLAY_SCORE;
 
-        game_fsm.ROTL_SCORE_LEVEL_3:
+        game_fsm.L3_SCORE_ROTL:
           alufn = ROTL;
           asel = b0;
           bsel = b00;
@@ -277,7 +280,7 @@ module bop_controlunit (
           ra = SCORE;
           rb = LSCORE;
           rc = OSCORE;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.DISPLAY_SCORE;
@@ -292,12 +295,12 @@ module bop_controlunit (
           werf = b1;
           lit = 8h00;
           rc = INPUT;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
-          game_fsm.d = game_fsm.INCREASE_TIMER;
+          game_fsm.d = game_fsm.INC_TIMER;
 
-        game_fsm.INCREASE_TIMER:
+        game_fsm.INC_TIMER:
           alufn = ADD;
           asel = b0;
           bsel = b01;
@@ -305,7 +308,7 @@ module bop_controlunit (
           lit = 8h01;
           ra = TIMER;
           rc = TIMER;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.CHECK_ROUND_END;
@@ -315,7 +318,7 @@ module bop_controlunit (
           bsel = b11;
           werf = b1;
           rc = R7;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.BRANCH_ROUND_END;
@@ -325,9 +328,9 @@ module bop_controlunit (
           rb = R7;
           bzsel = b0;
 
-          if (flags[4] == 1) {
+          if (flags[0] & 1) {
             game_fsm.d = game_fsm.IDLE;
-          } else if (flags[4] == 0) {
+          } else {
             game_fsm.d = game_fsm.RESET_CORRECT;
           }
 
@@ -337,7 +340,7 @@ module bop_controlunit (
           werf = b1;
           lit = 8h01;
           rc = CORRECT;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.UPDATE_SCORE;
@@ -346,9 +349,9 @@ module bop_controlunit (
           alufn = A;
           asel = b0;
           werf = b1;
-          ra = SCORE;
+          ra = OSCORE;
           rc = SCORE;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
         
           game_fsm.d = game_fsm.CHECK_LEVEL;
@@ -358,9 +361,10 @@ module bop_controlunit (
           asel = b0;
           bsel = b01;
           werf = b1;
-          lit = 8h08;
+          lit = 8h03;
+          ra = LEVEL;
           rc = R7;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
           game_fsm.d = game_fsm.BRANCH_LEVEL;
@@ -381,16 +385,14 @@ module bop_controlunit (
           werf = b1;
           lit = 8h00;
           rc = TIMER;
-          wdsel = b00;
+          wdsel = b0;
           bzsel = b0;
 
-          game_fsm.d = game_fsm.INCREASE_LEVEL;
+          game_fsm.d = game_fsm.INC_LEVEL;
 
         game_fsm.GAME_END:
-          if (rst == 1) {
+          if (rst & 1) {
             game_fsm.d = game_fsm.START;
-          } else if (rst == 0) {
-            game_fsm.d = game_fsm.GAME_END;
           }
  
         game_fsm.TEST_SOUND:
@@ -398,7 +400,8 @@ module bop_controlunit (
           bzsel = b1;
           game_fsm.d = game_fsm.START;
           
-
+        default:
+          game_fsm.d = game_fsm.START;
     }
 
   }
