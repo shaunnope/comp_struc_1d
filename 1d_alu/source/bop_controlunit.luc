@@ -399,6 +399,9 @@ module bop_controlunit (
           werf = b0;
           bzsel = b1;
           game_fsm.d = game_fsm.START;
+          
+        default:
+          game_fsm.d = game_fsm.START;
     }
 
   }
