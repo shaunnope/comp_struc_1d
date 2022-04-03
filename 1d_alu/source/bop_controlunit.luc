@@ -15,7 +15,7 @@ module bop_controlunit (
     output asel, 
     output bsel[2],
     output werf,
-    output wdsel[2],
+    output wdsel,
     output lit[8],
     output rc[3],
     output ra[3],
@@ -141,68 +141,61 @@ module bop_controlunit (
           game_fsm.d = game_fsm.IDLE;
 
         game_fsm.IDLE:
-          if (str & 1) {
-            game_fsm.d = game_fsm.RESET_INPUT;
-          } else if (stf & 1) {
-            game_fsm.d = game_fsm.CHECK_ACTION;
-          } else if (|input_edges.out) {
-            game_fsm.d = game_fsm.STORE_INPUT;
-           } 
-          
-        game_fsm.STORE_INPUT:
-          werf = b1;
-          rc = INPUT;
-          wdsel = b10;
-          bzsel = b0;
-          game_fsm.d = game_fsm.INPUT_IDLE;
-
-        game_fsm.INPUT_IDLE:
-          if (str & 1) {
-            game_fsm.d = game_fsm.RESET_INPUT;
-           } else if (stf & 1) {
-              game_fsm.d = game_fsm.CHECK_ACTION;
-           }
-
-        game_fsm.RESET_INPUT:
-          alufn = B;
-          bsel = b01;
-          werf = b1;
-          lit = 8h00;
-          rc = INPUT;
-          wdsel = b0;
-          bzsel = b0;
-          
-          game_fsm.d = game_fsm.PLAY_SOUND;
-
-        game_fsm.PLAY_SOUND:
-          // prob need more ctrl signals
-          bzsel = b1;
-          game_fsm.d = game_fsm.IDLE;
-
-        game_fsm.CHECK_ACTION:
-          alufn = CMPEQ;
-          asel = b0;
-          bsel = b10;
-          werf = b1;
-          ra = INPUT;
-          rc = CORRECT;
-          wdsel = b0;
-          bzsel = b0;
-
-          game_fsm.d = game_fsm.UPDATE_LSCORE;
-
-        game_fsm.UPDATE_LSCORE:
-          alufn = ADD;
-          asel = b0;
-          bsel = b01;
-          werf = b01;
-          lit = c{7x{~flags[0]}, b1};
-          ra = LSCORE;
-          rc = LSCORE;
-          wdsel = b0;
-          bzsel = b0;
-
-          game_fsm.d = game_fsm.UPDATE_OSCORE;
+        if (|inputs) {
+          game_fsm.d = game_fsm.INPUT_STORE;
+        } else if (str) {
+          game_fsm.d = game_fsm.INPUT_RST;
+        } else if (stf) {
+          game_fsm.d = game_fsm.CHECK_ACTION;
+        }
+        
+     game_fsm.INPUT_STORE:
+       werf = b1;
+       rc = INPUT;
+       wdsel = b1;
+       game_fsm.d = game_fsm.INPUT_IDLE;
+        
+     game_fsm.INPUT_IDLE:
+       if (str) {
+         game_fsm.d = game_fsm.INPUT_RST;
+       } else if (stf) {
+         game_fsm.d = game_fsm.CHECK_ACTION;
+       }
+        
+      game_fsm.INPUT_RST:
+        alufn = B;
+        bsel = b01;
+        werf = b1;
+        lit = 8h0;
+        rc = INPUT;
+        wdsel = b0;
+        game_fsm.d = game_fsm.PLAY_SOUND;
+       
+      game_fsm.PLAY_SOUND:
+        game_fsm.d = game_fsm.IDLE;
+        
+      game_fsm.CHECK_ACTION:
+        alufn = CMPEQ;
+        asel = b0;
+        bsel = b10;
+        werf = b1;
+        ra = INPUT;
+        rc = CORRECT;
+        wdsel = b0;
+        aluflags.d = zvnpc;
+        if (tick & 1) game_fsm.d = game_fsm.UPDATE_LSCORE;
+        
+      game_fsm.UPDATE_LSCORE:
+        alufn = ADD;
+        asel = b0;
+        bsel = b01;
+        werf = b1;
+        lit = c{7x{aluflags.q[4]}, b1};
+        ra = LSCORE;
+        rc = LSCORE;
+        wdsel = b0;
+        aluflags.d = zvnpc;
+        game_fsm.d = game_fsm.UPDATE_OSCORE;
 
         game_fsm.UPDATE_OSCORE:
           bzsel = b0;
@@ -328,7 +321,7 @@ module bop_controlunit (
           rb = R7;
           bzsel = b0;
 
-          if (flags[0] & 1) {
+          if (flags[4] & 1) {
             game_fsm.d = game_fsm.IDLE;
           } else {
             game_fsm.d = game_fsm.RESET_CORRECT;

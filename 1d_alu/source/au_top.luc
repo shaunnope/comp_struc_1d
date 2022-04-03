@@ -25,7 +25,7 @@ module au_top (
     }
   }
   
-  sig button_io[5]; // 0: hard reset, 1: back to start of mode, 2: , 3: , 4: , 5:
+  sig button_io[5];
   
   always {
     reset_cond.in = ~rst_n; // input raw inverted reset signal

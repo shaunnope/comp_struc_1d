@@ -33,9 +33,11 @@ module tester_bop (
     
     // ----------- Test circuit out --------
     
+    tester.reg_debug = io_dip[2][2:0];
+    
     tester.level = io_dip[0][1:0];
-    tester.u_input = io_button[2:0];
-    tester.start = io_button[3];
+    tester.u_input = io_button[3:0];
+    tester.start = io_button[4];
     
     led[7] = tester.st;       // blinker
     io_led[1][7] = tester.st;
@@ -44,7 +46,12 @@ module tester_bop (
     io_led[0][3:0] = tester.o_input;
     io_led[2][7] = tester.o_start;
     
-    display.value = c{{8d66},{8d66},{c{tester.st,7d66}},{c{4b0,tester.action}}};
+    io_led[1][3:0] = tester.action;
+    io_led[2][4:0] = tester.flags;
+    
+    //display.value = c{{8d66},{8d66},{c{tester.st,7d66}},{c{4b0,tester.action}}};
+    display.value = c{{c{tester.st, 3b0, tester.score[15:12]}},{c{4b0, tester.score[11:8]}},
+                      {c{4b0, tester.score[7:4]}},{c{4b0, tester.score[3:0]}}};
     
     io_seg = display.seg;
     io_sel = display.sel;

@@ -6,6 +6,7 @@ module bop_slwclk_rng #(
     input rst,  // reset
     input level[2],
     output st,
+    output tick,
     output action[4]
   ) {
   
@@ -15,14 +16,17 @@ module bop_slwclk_rng #(
   
   .clk(clk){
       edge_detector gen_next(#RISE(1), #FALL(0));
+      edge_detector tick_next(#RISE(1), #FALL(1));
     
       .rst(rst){    
         counter slowClock(#SIZE(3), #DIV(FREQ));
+        counter ticker(#SIZE(1), #DIV(FREQ/2));
         pn_gen rng(.next(gen_next.out), .seed(SEED));
       }
    }
   
   always {
+    tick_next.in = ticker.value;
     
     case(level) {
       b00: slwclk = b0;
@@ -35,6 +39,7 @@ module bop_slwclk_rng #(
     gen_next.in = slwclk;
     
     st = slwclk;
+    tick = tick_next.out;
     decoder.in = rng.num[1:0];
     action = decoder.out;
   }

@@ -7,6 +7,8 @@
 module bop_it (
     input clk,  // clock
     input rst,  // reset
+    
+    input level[2], 
     input u_input[3],
     input start,
     output out
@@ -31,19 +33,24 @@ module bop_it (
     regfile.reg_abc = c{ctrlunit.ra, ctrlunit.rb, ctrlunit.rc};
     regfile.w_data = alu.out;
     
-    ctrlunit.inputs = inputs;
-    ctrlunit.start = start;
-    ctrlunit.level = regfile.level_data[1:0];
+    regfile.reg_debug = 0;
     
-    alu.u_input = inputs;
-    alu.wdsel = ctrlunit.wdsel;
+    ctrlunit.level = level;
+    ctrlunit.start = start;
+    ctrlunit.rb_data = regfile.rb_data;
+    ctrlunit.inputs = u_input;
+    ctrlunit.flags = alu.aluflags;
+    
     alu.alufn = ctrlunit.alufn;
     alu.asel = ctrlunit.asel;
     alu.bsel = ctrlunit.bsel;
+    alu.lit = ctrlunit.lit;
+    alu.action = slwclk.action;
+    alu.timer = regfile.timer_data[4:0];
+    alu.wdsel = ctrlunit.wdsel;
+    alu.u_input = u_input;
     alu.ra_data = regfile.ra_data;
     alu.rb_data = regfile.rb_data;
-    alu.action = slwclk.action;
-    alu.u_input = u_input;
     
     out = 0;
   }
