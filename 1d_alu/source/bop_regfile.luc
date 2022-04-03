@@ -14,7 +14,9 @@ module bop_regfile (
     output level_data[2],
     
     input reg_debug[3],
-    output debug_data[16]
+    output debug_data[16],
+    input debug_write[16],
+    input wedb
     
     // REGFILE Addresses --> Persistent read ports  ------
     // 0x00: SCORE 
@@ -57,5 +59,9 @@ module bop_regfile (
     score_data = regfile.q[5];
     
     debug_data = regfile.q[reg_debug];
+
+    if (wedb & 1) {
+      regfile.d[0] = debug_write;
+    }
   }
 }

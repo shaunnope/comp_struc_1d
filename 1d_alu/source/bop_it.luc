@@ -26,6 +26,10 @@ module bop_it (
   bop_alu_wdsel alu;
 
   always {
+    regfile.debug_write = 0;
+    regfile.wedb = 0;
+    ctrlunit.tick = 0;
+    
     inputs = c{u_input, |u_input};
     
     slwclk.level = regfile.level_data[1:0];
