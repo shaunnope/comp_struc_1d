@@ -39,9 +39,9 @@ module bop_controlunit (
       
       // For round & input purposes
       IDLE,
-      STORE_INPUT,
+      INPUT_STORE,
       INPUT_IDLE,
-      RESET_INPUT,
+      INPUT_RST,
       PLAY_SOUND,
       CHECK_ACTION,
       UPDATE_LSCORE,
@@ -56,7 +56,7 @@ module bop_controlunit (
       
       // Handling if end of round
       DISPLAY_SCORE,
-      RESET_INPUT1,
+      RESET_INPUT,
       INC_TIMER,
       CHECK_ROUND_END,
       BRANCH_ROUND_END,
@@ -152,6 +152,8 @@ module bop_controlunit (
           if (stf) {
             game_fsm.d = game_fsm.IDLE;
           }
+          
+          game_fsm.d = game_fsm.AWAIT;
 
         game_fsm.IDLE:
         if (|inputs) {
@@ -216,7 +218,7 @@ module bop_controlunit (
           case(level) {
             b01: game_fsm.d = game_fsm.L1_SCORE_ADD;
             b10:
-              if(flags[2] & 1) {
+              if(aluflags.q[2] & 1) {
                 game_fsm.d = game_fsm.DIV_SCORE_NEG;
               } else {
                 game_fsm.d = game_fsm.L2_SCORE_MUL;
