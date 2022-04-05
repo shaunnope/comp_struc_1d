@@ -11,6 +11,7 @@ module bop_slwclk_rng #(
   ) {
   
   sig slwclk;
+  sig p_action[4];
   
   decoder decoder(#WIDTH(2));
   
@@ -40,6 +41,7 @@ module bop_slwclk_rng #(
     
     st = slwclk;
     tick = tick_next.out;
+    p_action = rng.num[3:0];
     decoder.in = rng.num[1:0];
     action = decoder.out;
   }

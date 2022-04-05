@@ -15,14 +15,15 @@
     <src>alu_fsm.luc</src>
     <src>tester_alu.luc</src>
     <src>tester_top.luc</src>
+    <src>bop_regfile.luc</src>
     <component>reset_conditioner.luc</component>
     <src>tester_bop.luc</src>
+    <src>bop_led.luc</src>
     <src>sixteen_bit_compare.luc</src>
     <src>alu_tester_auto.luc</src>
     <component>button_conditioner.luc</component>
     <src>alu_bit_bool.luc</src>
     <src>bop_fsm.luc</src>
-    <src>bop_regfile.luc</src>
     <src>bop_buzzer.luc</src>
     <component>wave.luc</component>
     <src>sixteen_bit_bool.luc</src>
