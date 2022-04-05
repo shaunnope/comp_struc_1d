@@ -1,0 +1,42 @@
+module bop_led (
+    input clk,  // clock
+    input rst,  // reset
+    input tog,
+    output out
+  ) {
+  
+  const GREEN = hAA0000;
+  const MAGENTA = h00DDDD;
+  
+  .clk(clk) {
+    edge_detector tog_edge (#RISE(1), #FALL(0));
+    .rst(rst) {
+      fsm toggle = {GREEN, RED};
+      ws2812b_writer strip_writer(#PIXEL_COUNT(8));
+    }
+  }
+
+  always {
+    tog_edge.in = tog;
+    strip_writer.color = 0;
+    strip_writer.update = 1;
+    
+    case (toggle.q) {
+      toggle.GREEN:
+        strip_writer.color = GREEN;
+        if (tog_edge.out) toggle.d  = toggle.RED;
+        
+      toggle.RED:
+        
+        strip_writer.color = MAGENTA;
+        if (tog_edge.out) toggle.d  =toggle.GREEN;
+        
+      default:
+        toggle.d = toggle.GREEN;
+    }
+    
+    //strip_writer.led
+    
+    out = 0;
+  }
+}
