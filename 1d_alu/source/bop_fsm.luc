@@ -9,7 +9,7 @@ module bop_fsm (
     
     input level[2], // 2 bit to represent 3 levels, 01 = level 1
     input rb_data[16],
-    input zvnpc[5],
+    input flags[5],
 
     output alufn[5],
     output asel, 
@@ -135,6 +135,7 @@ module bop_fsm (
         asel = b00;
         bsel = b01;
         werf = b1;
+        lit = 8h01;
         ra = LEVEL;
         rc = LEVEL;
         wdsel = b0;
@@ -184,8 +185,8 @@ module bop_fsm (
         ra = INPUT;
         rc = CORRECT;
         wdsel = b0;
-        aluflags.d = zvnpc;
-        if (tick & 1) game_fsm.d = game_fsm.UPDATE_LSCORE;
+        aluflags.d = flags;
+        game_fsm.d = game_fsm.UPDATE_LSCORE;
         
       game_fsm.UPDATE_LSCORE:
         alufn = ADD;
@@ -196,7 +197,7 @@ module bop_fsm (
         ra = LSCORE;
         rc = LSCORE;
         wdsel = b0;
-        aluflags.d = zvnpc;
+        aluflags.d = flags;
         game_fsm.d = game_fsm.UPDATE_OSCORE;
         
       game_fsm.UPDATE_OSCORE:
