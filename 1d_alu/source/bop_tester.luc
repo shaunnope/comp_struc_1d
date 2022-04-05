@@ -21,7 +21,7 @@ module bop_tester (
       bop_slwclk_rng slwclk(#FREQ(28));
       bop_regfile regfile;
       
-      bop_fsm ctrlunit(.slwclk(slwclk.st));
+      bop_controlunit ctrlunit(.slwclk(slwclk.st), .tick(slwclk.tick));
     }
   }
   
@@ -29,17 +29,23 @@ module bop_tester (
   
 
   always {
-    slwclk.level = level;
+    
+    //slwclk.level = level;
+    slwclk.level = regfile.level_data[1:0];
     
     regfile.reg_abc = 0;
     regfile.w_data = 0;
     regfile.werf = 0;
     
-    ctrlunit.level = level;
+    regfile.debug_write = debug_write;
+    regfile.wedb = start;
+    
+    //ctrlunit.level = level;
+    ctrlunit.level = regfile.level_data[1:0];
     ctrlunit.start = start;
     ctrlunit.rb_data = regfile.rb_data;
     ctrlunit.inputs = u_input;
-    ctrlunit.zvnpc = alu.aluflags;
+    ctrlunit.flags = alu.aluflags;
     
     alu.alufn = ctrlunit.alufn;
     alu.asel = ctrlunit.asel;
@@ -52,8 +58,18 @@ module bop_tester (
     alu.ra_data = regfile.ra_data;
     alu.rb_data = regfile.rb_data;
     
-    o_level = level;
-    o_input = u_input;
+    
+    regfile.reg_debug = reg_debug;
+    
+    // ---- END SETUP ----
+    
+    o_level = regfile.level_data;
+    case(|level) {
+      b0: o_input = u_input;
+      b1: o_input = regfile.input_data;
+      default: o_input = regfile.input_data;
+    }
+    
     o_start = start;
     st = slwclk.st;
     action = slwclk.action;

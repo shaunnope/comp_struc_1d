@@ -18,6 +18,7 @@
     <src>bop_regfile.luc</src>
     <component>reset_conditioner.luc</component>
     <src>tester_bop.luc</src>
+    <src>bop_led.luc</src>
     <src>sixteen_bit_compare.luc</src>
     <src>alu_tester_auto.luc</src>
     <component>button_conditioner.luc</component>

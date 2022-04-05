@@ -8,7 +8,7 @@ module bop_fsm (
     
     input level[2], // 2 bit to represent 3 levels, 01 = level 1
     input rb_data[16],
-    input zvnpc[5],
+    input flags[5],
 
     output alufn[5],
     output asel, 
@@ -87,6 +87,26 @@ module bop_fsm (
     bzsel = 0;
     
     case(game_fsm.q) {
+      game_fsm.START:
+          if(start){
+            game_fsm.d = game_fsm.INC_LEVEL;
+          } else if (|inputs & 1) {
+            game_fsm.d = game_fsm.TEST_SOUND;
+          }
+
+      game_fsm.INC_LEVEL:
+        alufn = ADD;
+        asel = b00;
+        bsel = b01;
+        werf = b1;
+        lit = 8h01;
+        ra = LEVEL;
+        rc = LEVEL;
+        wdsel = b0;
+        bzsel = 0;
+
+        game_fsm.d = game_fsm.IDLE;
+        
      game_fsm.IDLE:
         if (|inputs) {
           game_fsm.d = game_fsm.INPUT_STORE;
@@ -129,6 +149,7 @@ module bop_fsm (
         ra = INPUT;
         rc = CORRECT;
         wdsel = b0;
+        aluflags.d = flags;
         game_fsm.d = game_fsm.UPDATE_LSCORE;
         
       game_fsm.UPDATE_LSCORE:
@@ -140,7 +161,8 @@ module bop_fsm (
         ra = LSCORE;
         rc = LSCORE;
         wdsel = b0;
-        game_fsm.d = game_fsm.IDLE;
+        aluflags.d = flags;
+        game_fsm.d = game_fsm.UPDATE_OSCORE;
         
       default: game_fsm.d = game_fsm.IDLE;
     }

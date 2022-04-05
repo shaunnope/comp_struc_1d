@@ -10,6 +10,7 @@ module bop_slwclk_rng #(
   ) {
   
   sig slwclk;
+  sig p_action[4];
   
   .clk(clk){
       edge_detector gen_next(#RISE(1), #FALL(0));
@@ -33,6 +34,9 @@ module bop_slwclk_rng #(
     gen_next.in = slwclk;
     
     st = slwclk;
-    action = rng.num[1:0];
+    tick = tick_next.out;
+    p_action = rng.num[3:0];
+    decoder.in = rng.num[1:0];
+    action = decoder.out;
   }
 }

@@ -33,6 +33,9 @@ module tester_bop (
     
     // ----------- Test circuit out --------
     
+    tester.reg_debug = io_dip[2][2:0];
+    tester.debug_write = c{8x{io_dip[1][7]}, io_dip[1]};
+    
     tester.level = io_dip[0][1:0];
     tester.u_input = io_button[2:0];
     tester.start = io_button[3];

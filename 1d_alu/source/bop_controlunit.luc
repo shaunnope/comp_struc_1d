@@ -25,10 +25,17 @@ module bop_controlunit (
   
   .clk(clk){
     edge_detector input_edges[4] (#RISE(1), #FALL(0));
-    edge_detector clk_edge[2] (#RISE(1), #FALL(0));
+    edge_detector clk_edge[4] (#RISE(1), #FALL(0));
+
+    .rst(rst) {
+      dff data_rb[16];
+      dff aluflags[5];
+    }
+
     fsm game_fsm = {  
       START,
       INC_LEVEL,
+      AWAIT,
       
       // For round & input purposes
       IDLE,
@@ -100,7 +107,7 @@ module bop_controlunit (
   
   always {
     input_edges.in = inputs;
-    clk_edge.in = c{slwclk, ~slwclk};
+    clk_edge.in = c{tick, ~tick, slwclk, ~slwclk};
     str = clk_edge.out[1];
     stf = clk_edge.out[0];
     
@@ -133,76 +140,75 @@ module bop_controlunit (
           asel = b00;
           bsel = b01;
           werf = b1;
+          lit = 8h01;
           ra = LEVEL;
           rc = LEVEL;
           wdsel = b0;
           bzsel = 0;
 
-          game_fsm.d = game_fsm.IDLE;
+          game_fsm.d = game_fsm.AWAIT;
+          
+        game_fsm.AWAIT:
+          if (stf) {
+            game_fsm.d = game_fsm.IDLE;
+          }
 
         game_fsm.IDLE:
-          if (str & 1) {
-            game_fsm.d = game_fsm.RESET_INPUT;
-          } else if (stf & 1) {
-            game_fsm.d = game_fsm.CHECK_ACTION;
-          } else if (|input_edges.out) {
-            game_fsm.d = game_fsm.STORE_INPUT;
-           } 
-          
-        game_fsm.STORE_INPUT:
-          werf = b1;
-          rc = INPUT;
-          wdsel = b10;
-          bzsel = b0;
-          game_fsm.d = game_fsm.INPUT_IDLE;
-
-        game_fsm.INPUT_IDLE:
-          if (str & 1) {
-            game_fsm.d = game_fsm.RESET_INPUT;
-           } else if (stf & 1) {
-              game_fsm.d = game_fsm.CHECK_ACTION;
-           }
-
-        game_fsm.RESET_INPUT:
-          alufn = B;
-          bsel = b01;
-          werf = b1;
-          lit = 8h00;
-          rc = INPUT;
-          wdsel = b0;
-          bzsel = b0;
-          
-          game_fsm.d = game_fsm.PLAY_SOUND;
-
-        game_fsm.PLAY_SOUND:
-          // prob need more ctrl signals
-          bzsel = b1;
-          game_fsm.d = game_fsm.IDLE;
-
-        game_fsm.CHECK_ACTION:
-          alufn = CMPEQ;
-          asel = b0;
-          bsel = b10;
-          werf = b1;
-          ra = INPUT;
-          rc = CORRECT;
-          wdsel = b0;
-          bzsel = b0;
-
-          game_fsm.d = game_fsm.UPDATE_LSCORE;
-
-        game_fsm.UPDATE_LSCORE:
-          alufn = ADD;
-          asel = b0;
-          bsel = b01;
-          werf = b01;
-          lit = c{7x{~flags[0]}, b1};
-          ra = LSCORE;
-          rc = LSCORE;
-          wdsel = b0;
-          bzsel = b0;
-
-          game_fsm.d = game_fsm.UPDATE_OSCORE;
+        if (|inputs) {
+          game_fsm.d = game_fsm.INPUT_STORE;
+        } else if (str) {
+          game_fsm.d = game_fsm.INPUT_RST;
+        } else if (stf) {
+          game_fsm.d = game_fsm.CHECK_ACTION;
+        }
+        
+     game_fsm.INPUT_STORE:
+       werf = b1;
+       rc = INPUT;
+       wdsel = b1;
+       game_fsm.d = game_fsm.INPUT_IDLE;
+        
+     game_fsm.INPUT_IDLE:
+       if (str) {
+         game_fsm.d = game_fsm.INPUT_RST;
+       } else if (stf) {
+         game_fsm.d = game_fsm.CHECK_ACTION;
+       }
+        
+      game_fsm.INPUT_RST:
+        alufn = B;
+        bsel = b01;
+        werf = b1;
+        lit = 8h0;
+        rc = INPUT;
+        wdsel = b0;
+        game_fsm.d = game_fsm.PLAY_SOUND;
+       
+      game_fsm.PLAY_SOUND:
+        game_fsm.d = game_fsm.IDLE;
+        
+      game_fsm.CHECK_ACTION:
+        alufn = CMPEQ;
+        asel = b0;
+        bsel = b10;
+        werf = b1;
+        ra = INPUT;
+        rc = CORRECT;
+        wdsel = b0;
+        aluflags.d = flags;
+        game_fsm.d = game_fsm.UPDATE_LSCORE;
+        
+      game_fsm.UPDATE_LSCORE:
+        alufn = ADD;
+        asel = b0;
+        bsel = b01;
+        werf = b1;
+        lit = c{7x{aluflags.q[4]}, b1};
+        ra = LSCORE;
+        rc = LSCORE;
+        wdsel = b0;
+        aluflags.d = flags;
+        game_fsm.d = game_fsm.UPDATE_OSCORE;
 
         game_fsm.UPDATE_OSCORE:
           bzsel = b0;
@@ -287,7 +293,7 @@ module bop_controlunit (
 
         game_fsm.DISPLAY_SCORE:
           // TODO
-          game_fsm.d = game_fsm.RESET_INPUT;
+          game_fsm.d = game_fsm.INC_TIMER;
 
         game_fsm.RESET_INPUT:
           alufn = B;
@@ -320,7 +326,7 @@ module bop_controlunit (
           rc = R7;
           wdsel = b0;
           bzsel = b0;
-
+          aluflags.d = flags;
           game_fsm.d = game_fsm.BRANCH_ROUND_END;
 
         game_fsm.BRANCH_ROUND_END:
@@ -328,13 +334,13 @@ module bop_controlunit (
           rb = R7;
           bzsel = b0;
 
-          if (flags[0] & 1) {
+          if (aluflags.q[4] & 1) {
             game_fsm.d = game_fsm.IDLE;
           } else {
             game_fsm.d = game_fsm.RESET_CORRECT;
           }
 
-        game_fsm.RESET_CORRECT:
+        game_fsm.RESET_CORRECT: // sets CORRECT to 1: green LEDs
           alufn = B;
           bsel = b01;
           werf = b1;
@@ -345,7 +351,7 @@ module bop_controlunit (
 
           game_fsm.d = game_fsm.UPDATE_SCORE;
           
-        game_fsm.UPDATE_SCORE:
+        game_fsm.UPDATE_SCORE: // copy OSCORE to SCORE
           alufn = A;
           asel = b0;
           werf = b1;
@@ -356,7 +362,7 @@ module bop_controlunit (
         
           game_fsm.d = game_fsm.CHECK_LEVEL;
 
-        game_fsm.CHECK_LEVEL:
+        game_fsm.CHECK_LEVEL: // check LEVEL < 3
           alufn = CMPLT;
           asel = b0;
           bsel = b01;
@@ -366,7 +372,7 @@ module bop_controlunit (
           rc = R7;
           wdsel = b0;
           bzsel = b0;
-
+          aluflags.d = flags;
           game_fsm.d = game_fsm.BRANCH_LEVEL;
 
         game_fsm.BRANCH_LEVEL:
@@ -374,7 +380,7 @@ module bop_controlunit (
           rb = R7;
           bzsel = b0;
 
-          if (rb_data == 0) {
+          if (aluflags.q[4] & 1) {
             game_fsm.d = game_fsm.RESET_TIMER;
           } else {
             game_fsm.d = game_fsm.GAME_END;
@@ -391,7 +397,7 @@ module bop_controlunit (
           game_fsm.d = game_fsm.INC_LEVEL;
 
         game_fsm.GAME_END:
-          if (rst & 1) {
+          if (rst | start) {
             game_fsm.d = game_fsm.START;
           }
  
