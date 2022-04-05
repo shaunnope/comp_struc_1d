@@ -9,7 +9,7 @@ module bop_tester (
     
     input level[2],    
     output action[4],
-    output o_level[2],
+    output o_level[6],
     output o_input[4],
     output o_start,
     output st,
@@ -40,6 +40,7 @@ module bop_tester (
     regfile.reg_abc = c{ctrlunit.ra, ctrlunit.rb, ctrlunit.rc};
     regfile.w_data = alu.out;
     regfile.werf = ctrlunit.werf;
+    regfile.s_rst = ctrlunit.s_rst;
     
     regfile.debug_write = debug_write;
     regfile.wedb = start;
@@ -67,8 +68,8 @@ module bop_tester (
     
     // ---- END SETUP ----
     
-    o_level = regfile.level_data;
-    case(|level) {
+    o_level = c{regfile.level_data, regfile.timer_data[3:0]};
+    case(|regfile.level_data) {
       b0: o_input = u_input;
       b1: o_input = regfile.input_data;
       default: o_input = regfile.input_data;

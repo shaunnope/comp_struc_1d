@@ -28,6 +28,7 @@ module bop_it (
   always {
     regfile.debug_write = 0;
     regfile.wedb = 0;
+    regfile.s_rst = 0;
     ctrlunit.tick = 0;
     
     inputs = c{u_input, |u_input};

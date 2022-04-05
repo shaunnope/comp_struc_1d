@@ -21,7 +21,8 @@ module bop_controlunit (
     output rc[3],
     output ra[3],
     output rb[3],
-    output bzsel // Used for sound buzzer
+    output bzsel, // Used for sound buzzer
+    output s_rst  // soft reset
   ) {
   
   .clk(clk){
@@ -57,7 +58,7 @@ module bop_controlunit (
       
       // Handling if end of round
       DISPLAY_SCORE,
-      RESET_INPUT1,
+      RESET_INPUT,
       INC_TIMER,
       CHECK_ROUND_END,
       BRANCH_ROUND_END,
@@ -65,10 +66,12 @@ module bop_controlunit (
       // Handling if end of game
       RESET_CORRECT,
       UPDATE_SCORE,
+      RESET_LSCORE,
       CHECK_LEVEL,
       BRANCH_LEVEL,
       RESET_TIMER,
-      
+
+      RESET_LEVEL,      
       GAME_END,
       
       // Testing sound purposes
@@ -123,6 +126,7 @@ module bop_controlunit (
     ra = 0;
     rb = 0;
     bzsel = 0;
+    s_rst = 0;
 
     if (rst) {
       game_fsm.d = game_fsm.START;
@@ -131,6 +135,7 @@ module bop_controlunit (
       case(game_fsm.q) {
         game_fsm.START:
           if(start){
+            s_rst = start;
             game_fsm.d = game_fsm.INC_LEVEL;
           } else if (|input_edges.out & 1) {
             game_fsm.d = game_fsm.TEST_SOUND;
@@ -296,7 +301,7 @@ module bop_controlunit (
           // TODO
           game_fsm.d = game_fsm.INC_TIMER;
 
-        game_fsm.RESET_INPUT1:
+        game_fsm.RESET_INPUT:
           alufn = B;
           bsel = b01;
           werf = b1;
@@ -361,6 +366,16 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
         
+          game_fsm.d = game_fsm.RESET_LSCORE;
+
+        game_fsm.RESET_LSCORE:
+          alufn = B;
+          bsel = b01;
+          werf = b1;
+          lit = 8h00;
+          rc = LSCORE;
+          wdsel = b0;
+          bzsel = b0;
           game_fsm.d = game_fsm.CHECK_LEVEL;
 
         game_fsm.CHECK_LEVEL: // check LEVEL < 3
@@ -382,12 +397,13 @@ module bop_controlunit (
           bzsel = b0;
 
           if (aluflags.q[4] & 1) {
-            game_fsm.d = game_fsm.RESET_TIMER;
+            game_fsm.d = game_fsm.RESET_LEVEL;
           } else {
-            game_fsm.d = game_fsm.GAME_END;
+            game_fsm.d = game_fsm.RESET_TIMER;
           }
 
         game_fsm.RESET_TIMER:
+          alufn = B;
           bsel = b01;
           werf = b1;
           lit = 8h00;
@@ -396,6 +412,17 @@ module bop_controlunit (
           bzsel = b0;
 
           game_fsm.d = game_fsm.INC_LEVEL;
+
+        game_fsm.RESET_LEVEL:
+          alufn = B;
+          bsel = b01;
+          werf = b1;
+          lit = 8h00;
+          rc = LEVEL;
+          wdsel = b0;
+          bzsel = b0;
+
+          game_fsm.d = game_fsm.GAME_END;
 
         game_fsm.GAME_END:
           if (rst | start) {
