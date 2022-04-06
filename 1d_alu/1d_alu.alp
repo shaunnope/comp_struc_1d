@@ -22,6 +22,7 @@
     <src>sixteen_bit_compare.luc</src>
     <src>alu_tester_auto.luc</src>
     <component>button_conditioner.luc</component>
+    <component>encoder.luc</component>
     <src>alu_bit_bool.luc</src>
     <src>bop_fsm.luc</src>
     <src>bop_buzzer.luc</src>

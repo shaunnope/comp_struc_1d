@@ -9,6 +9,8 @@ module au_top (
     output io_sel [4],      // Digit select on IO Shield
     input io_button [5],    // 5 buttons on IO Shield
     input io_dip [3][8],
+    
+    output led_strip,
     output customout[3]
   ) {
   
@@ -43,6 +45,7 @@ module au_top (
     button_io = buttoncond.out;     // conditioned button inputs
     
     customout = 0;
+    led_strip = 0;
     
     // --------------  END INIT  --------------------
     
@@ -55,6 +58,8 @@ module au_top (
     io_sel = tester.io_sel;
     io_led = tester.io_led;
     led = tester.led;
+    
+    led_strip = tester.strip_led;
 
     
 }
