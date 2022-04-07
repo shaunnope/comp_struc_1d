@@ -1,0 +1,53 @@
+module bop_pwm #(
+
+  )(
+    input clk,  // clock
+    input rst,  // reset
+    input bzsel, // Buzzer Selector
+    input bz_out[4], // Buzzer out signals
+    output out
+    
+  ) {
+  
+  sig pulse;
+
+  .clk(clk){
+  
+    // Edge detection for pwm.update
+    // (Is this even needed tho?)
+    edge_detector bz_update(#RISE(1), #FALL(0));
+    
+    .rst(rst) {
+    
+      // 4 PWMs with hardcoded width.                                                      Predicted values given 100MHz CLK (may be wrong):
+      // May need to change .value to standard hardcoded value, not super sure about this
+      pwm pulse1(#WIDTH(4), #TOP(62500), #DIV(4), .value(bz_out), .update(bz_update.out)); // 100Hz <--- (may not be very audible?)
+      pwm pulse2(#WIDTH(4), #TOP(12500), #DIV(4), .value(bz_out), .update(bz_update.out)); // 500Hz
+      pwm pulse3(#WIDTH(4), #TOP(6250), #DIV(4), .value(bz_out), .update(bz_update.out));  // 1,000Hz
+      pwm pulse4(#WIDTH(4), #TOP(3125), #DIV(4), .value(bz_out), .update(bz_update.out));  // 2,000Hz
+    }
+  }
+
+  always {
+    bz_update.in = bzsel; 
+    
+    // Choose appropriate pulse to output
+    case (bz_out) {
+      b0001: pulse = pulse1.pulse;
+      b0010: pulse = pulse2.pulse;
+      b0100: pulse = pulse3.pulse;
+      b1000: pulse = pulse4.pulse;
+      
+      default: pulse = b0;
+    }
+    
+    // turn off buzzer if bzsel == 0
+    case (bzsel) {
+      b0: out = b0;
+      b1: out = pulse;
+      
+      default: out = b0;
+    }
+    
+  }
+}
