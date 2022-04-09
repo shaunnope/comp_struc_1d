@@ -34,6 +34,8 @@ module bop_controlunit (
 
     fsm game_fsm = {  
       START,
+      INTIALIZE_SCORE,
+      
       INC_LEVEL,
       AWAIT,
       
@@ -49,8 +51,12 @@ module bop_controlunit (
       
       // For scoring systems
       L1_SCORE_ADD,
+      L1_OSCORE_CHECK,
+      L1_OSCORE_BRANCH,
+      L1_SET_OSCORE,
+      
       L2_SCORE_MUL,
-      DIV_SCORE_NEG,
+      L2_DIV_SCORE_NEG,
       L2_SCORE_DIV,
       L3_SCORE_ROTL,
       
@@ -130,14 +136,32 @@ module bop_controlunit (
       case(game_fsm.q) {
         game_fsm.START:
           if(start){
+<<<<<<< Updated upstream
             game_fsm.d = game_fsm.INC_LEVEL;
+=======
+            s_rst = start;
+            game_fsm.d = game_fsm.INTIALIZE_SCORE;
+>>>>>>> Stashed changes
           } else if (|input_edges.out & 1) {
             game_fsm.d = game_fsm.TEST_SOUND;
           }
+          
+        game_fsm.INTIALIZE_SCORE:
+          alufn = ADD;
+          asel = b0;
+          bsel = b01;
+          werf = b1;
+          lit = 8h01;
+          ra = SCORE;
+          rc = SCORE;
+          wdsel = b0;
+          bzsel = b0;
+          
+          game_fsm.d = game_fsm.INC_LEVEL;
 
         game_fsm.INC_LEVEL:
           alufn = ADD;
-          asel = b00;
+          asel = b0;
           bsel = b01;
           werf = b1;
           lit = 8h01;
@@ -219,7 +243,7 @@ module bop_controlunit (
             b01: game_fsm.d = game_fsm.L1_SCORE_ADD;
             b10:
               if(aluflags.q[2] & 1) {
-                game_fsm.d = game_fsm.DIV_SCORE_NEG;
+                game_fsm.d = game_fsm.L2_DIV_SCORE_NEG;
               } else {
                 game_fsm.d = game_fsm.L2_SCORE_MUL;
               }
@@ -240,6 +264,40 @@ module bop_controlunit (
           bzsel = b0;
 
           game_fsm.d = game_fsm.DISPLAY_SCORE;
+          
+        game_fsm.L1_OSCORE_CHECK:
+          alufn = CMPLT;
+          asel = b0;
+          bsel = b01;
+          werf = b1;
+          lit = 8h01;
+          ra = OSCORE;
+          rc = R7;
+          wdsel = b0;
+          bzsel = b0;
+          aluflags.d = flags;
+          
+          game_fsm.d = game_fsm.L1_OSCORE_BRANCH;
+          
+        game_fsm.L1_OSCORE_BRANCH:
+          bzsel = b0;
+          
+          if (aluflags.q[4] & 1) {
+            game_fsm.d = game_fsm.DISPLAY_SCORE;
+          } else {
+            game_fsm.d = game_fsm.L1_SET_OSCORE;
+          }
+        
+        game_fsm.L1_SET_OSCORE:
+          alufn = A;
+          asel = b1;
+          werf = b1;
+          lit = 8h01;
+          rc = OSCORE;
+          wdsel = b0;
+          bzsel = b0;
+          
+          game_fsm.d = game_fsm.DISPLAY_SCORE;
 
         game_fsm.L2_SCORE_MUL:
           alufn = MUL;
@@ -254,7 +312,7 @@ module bop_controlunit (
 
           game_fsm.d = game_fsm.DISPLAY_SCORE;
   
-        game_fsm.DIV_SCORE_NEG:
+        game_fsm.L2_DIV_SCORE_NEG:
           alufn = SUB;
           asel = b1;
           bsel = b00;
