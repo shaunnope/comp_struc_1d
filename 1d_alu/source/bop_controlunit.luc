@@ -177,8 +177,6 @@ module bop_controlunit (
           if (stf) {
             game_fsm.d = game_fsm.IDLE;
           }
-          
-          game_fsm.d = game_fsm.AWAIT;
 
         game_fsm.IDLE:
         if (|inputs) {
@@ -264,7 +262,7 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
 
-          game_fsm.d = game_fsm.DISPLAY_SCORE;
+          game_fsm.d = game_fsm.L1_OSCORE_CHECK;
           
         game_fsm.L1_OSCORE_CHECK:
           alufn = CMPLT;
