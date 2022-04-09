@@ -136,12 +136,8 @@ module bop_controlunit (
       case(game_fsm.q) {
         game_fsm.START:
           if(start){
-<<<<<<< Updated upstream
-            game_fsm.d = game_fsm.INC_LEVEL;
-=======
             s_rst = start;
             game_fsm.d = game_fsm.INTIALIZE_SCORE;
->>>>>>> Stashed changes
           } else if (|input_edges.out & 1) {
             game_fsm.d = game_fsm.TEST_SOUND;
           }
