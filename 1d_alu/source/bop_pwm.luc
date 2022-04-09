@@ -19,10 +19,10 @@ module bop_pwm (
     
       // 4 PWMs with hardcoded width.                                                      Predicted values given 100MHz CLK (may be wrong):
       // May need to change .value to standard hardcoded value, not super sure about this
-      pwm pulse1(#WIDTH(4), #TOP(62500), #DIV(4), .value(bz_out), .update(bz_update.out)); // 100Hz <--- (may not be very audible?)
-      pwm pulse2(#WIDTH(4), #TOP(12500), #DIV(4), .value(bz_out), .update(bz_update.out)); // 500Hz
-      pwm pulse3(#WIDTH(4), #TOP(6250), #DIV(4), .value(bz_out), .update(bz_update.out));  // 1000Hz
-      pwm pulse4(#WIDTH(4), #TOP(3125), #DIV(4), .value(bz_out), .update(bz_update.out));  // 2000Hz
+      pwm pulse1(#WIDTH(4), #TOP(0), #DIV(6), .value(4b1000), .update(bz_update.out)); // 100Hz <--- (may not be very audible?)
+      pwm pulse2(#WIDTH(4), #TOP(0), #DIV(12), .value(4b1000), .update(bz_update.out)); // 500Hz
+      pwm pulse3(#WIDTH(4), #TOP(0), #DIV(15), .value(4b1000), .update(bz_update.out));  // 1000Hz
+      pwm pulse4(#WIDTH(4), #TOP(0), #DIV(17), .value(4b1000), .update(bz_update.out));  // 2000Hz
     }
   }
 
