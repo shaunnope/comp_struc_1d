@@ -4,21 +4,25 @@
 module bop_tester (
     input clk,  // clock
     input rst,  // reset
-    input u_input[3],
+    input u_input[4],
     input start,
     
-    input level[2],
+    input level[2],    
     output action[4],
-    output o_level[2],
+    output o_level[6],
     output o_input[4],
     output o_start,
     output st,
+    output correct,
+    output score[16],
     
-    output out
+    input debug_write[16],
+    input reg_debug[3],
+    output extra[8]
   ) {
   .clk(clk) {
     .rst(rst) {
-      bop_slwclk_rng slwclk(#FREQ(28));
+      bop_slwclk_rng slwclk(#FREQ(27));
       bop_regfile regfile;
       
       bop_controlunit ctrlunit(.slwclk(slwclk.st), .tick(slwclk.tick));
@@ -33,9 +37,10 @@ module bop_tester (
     //slwclk.level = level;
     slwclk.level = regfile.level_data[1:0];
     
-    regfile.reg_abc = 0;
-    regfile.w_data = 0;
-    regfile.werf = 0;
+    regfile.reg_abc = c{ctrlunit.ra, ctrlunit.rb, ctrlunit.rc};
+    regfile.w_data = alu.out;
+    regfile.werf = ctrlunit.werf;
+    regfile.s_rst = ctrlunit.s_rst;
     
     regfile.debug_write = debug_write;
     regfile.wedb = start;
@@ -63,8 +68,8 @@ module bop_tester (
     
     // ---- END SETUP ----
     
-    o_level = regfile.level_data;
-    case(|level) {
+    o_level = c{regfile.level_data, regfile.timer_data[3:0]};
+    case(|regfile.level_data) {
       b0: o_input = u_input;
       b1: o_input = regfile.input_data;
       default: o_input = regfile.input_data;
@@ -73,7 +78,12 @@ module bop_tester (
     o_start = start;
     st = slwclk.st;
     action = slwclk.action;
+    score = regfile.score_data;
     
-    out = 0;
+    correct = regfile.ra_data[0];
+    
+    score = regfile.debug_data;
+    extra[3:0] = u_input;
+    
   }
 }

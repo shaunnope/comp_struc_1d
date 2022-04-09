@@ -1,3 +1,6 @@
+/*
+  Interface game to IO components
+*/
 module tester_bop (
     input clk,              // 100MHz clock
     input rst,              // reset
@@ -8,7 +11,9 @@ module tester_bop (
     output io_seg [8],      // 7-segment LEDs on IO Shield
     output io_sel [4],      // Digit select on IO Shield
     input io_button [5],    // 5 buttons on IO Shield
-    input io_dip [3][8] 
+    input io_dip [3][8],
+    
+    output strip_led
   ) {
   
   .clk(clk) {
@@ -16,8 +21,11 @@ module tester_bop (
       .rst(rst){
         bop_tester tester;
         var_seven_seg display;
+        bop_led led_strip;
       }
     }
+  
+  encoder action(#WIDTH(4));
   
   always {
   
@@ -31,26 +39,42 @@ module tester_bop (
     
     risingEdge.in = io_button; // rising edge button inputs
     
+    strip_led = 0;
+    
     // ----------- Test circuit out --------
     
     tester.reg_debug = io_dip[2][2:0];
     tester.debug_write = c{8x{io_dip[1][7]}, io_dip[1]};
     
     tester.level = io_dip[0][1:0];
-    tester.u_input = io_button[2:0];
-    tester.start = io_button[3];
+    tester.u_input = io_button[3:0];
+    tester.start = io_button[4];
     
     led[7] = tester.st;       // blinker
     io_led[1][7] = tester.st;
     
-    io_led[0][7:6] = tester.o_level;
     io_led[0][3:0] = tester.o_input;
     io_led[2][7] = tester.o_start;
+    io_led[2][5:0] = tester.o_level;
     
-    display.value = c{{8d66},{8d66},{c{tester.st,7d66}},{c{4b0,tester.action}}};
+    io_led[1][3:0] = tester.action;
+    
+    //display.value = c{{8d66},{8d66},{c{tester.st,7d66}},{c{4b0,tester.action}}};
+    display.value = c{{c{tester.st, 3b0, tester.score[15:12]}},{c{4b0, tester.score[11:8]}},
+                      {c{4b0, tester.score[7:4]}},{c{4b0, tester.score[3:0]}}};
     
     io_seg = display.seg;
     io_sel = display.sel;
-    // ------------- END TEST --------------
+    
+    action.in = tester.action;
+    
+    if (tester.st & (|tester.o_level)) {
+      led_strip.pixels = 16hffff;
+      led_strip.color = action.out + 2;
+    } else {
+      led_strip.pixels = tester.score;
+      led_strip.color = tester.correct;
+    }
+    
     
 }

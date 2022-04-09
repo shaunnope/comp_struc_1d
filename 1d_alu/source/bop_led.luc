@@ -1,0 +1,46 @@
+module bop_led (
+    input clk,  // clock
+    input rst,  // reset
+    
+    input pixels[16],
+    input color[4], // color index to desplay
+    
+    output out
+  ) {
+  
+  const COLOR = {
+    h620080, // PURPLE
+    h805100, // ORANGE
+    hAAAA00, // CYAN
+    hAA00AA, // YELLOW
+    h00AAAA, // MAGENTA
+    h00AA00, // BLUE
+    hAA0000, // GREEN   - correct
+    h0000AA  // RED     - wrong
+    };
+  
+  .clk(clk) {
+    .rst(rst) {
+      ws2812b_writer led_strip(#PIXEL_COUNT(16));
+    }
+  }
+  
+  decoder pixels_out(#WIDTH(4));
+  
+  sig p_color;
+
+  always {
+  
+    led_strip.update = 1;  // LED always updating
+    pixels_out.in = led_strip.pixel;
+    
+    p_color = |(pixels & pixels_out.out);
+    if (p_color) {
+      led_strip.color = COLOR[color];
+    } else {
+      led_strip.color = 0;
+    }
+    
+    out = led_strip.led;
+  }
+}

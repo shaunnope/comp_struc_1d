@@ -5,10 +5,9 @@ module bop_alu_wdsel (
     input lit[8],
     input asel,
     input bsel[2],
-    input timer[5],
     
     input alufn[5],
-    
+    input timer[5],
     input action[4],
     input u_input[4],
     input wdsel,
@@ -24,15 +23,16 @@ module bop_alu_wdsel (
   alu alu;
 
   always {
-  sxt_lit = c{8x{lit[7]}, lit};
+  
+    // Sign extension of literal for asel
+    sxt_lit = c{ 8x{lit[7]}, lit };
+    
+    
     case(asel) {
       b0: alu_a = ra_data;
       b1: alu_a = sxt_lit;
-      default: alu_a = 16h0;
       
-      // New Datapath
-      // b00: alu_a = ra_data;
-      // b01: alu_a = SEXT(lit) (from Control Unit)
+      default: alu_a = 16h0;
     }
     
     case(bsel) {

@@ -1,6 +1,7 @@
 module bop_fsm (
     input clk,  // clock
     input rst,  // reset
+    input tick, // stage transition
     input slwclk,   // Used for stages
     
     input inputs[4],   // 3 buttons, 1 did smth
@@ -15,7 +16,7 @@ module bop_fsm (
     output bsel[2],
     output werf,
     output wdsel,
-    output lit[4],
+    output lit[8],
     output rc[3],
     output ra[3],
     output rb[3],
@@ -23,17 +24,53 @@ module bop_fsm (
   ) {
   
   .clk(clk){
-    edge_detector input_edges[4] (#RISE(1), #FALL(0));
     edge_detector clk_edge[2] (#RISE(1), #FALL(0));
     
+    .rst(rst) {
+      dff data_rb[16];
+      dff aluflags[5];
+    }
+    
     fsm game_fsm (.rst(rst)) = {
+      START,
+      INC_LEVEL,
+      
+      // For round & input purposes
       IDLE,
       INPUT_STORE,
       INPUT_IDLE,
       INPUT_RST,
       PLAY_SOUND,
       CHECK_ACTION,
-      UPDATE_LSCORE
+      UPDATE_LSCORE,
+      UPDATE_OSCORE,
+      
+      // For scoring systems
+      L1_SCORE_ADD,
+      L2_SCORE_MUL,
+      DIV_SCORE_NEG,
+      L2_SCORE_DIV,
+      L3_SCORE_ROTL,
+      
+      // Handling if end of round
+      DISPLAY_SCORE,
+      RESET_INPUT1,
+      INC_TIMER,
+      CHECK_ROUND_END,
+      BRANCH_ROUND_END,
+      
+      // Handling if end of game
+      RESET_CORRECT,
+      UPDATE_SCORE,
+      CHECK_LEVEL,
+      BRANCH_LEVEL,
+      RESET_TIMER,
+      
+      GAME_END,
+      
+      // Testing sound purposes
+      TEST_SOUND
+      
     }; 
   }
 
@@ -44,7 +81,7 @@ module bop_fsm (
   const DIV = 5b00011;
   const SHL = 5b00100;
   const SHR = 5b00101;
-  const ROL = 5b00110;
+  const ROTL = 5b00110;
   const SRA = 5b00111;
   const CMPEQ = 5b01011;
   const CMPLT = 5b01101;
@@ -69,7 +106,6 @@ module bop_fsm (
   sig stf;
 
   always {
-    input_edges.in = inputs;
     clk_edge.in = c{slwclk, ~slwclk};
     str = clk_edge.out[1];
     stf = clk_edge.out[0];
@@ -157,14 +193,100 @@ module bop_fsm (
         asel = b0;
         bsel = b01;
         werf = b1;
-        lit = c{7x{~zvnpc[0]}, b1};
+        lit = c{7x{aluflags.q[4]}, b1};
         ra = LSCORE;
         rc = LSCORE;
         wdsel = b0;
         aluflags.d = flags;
         game_fsm.d = game_fsm.UPDATE_OSCORE;
         
-      default: game_fsm.d = game_fsm.IDLE;
+      game_fsm.UPDATE_OSCORE:
+          bzsel = b0;
+          
+          case(level) {
+            b01: game_fsm.d = game_fsm.L1_SCORE_ADD;
+            b10:
+              if(aluflags.q[2] & 1) {
+                game_fsm.d = game_fsm.DIV_SCORE_NEG;
+              } else {
+                game_fsm.d = game_fsm.L2_SCORE_MUL;
+              }
+            b11:
+              game_fsm.d = game_fsm.L3_SCORE_ROTL;
+            default: game_fsm.d = game_fsm.IDLE;
+          }
+
+        game_fsm.L1_SCORE_ADD:
+          alufn = ADD;
+          asel = b0;
+          bsel = b00;
+          werf = b1;
+          ra = SCORE;
+          rb = LSCORE;
+          rc = OSCORE;
+          wdsel = b0;
+          bzsel = b0;
+
+          game_fsm.d = game_fsm.DISPLAY_SCORE;
+
+        game_fsm.L2_SCORE_MUL:
+          alufn = MUL;
+          asel = b0;
+          bsel = b00;
+          werf = b1;
+          ra = SCORE;
+          rb = LSCORE;
+          rc = OSCORE;
+          wdsel = b0;
+          bzsel = b0;
+
+          game_fsm.d = game_fsm.DISPLAY_SCORE;
+  
+        game_fsm.DIV_SCORE_NEG:
+          alufn = SUB;
+          asel = b1;
+          bsel = b00;
+          werf = b1;
+          lit = 8h00;
+          rb = LSCORE;
+          rc = R7;
+          wdsel = b0;
+          bzsel = b0;
+
+          game_fsm.d = game_fsm.L2_SCORE_DIV;
+
+        game_fsm.L2_SCORE_DIV:
+          alufn = DIV;
+          asel = b0;
+          bsel = b00;
+          werf = b1;
+          ra = SCORE;
+          rb = R7;
+          rc = OSCORE;
+          wdsel = b0;
+          bzsel = b0;
+
+          game_fsm.d = game_fsm.DISPLAY_SCORE;
+
+        game_fsm.L3_SCORE_ROTL:
+          alufn = ROTL;
+          asel = b0;
+          bsel = b00;
+          werf = b1;
+          ra = SCORE;
+          rb = LSCORE;
+          rc = OSCORE;
+          wdsel = b0;
+          bzsel = b0;
+
+          game_fsm.d = game_fsm.DISPLAY_SCORE;
+
+        game_fsm.DISPLAY_SCORE:
+          // TODO
+          game_fsm.d = game_fsm.IDLE;
+          
+        default:
+          game_fsm.d = game_fsm.START;
     }
     
   }

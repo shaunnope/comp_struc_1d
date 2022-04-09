@@ -1,6 +1,7 @@
 module bop_controlunit (
     input clk,  // clock
     input rst,  // reset
+    input tick, // stage transition
     input slwclk,   // Used for stages
     
     input inputs[4], // 3 buttons, 1 nothing
@@ -15,12 +16,13 @@ module bop_controlunit (
     output asel, 
     output bsel[2],
     output werf,
-    output wdsel[2],
+    output wdsel,
     output lit[8],
     output rc[3],
     output ra[3],
     output rb[3],
-    output bzsel // Used for sound buzzer
+    output bzsel, // Used for sound buzzer
+    output s_rst  // soft reset
   ) {
   
   .clk(clk){
@@ -70,10 +72,12 @@ module bop_controlunit (
       // Handling if end of game
       RESET_CORRECT,
       UPDATE_SCORE,
+      RESET_LSCORE,
       CHECK_LEVEL,
       BRANCH_LEVEL,
       RESET_TIMER,
-      
+
+      RESET_LEVEL,      
       GAME_END,
       
       // Testing sound purposes
@@ -128,6 +132,7 @@ module bop_controlunit (
     ra = 0;
     rb = 0;
     bzsel = 0;
+    s_rst = 0;
 
     if (rst) {
       game_fsm.d = game_fsm.START;
@@ -416,6 +421,16 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
         
+          game_fsm.d = game_fsm.RESET_LSCORE;
+
+        game_fsm.RESET_LSCORE:
+          alufn = B;
+          bsel = b01;
+          werf = b1;
+          lit = 8h00;
+          rc = LSCORE;
+          wdsel = b0;
+          bzsel = b0;
           game_fsm.d = game_fsm.CHECK_LEVEL;
 
         game_fsm.CHECK_LEVEL: // check LEVEL < 3
@@ -437,12 +452,13 @@ module bop_controlunit (
           bzsel = b0;
 
           if (aluflags.q[4] & 1) {
-            game_fsm.d = game_fsm.RESET_TIMER;
+            game_fsm.d = game_fsm.RESET_LEVEL;
           } else {
-            game_fsm.d = game_fsm.GAME_END;
+            game_fsm.d = game_fsm.RESET_TIMER;
           }
 
         game_fsm.RESET_TIMER:
+          alufn = B;
           bsel = b01;
           werf = b1;
           lit = 8h00;
@@ -451,6 +467,17 @@ module bop_controlunit (
           bzsel = b0;
 
           game_fsm.d = game_fsm.INC_LEVEL;
+
+        game_fsm.RESET_LEVEL:
+          alufn = B;
+          bsel = b01;
+          werf = b1;
+          lit = 8h00;
+          rc = LEVEL;
+          wdsel = b0;
+          bzsel = b0;
+
+          game_fsm.d = game_fsm.GAME_END;
 
         game_fsm.GAME_END:
           if (rst | start) {

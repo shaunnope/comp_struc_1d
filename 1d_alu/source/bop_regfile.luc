@@ -1,26 +1,32 @@
 module bop_regfile (
     input clk,  // clock
     input rst,  // reset
+    input s_rst, // soft reset
     input w_data[16],
     input werf,
     input reg_abc[9], // 8:6 - a, 5:3 - b, 2:0 - c
     
+    
     output ra_data[16],
     output rb_data[16],
     output score_data[16],
-    output input_data[16],
+    output input_data[4],
     output timer_data[16], 
-    output level_data[16],
-    output out
+    output level_data[2],
     
-    // REGFILE Addresses-------------
-    // 0x00: SCORE
-    // 0x01: INPUT  --> input_data[16]
-    // 0x02: TIMER  --> timer_data[16]
-    // 0x03: LEVEL  --> level_data[16]
-    // 0x04: LSCORE
-    // 0x05: OSCORE --> score_data[16]
-    // 0x06: CORRECT
+    input reg_debug[3],
+    output debug_data[16],
+    input debug_write[16],
+    input wedb
+    
+    // REGFILE Addresses --> Persistent read ports  ------
+    // 0x00: SCORE 
+    // 0x01: INPUT --> input_data[16]
+    // 0x02: TIMER --> timer_data[16]
+    // 0x03: LEVEL --> level_data[16]
+    // 0x04: LSCORE 
+    // 0x05: OSCORE --> score_data[16] (LED use)
+    // 0x06: CORRECT 
     // 0x07: TEMP
     
   ) {
@@ -36,11 +42,14 @@ module bop_regfile (
   sig rc[3];
   
   always {
+    if (s_rst) {
+      regfile.d = 8x{{16b0}};
+      regfile.d[6] = 1;
+    }
     ra = reg_abc[8:6];
     rb = reg_abc[5:3];
     rc = reg_abc[2:0];
     
-    out = 0;
     ra_data = regfile.q[ra];
     rb_data = regfile.q[rb];
     
@@ -49,10 +58,16 @@ module bop_regfile (
     }
     
     
-    input_data = c{12b0, regfile.q[1][3:0]};
-    timer_data = regfile.q[2];
-    level_data = c{14b0, regfile.q[3][1:0]};
+    input_data = regfile.q[1][3:0];
+    timer_data = regfile.q[2][3:0];
+    level_data = regfile.q[3][1:0];
     score_data = regfile.q[5];
     
+    debug_data = regfile.q[reg_debug];
+
+    if (wedb & 1) {
+      regfile.d[0] = debug_write;
+    }
+
   }
 }
