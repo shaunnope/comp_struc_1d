@@ -1,19 +1,20 @@
 module bop_slwclk_rng #(
     FREQ = 26 : FREQ > 0, // 26 for 1Hz
-    SEED = 32h129 : SEED > 0
+    SEED = 32h129 : SEED > 0,
+    INPUTS = 4 : INPUTS > 0
   )(
     input clk,  // clock
     input rst,  // reset
     input level[2],
     output st,
     output tick,
-    output action[4]
+    output action[INPUTS]
   ) {
   
   sig slwclk;
-  sig p_action[4];
+  sig p_action[INPUTS];
   
-  decoder decoder(#WIDTH(2));
+  decoder decoder(#WIDTH($clog2(INPUTS)));
   
   .clk(clk){
       edge_detector gen_next(#RISE(1), #FALL(0));
@@ -41,8 +42,8 @@ module bop_slwclk_rng #(
     
     st = slwclk;
     tick = tick_next.out;
-    p_action = rng.num[3:0];
-    decoder.in = rng.num[1:0];
+    p_action = (rng.num[7:0]*INPUTS) >> 8;
+    decoder.in = (rng.num[7:0]*INPUTS) >> 8;
     action = decoder.out;
   }
 }

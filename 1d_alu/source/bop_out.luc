@@ -2,15 +2,27 @@
   Output module for game: buzzer + display
 */
 module bop_out (
+    input clk,
+    input rst,
+    input st,
+    
     input level[2],
     input action[4],
     input in[4],
     input bzsel,
     input score[16],
+    input correct,
     output bz_out[4],
-    output score_led[16]
+    output score_led[16],
+    output strip_out
   ) {
   
+  .clk(clk) {
+    .rst(rst) {
+      bop_led strip;
+      bop_buzzer buzzer;
+    }
+  }
   
   sig levelsel;
   sig act_mux[4];
@@ -36,12 +48,25 @@ module bop_out (
       default: bz_mux = 4h0;
     }
     
+    case(st) {
+      b0:
+        strip.color = action;
+        strip.pixels = 16hffff;
+      b1:
+        strip.color = correct;
+        strip.pixels = score;
+      default: 
+        strip.color = 0;
+        strip.pixels = 0;
+    }
+    
     
     // Buzzer Output
     bz_out = bz_mux;
     
     // LED Output
     score_led = score;
+    strip_out = strip.out;
    
     
   }
