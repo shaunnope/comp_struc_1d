@@ -47,7 +47,7 @@ module au_top (
     
     customout = 0;
     led_strip = 0;
-    
+    buzzout = 0;
     
     // --------------  END INIT  --------------------
     

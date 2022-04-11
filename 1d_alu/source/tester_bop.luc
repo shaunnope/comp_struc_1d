@@ -62,8 +62,25 @@ module tester_bop (
     io_led[1][3:0] = tester.action;
 
     //bop pwm code
-    bop_pwm.bzsel = io_dip[0][7];
-    bop_pwm.bz_out = io_dip[0][6:3];
+    bop_pwm.bzsel = b1;
+    if (io_button[0]) {
+      bop_pwm.bz_out = 4b0001;
+     }
+    if (io_button[1]) {
+      bop_pwm.bz_out = 4b0010;
+     }
+    if (io_button[2]) {
+      bop_pwm.bz_out = 4b0100;
+     }
+    if (io_button[3]) {
+      bop_pwm.bz_out = 4b1000;
+     }
+    else {
+      bop_pwm.bz_out = 4b0001;
+    }
+    //bop_pwm.bz_out = io_button[3:0];
+    //bop_pwm.bzsel = io_dip[0][7];
+    //bop_pwm.bz_out = io_dip[0][6:3];
     buzzout = bop_pwm.out;
 
     
