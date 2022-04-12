@@ -2,7 +2,8 @@ module bop_pwm (
     input clk,  // clock
     input rst,  // reset
     input bzsel, // Buzzer Selector
-    input bz_out[4], // Buzzer out signals
+    // input bz_out[4], // Buzzer out signals
+    input io_button[4],
     output out
     
   ) {
@@ -29,23 +30,35 @@ module bop_pwm (
   always {
     bz_update.in = bzsel; 
     
-    // Choose appropriate pulse to output
-    case (bz_out) {
-      b0001: pulse = pulse1.pulse;
-      b0010: pulse = pulse2.pulse;
-      b0100: pulse = pulse3.pulse;
-      b1000: pulse = pulse4.pulse;
-      
-      default: pulse = b0;
-    }
-    
-    // turn off buzzer if bzsel == 0
     case (bzsel) {
       b0: out = b0;
-      b1: out = pulse;
       
-      default: out = b0;
+      b1: case(io_button) {
+            b0001: out = pulse1.pulse;
+            b0010: out = pulse2.pulse;
+            b0100: out = pulse3.pulse;
+            b1000: out = pulse4.pulse;
+            default: out = b0;
+        }
     }
+              
+    // // Choose appropriate pulse to output
+    // case (bz_out) {
+    //   b0001: pulse = pulse1.pulse;
+    //   b0010: pulse = pulse2.pulse;
+    //   b0100: pulse = pulse3.pulse;
+    //   b1000: pulse = pulse4.pulse;
+      
+    //   default: pulse = b0;
+    // }
+    
+    // // turn off buzzer if bzsel == 0
+    // case (bzsel) {
+    //   b0: out = b0;
+    //   b1: out = pulse;
+      
+    //   default: out = b0;
+    // }
     
   }
 }
