@@ -9,14 +9,14 @@ module bop_led (
   ) {
   
   const COLOR = {
-    h620080, // PURPLE
-    h805100, // ORANGE
-    hAAAA00, // CYAN
-    hAA00AA, // YELLOW
-    h00AAAA, // MAGENTA
-    h00AA00, // BLUE
-    hAA0000, // GREEN   - correct
-    h0000AA  // RED     - wrong
+    h100020, // PURPLE
+    h101000, // ORANGE
+    h101000, // CYAN
+    h100010, // YELLOW
+    h001010, // MAGENTA
+    h001000, // BLUE
+    h100000, // GREEN   - correct
+    h000010  // RED     - wrong
     };
   
   .clk(clk) {
