@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="1d_alu" board="Alchitry Au" language="Lucid" version="3">
   <files>
-    <src>bop_buzzer.luc</src>
-    <src>alu_tester_auto.luc</src>
-    <component>pipeline.luc</component>
-    <src>tester_bop.luc</src>
-    <src>alu_fsm.luc</src>
-    <src>bop_led.luc</src>
-    <component>counter.luc</component>
-    <src>alu.luc</src>
-    <src>alu_eight_bit_in.luc</src>
-    <src>op_flags.luc</src>
-    <src>sixteen_bit_shifter.luc</src>
-    <src>seven_seg.luc</src>
-    <src>sixteen_bit_mult.luc</src>
-    <src>alu_tester.luc</src>
-    <src>bop_regfile.luc</src>
-    <src>ws2812b_writer.luc</src>
     <src>alu_bit_bool.luc</src>
+    <src>seven_seg.luc</src>
+    <component>pipeline.luc</component>
+    <src>bop_controlunit.luc</src>
+    <component>counter.luc</component>
     <src>alu_tester_manual.luc</src>
+    <src>bop_led.luc</src>
+    <src>alu_eight_bit_in.luc</src>
+    <src>alu_tester_auto.luc</src>
+    <src>sixteen_bit_mult.luc</src>
+    <src>bop_tester.luc</src>
+    <src top="true">au_top.luc</src>
+    <src>op_flags.luc</src>
+    <src>tester_top.luc</src>
+    <src>var_seven_seg.luc</src>
+    <src>bop_it.luc</src>
     <component>reset_conditioner.luc</component>
+    <src>tester_bop.luc</src>
     <component>button_conditioner.luc</component>
     <component>encoder.luc</component>
-    <src>bop_it.luc</src>
-    <src>alu_tester_ROM.luc</src>
     <src>bop_slwclk_rng.luc</src>
+    <src>bop_buzzer.luc</src>
+    <src>full_adder.luc</src>
+    <src>bop_pwm.luc</src>
+    <src>sixteen_bit_bool.luc</src>
     <src>bop_alu_wdsel.luc</src>
-    <src>var_seven_seg.luc</src>
     <component>wave.luc</component>
     <component>pwm.luc</component>
-    <src>sixteen_bit_full_adder.luc</src>
-    <src>full_adder.luc</src>
-    <src>bop_tester.luc</src>
-    <src>tester_top.luc</src>
-    <src>bop_pwm.luc</src>
     <src>bop_out.luc</src>
-    <component>decoder.luc</component>
-    <src>tester_alu.luc</src>
-    <src top="true">au_top.luc</src>
-    <component>pn_gen.luc</component>
-    <src>sixteen_bit_bool.luc</src>
-    <src>bop_controlunit.luc</src>
-    <component>edge_detector.luc</component>
     <src>sixteen_bit_compare.luc</src>
+    <component>decoder.luc</component>
+    <src>alu.luc</src>
     <src>bop_fsm.luc</src>
-    <constraint>br_io.xdc</constraint>
+    <src>tester_alu.luc</src>
+    <component>pn_gen.luc</component>
+    <src>alu_tester.luc</src>
+    <src>ws2812b_writer.luc</src>
+    <src>sixteen_bit_full_adder.luc</src>
+    <src>sixteen_bit_shifter.luc</src>
+    <src>alu_fsm.luc</src>
+    <src>bop_regfile.luc</src>
+    <component>edge_detector.luc</component>
+    <src>alu_tester_ROM.luc</src>
     <constraint>custom.acf</constraint>
+    <constraint>br_io.xdc</constraint>
   </files>
 </project>
