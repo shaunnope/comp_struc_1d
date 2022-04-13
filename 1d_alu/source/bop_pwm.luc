@@ -3,6 +3,7 @@ module bop_pwm (
     input rst,  // reset
     input bzsel, // Buzzer Selector
     input bz_out[4], // Buzzer out signals
+    input io_button[4],
     output out
     
   ) {
@@ -28,7 +29,9 @@ module bop_pwm (
 
   always {
     bz_update.in = bzsel; 
-    
+   
+  
+   
     // Choose appropriate pulse to output
     case (bz_out) {
       b0001: pulse = pulse1.pulse;
@@ -38,6 +41,20 @@ module bop_pwm (
       
       default: pulse = b0;
     }
+    
+    if (io_button[0]) {
+      pulse = pulse1.pulse;
+     }
+    if (io_button[1]) {
+      pulse = pulse2.pulse;
+     }
+    if (io_button[2]) {
+      pulse = pulse3.pulse;
+     }
+    if (io_button[3]) {
+      pulse = pulse4.pulse;
+     }
+    
     
     // turn off buzzer if bzsel == 0
     case (bzsel) {
