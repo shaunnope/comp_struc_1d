@@ -85,21 +85,29 @@ module tester_bop (
     
     
     //display.value = c{{8d66},{8d66},{c{tester.st,7d66}},{c{4b0,tester.action}}};
-    display.value = c{{c{tester.st, 3b0, tester.score[15:12]}},{c{4b0, tester.score[11:8]}},
-                      {c{4b0, tester.score[7:4]}},{c{4b0, tester.score[3:0]}}};
+    display.value = c{{c{tester.st, 3b0, tester.debug_out[15:12]}},{c{4b0, tester.debug_out[11:8]}},
+                      {c{4b0, tester.debug_out[7:4]}},{c{4b0, tester.debug_out[3:0]}}};
     
     io_seg = display.seg;
     io_sel = display.sel;
     
     action.in = tester.action;
     
-    if (tester.st & (|tester.o_level)) {
-      led_strip.pixels = 16hffff;
-      led_strip.color = action.out + 2;
+    
+    if (|tester.o_level) {
+      if (tester.st) {
+        led_strip.pixels = 16hffff;
+        led_strip.color = action.out + 2;
+      } else {
+        led_strip.pixels = tester.score;
+        led_strip.color = tester.correct;
+      }
     } else {
       led_strip.pixels = tester.score;
-      led_strip.color = tester.correct;
+      led_strip.color = 1;
     }
     
+    led_strip.color = io_dip[1][2:0];
+    strip_led = led_strip.out;
     
 }

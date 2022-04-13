@@ -11,7 +11,7 @@ module au_top (
     input io_dip [3][8],
     
     output buzzout,
-    output led_strip,
+    output led_strip,       // C46
     output customout[3]
   ) {
   
