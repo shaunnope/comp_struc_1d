@@ -7,9 +7,8 @@ module bop_tester (
     input u_input[4],
     input start,
     
-    input level[2],    // can remove
     output action[4],
-    output o_level[6],
+    output level[6], // 2-bit level + 4-bit timer
     output o_input[4],
     output o_start,
     output st,
@@ -35,7 +34,6 @@ module bop_tester (
 
   always {
     
-    //slwclk.level = level;
     slwclk.level = regfile.level_data[1:0];
     
     regfile.reg_abc = c{ctrlunit.ra, ctrlunit.rb, ctrlunit.rc};
@@ -46,7 +44,6 @@ module bop_tester (
     regfile.debug_write = debug_write;
     regfile.wedb = start;
     
-    //ctrlunit.level = level;
     ctrlunit.level = regfile.level_data[1:0];
     ctrlunit.start = start;
     ctrlunit.rb_data = regfile.rb_data;
@@ -64,12 +61,11 @@ module bop_tester (
     alu.ra_data = regfile.ra_data;
     alu.rb_data = regfile.rb_data;
     
-    
     regfile.reg_debug = reg_debug;
     
     // ---- END SETUP ----
     
-    o_level = c{regfile.level_data, regfile.timer_data[3:0]};
+    level = c{regfile.level_data, regfile.timer_data[3:0]};
     case(|regfile.level_data) {
       b0: o_input = u_input;
       b1: o_input = regfile.input_data;

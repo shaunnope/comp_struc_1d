@@ -64,7 +64,6 @@ module bop_controlunit (
       
       // Handling if end of round
       DISPLAY_SCORE,
-      RESET_INPUT,
       INC_TIMER,
       CHECK_ROUND_END,
       BRANCH_ROUND_END,
@@ -355,17 +354,6 @@ module bop_controlunit (
 
         game_fsm.DISPLAY_SCORE:
           // TODO
-          game_fsm.d = game_fsm.INC_TIMER;
-
-        game_fsm.RESET_INPUT:
-          alufn = B;
-          bsel = b01;
-          werf = b1;
-          lit = 8h00;
-          rc = INPUT;
-          wdsel = b0;
-          bzsel = b0;
-
           game_fsm.d = game_fsm.INC_TIMER;
 
         game_fsm.INC_TIMER:
