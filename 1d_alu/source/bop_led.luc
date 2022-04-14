@@ -3,20 +3,20 @@ module bop_led (
     input rst,  // reset
     
     input pixels[16],
-    input color[4], // color index to desplay
+    input color[3], // color index to desplay
     
     output out
   ) {
   
-  const COLOR = {
-    h620080, // PURPLE
-    h805100, // ORANGE
-    hAAAA00, // CYAN
-    hAA00AA, // YELLOW
-    h00AAAA, // MAGENTA
-    h00AA00, // BLUE
-    hAA0000, // GREEN   - correct
-    h0000AA  // RED     - wrong
+  const COLOR = { // GRB
+    hf01000, // PURPLE
+    h001110, // ORANGE
+    h100010, // CYAN
+    h00f010, // YELLOW
+    h101000, // MAGENTA
+    h100000, // BLUE
+    h000010, // GREEN   - correct
+    h001000  // RED     - wrong
     };
   
   .clk(clk) {
@@ -40,7 +40,6 @@ module bop_led (
     } else {
       led_strip.color = 0;
     }
-    
     out = led_strip.led;
   }
 }

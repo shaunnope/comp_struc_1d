@@ -13,6 +13,7 @@ module tester_bop (
     input io_button [5],    // 5 buttons on IO Shield
     input io_dip [3][8],
     
+    output buzzout,
     output strip_led
   ) {
   
@@ -22,6 +23,7 @@ module tester_bop (
         bop_tester tester;
         var_seven_seg display;
         bop_led led_strip;
+        bop_pwm bop_pwm;
       }
     }
   
@@ -58,23 +60,37 @@ module tester_bop (
     io_led[2][5:0] = tester.o_level;
     
     io_led[1][3:0] = tester.action;
+
+    //bop pwm code
+    bop_pwm.io_button = io_button[3:0];
+    bop_pwm.bzsel = b1;
+    buzzout = bop_pwm.out;
+
     
     //display.value = c{{8d66},{8d66},{c{tester.st,7d66}},{c{4b0,tester.action}}};
-    display.value = c{{c{tester.st, 3b0, tester.score[15:12]}},{c{4b0, tester.score[11:8]}},
-                      {c{4b0, tester.score[7:4]}},{c{4b0, tester.score[3:0]}}};
+    display.value = c{{c{tester.st, 3b0, tester.debug_out[15:12]}},{c{4b0, tester.debug_out[11:8]}},
+                      {c{4b0, tester.debug_out[7:4]}},{c{4b0, tester.debug_out[3:0]}}};
     
     io_seg = display.seg;
     io_sel = display.sel;
     
     action.in = tester.action;
     
-    if (tester.st & (|tester.o_level)) {
-      led_strip.pixels = 16hffff;
-      led_strip.color = action.out + 2;
+    
+    if (|tester.o_level) {
+      if (tester.st) {
+        led_strip.pixels = 16hffff;
+        led_strip.color = action.out + 2;
+      } else {
+        led_strip.pixels = tester.score;
+        led_strip.color = tester.correct;
+      }
     } else {
       led_strip.pixels = tester.score;
-      led_strip.color = tester.correct;
+      led_strip.color = 1;
     }
     
+    led_strip.color = io_dip[1][2:0];
+    strip_led = led_strip.out;
     
 }

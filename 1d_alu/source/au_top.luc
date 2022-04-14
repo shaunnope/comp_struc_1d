@@ -10,7 +10,8 @@ module au_top (
     input io_button [5],    // 5 buttons on IO Shield
     input io_dip [3][8],
     
-    output led_strip,
+    output buzzout,
+    output led_strip,       // C46
     output customout[3]
   ) {
   
@@ -46,6 +47,7 @@ module au_top (
     
     customout = 0;
     led_strip = 0;
+    buzzout = 0;
     
     // --------------  END INIT  --------------------
     
@@ -58,6 +60,7 @@ module au_top (
     io_sel = tester.io_sel;
     io_led = tester.io_led;
     led = tester.led;
+    buzzout = tester.buzzout;
     
     led_strip = tester.strip_led;
 

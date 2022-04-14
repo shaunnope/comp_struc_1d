@@ -13,6 +13,7 @@ module bop_regfile (
     output input_data[4],
     output timer_data[16], 
     output level_data[2],
+    output correct,
     
     input reg_debug[3],
     output debug_data[16],
@@ -62,6 +63,7 @@ module bop_regfile (
     timer_data = regfile.q[2][3:0];
     level_data = regfile.q[3][1:0];
     score_data = regfile.q[5];
+    correct    = regfile.q[6][0];
     
     debug_data = regfile.q[reg_debug];
 

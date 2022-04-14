@@ -1,6 +1,7 @@
 module bop_slwclk_rng #(
     FREQ = 26 : FREQ > 0, // 26 for 1Hz
-    SEED = 32h129 : SEED > 0
+    SEED = 32h129 : SEED > 0,
+    INPUTS = 4 : INPUTS > 0
   )(
     input clk,  // clock
     input rst,  // reset
@@ -41,8 +42,9 @@ module bop_slwclk_rng #(
     
     st = slwclk;
     tick = tick_next.out;
-    p_action = rng.num[3:0];
-    decoder.in = rng.num[1:0];
+    p_action = (c{$clog2(INPUTS)x{b0}, rng.num[7:0]}*INPUTS) >> 8;
+    decoder.in = (c{$clog2(INPUTS)x{b0}, rng.num[7:0]}*INPUTS) >> 8;
+    //decoder.in = rng.num[1:0];
     action = decoder.out;
   }
 }
