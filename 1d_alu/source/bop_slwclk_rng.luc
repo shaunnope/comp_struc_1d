@@ -1,6 +1,7 @@
 module bop_slwclk_rng #(
     FREQ = 26 : FREQ > 0, // 26 for 1Hz
-    SEED = 32h129 : SEED > 0
+    SEED = 32h129 : SEED > 0,
+    INPUTS = 4 : INPUTS > 0
   )(
     input clk,  // clock
     input rst,  // reset
