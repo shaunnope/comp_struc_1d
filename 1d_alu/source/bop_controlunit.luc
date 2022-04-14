@@ -242,7 +242,7 @@ module bop_controlunit (
             b01: game_fsm.d = game_fsm.L1_SCORE_ADD;
             b10:
               if(aluflags.q[4] & 1) {
-                game_fsm.d = game_fsm.SET_OSCORE1;
+                game_fsm.d = game_fsm.DISPLAY_SCORE;
               } else if(aluflags.q[2] & 1) {
                 game_fsm.d = game_fsm.L2_DIV_SCORE_NEG;
               } else {
