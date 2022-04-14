@@ -18,6 +18,7 @@
     <src>bop_regfile.luc</src>
     <src>ws2812b_writer.luc</src>
     <src>alu_bit_bool.luc</src>
+    <src>bop_pwm.luc</src>
     <src>alu_tester_manual.luc</src>
     <component>reset_conditioner.luc</component>
     <component>button_conditioner.luc</component>
@@ -32,6 +33,7 @@
     <src>bop_tester.luc</src>
     <src>tester_top.luc</src>
     <component>decoder.luc</component>
+    <component>encoder.luc</component>
     <src>bop_out.luc</src>
     <src>tester_alu.luc</src>
     <src top="true">au_top.luc</src>
