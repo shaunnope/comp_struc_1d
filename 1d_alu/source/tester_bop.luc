@@ -18,7 +18,6 @@ module tester_bop (
   ) {
   
   .clk(clk) {
-    edge_detector risingEdge[5](#RISE(1), #FALL(0));
       .rst(rst){
         bop_tester tester;
         var_seven_seg display;
@@ -39,8 +38,6 @@ module tester_bop (
     io_seg = 8hff;          // turn segments off
     io_sel = 4hf;           // select no digits
     
-    risingEdge.in = io_button; // rising edge button inputs
-    
     strip_led = 0;
     
     // ----------- Test circuit out --------
@@ -48,8 +45,8 @@ module tester_bop (
     tester.reg_debug = io_dip[2][2:0];
     tester.debug_write = c{8x{io_dip[1][7]}, io_dip[1]};
     
-    tester.u_input = io_button[3:0];
-    tester.start = io_button[4];
+    tester.u_input = io_button[2:0];
+    tester.start = io_button[0];
     
     led[7] = tester.st;       // blinker
     io_led[1][7] = tester.st;
