@@ -87,12 +87,3 @@ pin io_seg[4] A45;
 pin io_seg[5] A3;
 pin io_seg[6] A2;
 pin io_seg[7] A49;
-
-
-// custom
-pin customout[0] C48;
-pin customout[1] C2;
-pin customout[2] C3;
-pin buzzout C5;
-pin led_strip C46;
-
