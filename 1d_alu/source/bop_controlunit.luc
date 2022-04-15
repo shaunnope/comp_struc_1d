@@ -451,7 +451,7 @@ module bop_controlunit (
         game_fsm.TEST_SOUND:
           werf = b0;
           bzsel = b1;
-          game_fsm.d = game_fsm.FP_STORE;
+          game_fsm.d = game_fsm.FP_CHECK;
         
         game_fsm.FP_STORE:
           alufn = OR;
