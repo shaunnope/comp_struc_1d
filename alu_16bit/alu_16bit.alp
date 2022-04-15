@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="alu_16bit" board="Alchitry Au" language="Lucid" version="3">
+  <files>
+    <src>op_flags.luc</src>
+    <component>pipeline.luc</component>
+    <src top="true">au_top.luc</src>
+    <src>alu_tester.luc</src>
+    <component>counter.luc</component>
+    <src>sixteen_bit_shifter.luc</src>
+    <src>var_seven_seg.luc</src>
+    <component>reset_conditioner.luc</component>
+    <src>alu_fsm.luc</src>
+    <src>sixteen_bit_mult.luc</src>
+    <component>button_conditioner.luc</component>
+    <component>encoder.luc</component>
+    <src>alu_tester_auto.luc</src>
+    <src>seven_seg.luc</src>
+    <src>tester_alu.luc</src>
+    <src>sixteen_bit_bool.luc</src>
+    <component>decoder.luc</component>
+    <src>sixteen_bit_full_adder.luc</src>
+    <src>alu_bit_bool.luc</src>
+    <src>alu_tester_manual.luc</src>
+    <src>alu.luc</src>
+    <src>alu_eight_bit_in.luc</src>
+    <src>alu_tester_ROM.luc</src>
+    <component>edge_detector.luc</component>
+    <src>sixteen_bit_compare.luc</src>
+    <constraint>custom.acf</constraint>
+    <constraint>br_io.xdc</constraint>
+  </files>
+</project>

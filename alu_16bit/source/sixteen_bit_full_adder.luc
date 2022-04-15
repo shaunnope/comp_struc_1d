@@ -1,0 +1,40 @@
+/** 
+add, sub, zvnp
+0 0000: ADD
+0 0001: SUB
+*/
+module sixteen_bit_full_adder (
+  input alufn,    // mode
+  input x[16],
+  input y[16],
+  output out[17], // output + cout
+  output z,       // is_zero
+  output v,       // did_overflow
+  output n,       // is_negative
+  output p        // parity
+) {
+  sig s[17];      // sum + cout
+  
+  op_flags flags; // to compute flags
+  
+  always {
+    s = 17b0;
+  
+    case(alufn){
+      0: s = x+y;
+      1: s = $unsigned(x)-$unsigned(y);
+      default: s = 17b0;
+    }
+    
+    flags.x = x;
+    flags.y = y;
+    flags.aluout = s[15:0];
+    flags.alufn = c{b0000, alufn};
+    n = flags.n;
+    v = flags.v;
+    z = flags.z;
+    p = flags.p;
+    //out = c{(s[16] & ~alufn)|(~s[16] & alufn),s[15:0]};
+    out = s;
+  }
+}

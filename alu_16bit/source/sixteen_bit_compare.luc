@@ -1,0 +1,28 @@
+/** signed comparisions
+0 1011: CMPEQ
+0 1101: CMPLT
+0 1111: CMPLE
+*/
+module sixteen_bit_compare (
+    input alufn[2],
+    input z,
+    input v,
+    input n,
+    output out[16]
+  ) {
+
+  always {
+    out = 16b0;
+    
+    case(alufn) {
+      b01:
+        out[0] = z;
+      b10:
+        out[0] = n ^ v;
+      b11:
+        out[0] = (n ^ v) | z;
+      default:
+        out[0] = b0;
+    }
+  }
+}

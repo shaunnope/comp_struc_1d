@@ -1,0 +1,17 @@
+/** 
+01 ZYXW: Bool with truth table 00 - W, 01 - X, 10 - Y, 11 - Z
+*/
+module sixteen_bit_bool (
+    input x[16],
+    input y[16],
+    input alufn[4],
+    output out[16]
+  ) {
+  alu_bit_bool bitbool[16];
+  always {
+    bitbool.x = x;
+    bitbool.y = y;
+    bitbool.alufn = 16x{{alufn}};
+    out = bitbool.out;
+  }
+}

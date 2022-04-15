@@ -1,0 +1,111 @@
+/*
+Auto tester module:
+   IO inputs:
+   io_button[0] - toggle auto/manual tester
+   io_button[1] - reset case index to 0
+   io_button[2] - skip over error case
+   io_button[3] - unassigned
+   
+   io_dip[0][4:0] - ALUFN signal
+   io_dip[0][7] - simulate error (one's complement)
+*/
+module alu_tester_auto (
+    input clk,  // clock
+    input rst,  // reset
+    input mIn[5],  // io_button signals
+    input alufn_in[5],
+    input err,
+    output out[16],
+    output flags[5],
+    output caseidx[16] // unused(4) + alumode(4) + unused(3) + case idx(5)
+  ) {
+  
+  const SLOWCLOCK_DIV = 23; // 26 for 1Hz, use 23 in final
+  
+  .clk(clk){    
+    .rst(rst){
+      counter slowClock(#SIZE(1), #DIV(SLOWCLOCK_DIV));
+      
+      // holding values
+      dff aluout[16];
+      dff aluflags[5];
+      
+      dff aluout_rom[16];
+      dff aluflags_rom[5];
+
+    }
+    edge_detector fallingEdge(#RISE(0), #FALL(1));
+  }
+  
+  alu_fsm alufsm (.clk(slowClock.value), .rst(rst));
+  
+  
+  alu_tester_ROM alurom;
+  alu alu;
+  
+  sig alumode[4];
+
+  always {
+    out = 0;
+    flags = 0;
+    caseidx = 0;
+    
+    fallingEdge.in = slowClock.value;
+    
+    alufsm.mIn = mIn;
+    alufsm.irq = 0;
+    
+    case (alufn_in) {
+      b00000: alumode = 4d0;
+      b00001: alumode = 4d1;
+      b00010: alumode = 4d2;
+      b00011: alumode = 4d3;
+      b00100: alumode = 4d4;
+      b00101: alumode = 4d5;
+      b00111: alumode = 4d6;
+      b00110: alumode = 4d7;
+      b01011: alumode = 4d8;
+      b01101: alumode = 4d9;
+      b01111: alumode = 4d10;
+      b11000: alumode = 4d11;
+      b11110: alumode = 4d12;
+      b10110: alumode = 4d13;
+      b11010: alumode = 4d14;
+      b11100: alumode = 4d15;
+      default: alumode = 4d0;
+    }
+    
+    // init ROM
+    alurom.alu_mode = alumode;
+    alurom.index = alufsm.index;
+    caseidx = c{slowClock.value, 3b0, alumode, 3b0, alufsm.index}; // signal for 7seg + display parity
+    
+    alu.x = alurom.x;
+    alu.y = alurom.y;
+    alu.alufn = alufn_in;
+    
+    // update stored outputs on falling edge
+    if (fallingEdge.out & 1) {
+      case (err) {
+        0: aluout.d = alu.out;
+        1: aluout.d = ~alu.out;
+      }
+      aluflags.d = alu.zvnpc;
+      
+      aluout_rom.d = alurom.aluout;
+      aluflags_rom.d = alurom.flags;
+    }
+    
+
+    if (slowClock.value & 1) {
+      out = aluout.q;
+      flags = aluflags.q;
+      alufsm.irq = ((aluout.q != aluout_rom.q) || (aluflags.q != aluflags_rom.q) );
+    } else {
+      out = aluout_rom.q;
+      flags = aluflags_rom.q;
+      alufsm.irq = 0;
+    }
+    
+  }
+}

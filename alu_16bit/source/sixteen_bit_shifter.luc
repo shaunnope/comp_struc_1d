@@ -1,0 +1,25 @@
+
+/**
+Logical, arithmetic shifts and rotate
+0 0100: SHL
+0 0101: SHR
+0 0110: ROL - rotate w/o carry: ROL and ROR are related
+0 0111: SRA
+*/
+module sixteen_bit_shifter (
+    input alufn[3],
+    input x[16],
+    input shift[4],
+    output out[16]
+  ) {
+  always {
+  out = 16b0;
+  case(alufn) {
+      b100: out = x << shift;
+      b101: out = x >> shift;
+      b111: out = $signed(x) >>> shift;
+      b110: out = (x << shift) | (x >> (-shift & 15));
+      default: out = x;
+    }
+  }
+}
