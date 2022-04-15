@@ -8,6 +8,7 @@ module bop_controlunit (
     
     input start,     // start button need edge detector
     input level[2], // 2 bit to represent 3 levels, 01 = level 1
+    input inputreg[4],
     
     input rb_data[16],
     input flags[5], // zvnpc
@@ -144,7 +145,7 @@ module bop_controlunit (
             s_rst = start;
             game_fsm.d = game_fsm.INC_LEVEL;
           } else if (|input_edges.out & 1) {
-            game_fsm.d = game_fsm.TEST_SOUND;
+            game_fsm.d = game_fsm.FP_STORE;
           }
 
         game_fsm.INC_LEVEL:
@@ -460,14 +461,14 @@ module bop_controlunit (
           ra = INPUT;
           rc = INPUT;
 
-          game_fsm.d = game_fsm.FP_CHECK;
+          game_fsm.d = game_fsm.TEST_SOUND;
 
         game_fsm.FP_CHECK:
           alufn = B;
           bsel = b00;
           werf = b0;
           rb = INPUT;
-          data_rb.d = flags;
+          data_rb.d = inputreg;
 
           game_fsm.d = game_fsm.START;
           
