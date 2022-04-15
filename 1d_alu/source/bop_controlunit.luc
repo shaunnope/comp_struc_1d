@@ -140,7 +140,7 @@ module bop_controlunit (
     else {
       case(game_fsm.q) {
         game_fsm.START:
-          if(data_rb.q[0] & start){
+          if(&data_rb.q[2:0] & start){
             s_rst = start;
             game_fsm.d = game_fsm.INC_LEVEL;
           } else if (|input_edges.out & 1) {
