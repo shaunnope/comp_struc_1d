@@ -58,7 +58,6 @@ module bop_tester #(
     regfile.wedb = start;
     
     ctrlunit.level = regfile.level_data;
-    ctrlunit.inputreg = regfile.input_data;
     ctrlunit.start = inputEdge.out[0];
     ctrlunit.rb_data = regfile.rb_data;
     ctrlunit.inputs = u_input;

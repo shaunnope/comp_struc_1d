@@ -8,7 +8,6 @@ module bop_controlunit (
     
     input start,     // start button need edge detector
     input level[2], // 2 bit to represent 3 levels, 01 = level 1
-    input inputreg[4],
     
     input rb_data[16],
     input flags[5], // zvnpc
