@@ -43,7 +43,6 @@ module bop_it (
     
     ctrlunit.level = level;
     ctrlunit.start = start;
-    ctrlunit.inputreg = regfile.input_data;
     ctrlunit.rb_data = regfile.rb_data;
     ctrlunit.inputs = u_input;
     ctrlunit.flags = alu.aluflags;
