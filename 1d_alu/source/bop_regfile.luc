@@ -46,6 +46,7 @@ module bop_regfile (
     if (s_rst) {
       regfile.d = 8x{{16b0}};
       regfile.d[6] = 1;
+      regfile.d[0] = 1;  // Check if this works in place of INITIALIZE SCORE
     }
     ra = reg_abc[8:6];
     rb = reg_abc[5:3];

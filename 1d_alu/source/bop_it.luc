@@ -30,6 +30,7 @@ module bop_it (
     regfile.wedb = 0;
     regfile.s_rst = 0;
     ctrlunit.tick = 0;
+    slwclk.s_rst=0;
     
     inputs = c{u_input, |u_input};
     
