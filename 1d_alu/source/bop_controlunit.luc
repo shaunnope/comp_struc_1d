@@ -111,7 +111,7 @@ module bop_controlunit (
   const LSCORE = b100;
   const OSCORE = b101;
   const CORRECT = b110;
-  const R7 = b110;
+  const R7 = b111;
 
   sig str;
   sig stf;
