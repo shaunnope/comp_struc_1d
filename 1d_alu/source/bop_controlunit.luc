@@ -63,7 +63,6 @@ module bop_controlunit (
       L3_SCORE_ROTL,
       
       // Handling if end of round
-      DISPLAY_SCORE,
       INC_TIMER,
       CHECK_ROUND_END,
       BRANCH_ROUND_END,
@@ -230,7 +229,7 @@ module bop_controlunit (
             b01: game_fsm.d = game_fsm.L1_SCORE_ADD;
             b10:
               if(aluflags.q[4] & 1) {
-                game_fsm.d = game_fsm.DISPLAY_SCORE;
+                game_fsm.d = game_fsm.INC_TIMER;
               } else if(aluflags.q[2] & 1) {
                 game_fsm.d = game_fsm.L2_DIV_SCORE_NEG;
               } else {
@@ -259,7 +258,7 @@ module bop_controlunit (
           if (aluflags.q[4] | aluflags.q[2]) {
             game_fsm.d = game_fsm.SET_OSCORE1;
           } else {
-            game_fsm.d = game_fsm.DISPLAY_SCORE;
+            game_fsm.d = game_fsm.INC_TIMER;
           }
         
         game_fsm.L2_SCORE_MUL:
@@ -273,7 +272,7 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
 
-          game_fsm.d = game_fsm.DISPLAY_SCORE;
+          game_fsm.d = game_fsm.INC_TIMER;
   
         game_fsm.L2_DIV_SCORE_NEG:
           alufn = SUB;
@@ -299,7 +298,7 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
 
-          game_fsm.d = game_fsm.DISPLAY_SCORE;
+          game_fsm.d = game_fsm.INC_TIMER;
           
        game_fsm.SET_OSCORE1:
           alufn = A;
@@ -310,7 +309,7 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
           
-          game_fsm.d = game_fsm.DISPLAY_SCORE;
+          game_fsm.d = game_fsm.INC_TIMER;
 
 
         game_fsm.L3_SCORE_ROTL:
@@ -324,10 +323,6 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
 
-          game_fsm.d = game_fsm.DISPLAY_SCORE;
-
-        game_fsm.DISPLAY_SCORE:
-          // TODO
           game_fsm.d = game_fsm.INC_TIMER;
 
         game_fsm.INC_TIMER:
@@ -464,11 +459,9 @@ module bop_controlunit (
           game_fsm.d = game_fsm.TEST_SOUND;
 
         game_fsm.FP_CHECK:
-          alufn = B;
-          bsel = b00;
           werf = b0;
           rb = INPUT;
-          data_rb.d = inputreg;
+          data_rb.d = rb_data;
 
           game_fsm.d = game_fsm.START;
           
