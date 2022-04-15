@@ -31,7 +31,7 @@ module au_top (
   sig button_io[5];
   
   always {
-    reset_cond.in = ~rst_n; // input raw inverted reset signal
+    reset_cond.in = io_button[3]; // input raw inverted reset signal
     rst = reset_cond.out;   // conditioned reset
     
     led = 8h00;             // turn LEDs off
