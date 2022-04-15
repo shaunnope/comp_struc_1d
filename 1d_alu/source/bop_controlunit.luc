@@ -165,6 +165,8 @@ module bop_controlunit (
           }
 
         game_fsm.IDLE:
+        bzsel = b1;
+        
         if (|inputs) {
           game_fsm.d = game_fsm.INPUT_STORE;
         } else if (str) {
@@ -196,6 +198,7 @@ module bop_controlunit (
         game_fsm.d = game_fsm.PLAY_SOUND;
        
       game_fsm.PLAY_SOUND:
+        bzsel = b1;
         game_fsm.d = game_fsm.IDLE;
         
       game_fsm.CHECK_ACTION:

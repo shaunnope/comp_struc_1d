@@ -20,13 +20,16 @@ module bop_tester #(
     input debug_write[16],
     input reg_debug[3],
     output extra[8],
-    output debug_out[16]
+    output debug_out[16],
+    
+    output buzzout
   ) {
   .clk(clk) {
     edge_detector inputEdge[INPUTS](#RISE(1), #FALL(0));
     .rst(rst) {
       bop_slwclk_rng slwclk(#FREQ(27), #INPUTS(INPUTS));
       bop_regfile regfile;
+      bop_pwm bop_pwm;
       
       bop_controlunit ctrlunit(.slwclk(slwclk.st), .tick(slwclk.tick));
     }
@@ -94,6 +97,11 @@ module bop_tester #(
     
     debug_out = regfile.debug_data;
     extra[3:0] = u_input;
+    
+    
+    bop_pwm.io_button = p_action[2:0];
+    bop_pwm.bzsel = ctrlunit.bzsel;
+    buzzout = bop_pwm.out;
     
   }
 }
