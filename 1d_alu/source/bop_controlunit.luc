@@ -428,7 +428,7 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
 
-          if (u_input[0]) {
+          if (inputs[0]) {
             game_fsm.d = game_fsm.INC_LEVEL;
           }
 
@@ -456,7 +456,7 @@ module bop_controlunit (
         game_fsm.FP_STORE:
           alufn = OR;
           bsel = b10;
-          we = b1;
+          werf = b1;
           ra = INPUT;
           rc = INPUT;
 
@@ -465,7 +465,7 @@ module bop_controlunit (
         game_fsm.FP_CHECK:
           alufn = B;
           bsel = b00;
-          we = b0;
+          werf = b0;
           rb = INPUT;
           data_rb.d = flags;
 
