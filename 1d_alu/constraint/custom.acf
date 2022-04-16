@@ -68,11 +68,11 @@ pin io_dip[2][5] A37 pulldown;
 pin io_dip[2][6] A39 pulldown;
 pin io_dip[2][7] A40 pulldown;
 
-pin io_button[0] B28 pulldown;
-pin io_button[1] B27 pulldown;
-pin io_button[2] B23 pulldown;
-pin io_button[3] B24 pulldown;
-pin io_button[4] C49 pulldown;
+pin io_button[0] B28 pulldown; // BOP IT
+pin io_button[1] B27 pulldown; // TWIST IT
+pin io_button[2] C45 pulldown; // PULL
+pin io_button[3] B24 pulldown; 
+pin io_button[4] C49 pulldown; // RESET
 
 pin io_sel[0] A9;
 pin io_sel[1] A8;
@@ -93,6 +93,6 @@ pin io_seg[7] A49;
 pin customout[0] C48;
 pin customout[1] C2;
 pin customout[2] C3;
-pin buzzout C5;
+pin buzzout B23;
 pin led_strip C46;
 

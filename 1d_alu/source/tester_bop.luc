@@ -18,12 +18,11 @@ module tester_bop (
   ) {
   
   .clk(clk) {
-    edge_detector risingEdge[5](#RISE(1), #FALL(0));
       .rst(rst){
         bop_tester tester;
         var_seven_seg display;
         bop_led led_strip;
-        bop_pwm bop_pwm;
+        // bop_pwm bop_pwm;
       }
     }
   
@@ -39,8 +38,6 @@ module tester_bop (
     io_seg = 8hff;          // turn segments off
     io_sel = 4hf;           // select no digits
     
-    risingEdge.in = io_button; // rising edge button inputs
-    
     strip_led = 0;
     
     // ----------- Test circuit out --------
@@ -48,26 +45,23 @@ module tester_bop (
     tester.reg_debug = io_dip[2][2:0];
     tester.debug_write = c{8x{io_dip[1][7]}, io_dip[1]};
     
-    tester.level = io_dip[0][1:0];
-    tester.u_input = io_button[3:0];
-    tester.start = io_button[4];
+    tester.u_input = io_button[2:0];
+    tester.start = io_button[0];
     
     led[7] = tester.st;       // blinker
     io_led[1][7] = tester.st;
     
     io_led[0][3:0] = tester.o_input;
     io_led[2][7] = tester.o_start;
-    io_led[2][5:0] = tester.o_level;
+    io_led[2][5:0] = tester.level;
     
     io_led[1][3:0] = tester.action;
 
     //bop pwm code
-    bop_pwm.io_button = io_button[3:0];
-    bop_pwm.bzsel = b1;
-    buzzout = bop_pwm.out;
+    // bop_pwm.io_button = io_button[3:0];
+    // bop_pwm.bzsel = b1;
+    // buzzout = bop_pwm.out;
 
-    
-    //display.value = c{{8d66},{8d66},{c{tester.st,7d66}},{c{4b0,tester.action}}};
     display.value = c{{c{tester.st, 3b0, tester.debug_out[15:12]}},{c{4b0, tester.debug_out[11:8]}},
                       {c{4b0, tester.debug_out[7:4]}},{c{4b0, tester.debug_out[3:0]}}};
     
@@ -76,8 +70,7 @@ module tester_bop (
     
     action.in = tester.action;
     
-    
-    if (|tester.o_level) {
+    if (|tester.level[5:4]) {
       if (tester.st) {
         led_strip.pixels = 16hffff;
         led_strip.color = action.out + 2;
@@ -90,7 +83,10 @@ module tester_bop (
       led_strip.color = 1;
     }
     
-    led_strip.color = io_dip[1][2:0];
+    //led_strip.color = io_dip[1][2:0]; // debug - manual set color
     strip_led = led_strip.out;
+    
+    
+    buzzout = tester.buzzout;
     
 }

@@ -20,7 +20,7 @@ module bop_out (
   always {
    
     // Buzzer Output
-    levelsel = ~(level[0] | level[1]);
+    levelsel = ~|level;
     
     case(levelsel) {
       b0: act_mux = action;
