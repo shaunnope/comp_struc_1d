@@ -436,9 +436,7 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
 
-          if (input_edges.out[0]) {
-            game_fsm.d = game_fsm.INC_LEVEL;
-          }
+          game_fsm.d = game_fsm.INC_LEVEL;
 
         game_fsm.GAME_END:
           alufn = B;

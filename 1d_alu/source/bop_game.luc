@@ -66,7 +66,7 @@ module bop_game (
     
     action.in = tester.action;
     
-    if (|tester.level[5:4]) {
+    if (|tester.level[5:4] & ~tester.level[3]) {
       if (tester.st) {
         led_strip.pixels = 16hffff;
         led_strip.color = action.out + 2;
