@@ -1,5 +1,8 @@
 /*
   Tester module
+   
+   TODO: convert to non-tester file
+   - remove debug ports/signals
 */
 module bop_tester #(
   INPUTS = 3 : INPUTS > 0
@@ -8,6 +11,7 @@ module bop_tester #(
     input rst,  // reset
     input u_input[INPUTS],
     input start,
+    input toggle,
     
     output action[4],
     output level[6], // 2-bit level + 4-bit timer
@@ -61,7 +65,8 @@ module bop_tester #(
     regfile.wedb = 0;
     
     ctrlunit.level = regfile.level_data;
-    ctrlunit.start = inputEdge.out[0];
+    ctrlunit.start = start;
+    ctrlunit.toggle = toggle;
     ctrlunit.rb_data = regfile.rb_data;
     ctrlunit.inputs = u_input;
     ctrlunit.flags = alu.aluflags;

@@ -19,9 +19,10 @@
     <src>bop_slwclk_rng.luc</src>
     <component>button_conditioner.luc</component>
     <component>encoder.luc</component>
-    <component>wave.luc</component>
     <src>op_flags.luc</src>
     <src>sixteen_bit_compare.luc</src>
+    <src>alu_bit_bool.luc</src>
+    <src>bop_fsm.luc</src>
     <component>pwm.luc</component>
     <src>sixteen_bit_shifter.luc</src>
     <src>bop_out.luc</src>

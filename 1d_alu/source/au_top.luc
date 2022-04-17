@@ -31,7 +31,7 @@ module au_top (
   sig button_io[5];
   
   always {
-    reset_cond.in = io_button[3]; // input raw inverted reset signal
+    reset_cond.in = ~rst_n; // input raw inverted reset signal
     rst = reset_cond.out;   // conditioned reset
     
     led = 8h00;             // turn LEDs off
@@ -51,15 +51,13 @@ module au_top (
     
     // --------------  END INIT  --------------------
     
-    game.usb_rx = usb_rx;
     game.io_button = button_io;
-    game.io_dip = io_dip;
+    //game.io_dip = io_dip;
     
-    usb_tx = game.usb_tx;
-    io_seg = game.io_seg;
-    io_sel = game.io_sel;
-    io_led = game.io_led;
-    led = game.led;
+    //io_seg = game.io_seg;
+    //io_sel = game.io_sel;
+    //io_led = game.io_led;
+    //led = game.led;
     buzzout = game.buzzout;
     
     led_strip = game.strip_led;

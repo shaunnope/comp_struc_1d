@@ -7,6 +7,7 @@ module bop_controlunit (
     input inputs[4], // 3 buttons, 1 nothing
     
     input start,     // start button need edge detector
+    input toggle,
     input level[2], // 2 bit to represent 3 levels, 01 = level 1
     
     input rb_data[16],
@@ -80,9 +81,7 @@ module bop_controlunit (
       GAME_END,
       
       // Testing sound purposes
-      TEST_SOUND,
-      FP_STORE,
-      FP_CHECK
+      FP_IDLE
     }; 
   }
 
@@ -141,11 +140,11 @@ module bop_controlunit (
     else {
       case(game_fsm.q) {
         game_fsm.START:
-          if(&data_rb.q[2:0] & start){
-            s_rst = start;
+          if(start){
+            s_rst = 1;
             game_fsm.d = game_fsm.INC_LEVEL;
-          } else if (|input_edges.out & 1) {
-            game_fsm.d = game_fsm.FP_STORE;
+          } else if (toggle) {
+            game_fsm.d = game_fsm.FP_IDLE;
           }
 
         game_fsm.INC_LEVEL:
@@ -175,6 +174,9 @@ module bop_controlunit (
           game_fsm.d = game_fsm.INPUT_RST;
         } else if (stf) {
           game_fsm.d = game_fsm.CHECK_ACTION;
+        } else if (toggle) {
+          s_rst = 1;
+          game_fsm.d = game_fsm.START;
         }
         
      game_fsm.INPUT_STORE:
@@ -188,6 +190,9 @@ module bop_controlunit (
          game_fsm.d = game_fsm.INPUT_RST;
        } else if (stf) {
          game_fsm.d = game_fsm.CHECK_ACTION;
+       } else if (toggle) {
+         s_rst = 1;
+         game_fsm.d = game_fsm.START;
        }
         
       game_fsm.INPUT_RST:
@@ -420,6 +425,9 @@ module bop_controlunit (
         game_fsm.AWAIT_START:
           if (start) {
             game_fsm.d = game_fsm.RESET_TIMER;
+          } else if (toggle) {
+            s_rst = 1;
+            game_fsm.d = game_fsm.START;
           }
 
         game_fsm.RESET_TIMER:
@@ -444,29 +452,13 @@ module bop_controlunit (
           
           game_fsm.d = game_fsm.START;
  
-        game_fsm.TEST_SOUND:
+        game_fsm.FP_IDLE:
           werf = b0;
           bzsel = b1;
 
-          if (~|inputs) {
-            game_fsm.d = game_fsm.FP_CHECK;
+          if (toggle) {
+            game_fsm.d = game_fsm.START;
           }
-        
-        game_fsm.FP_STORE:
-          alufn = OR;
-          bsel = b10;
-          werf = b1;
-          ra = INPUT;
-          rc = INPUT;
-
-          game_fsm.d = game_fsm.TEST_SOUND;
-
-        game_fsm.FP_CHECK:
-          werf = b0;
-          rb = INPUT;
-          data_rb.d = rb_data;
-
-          game_fsm.d = game_fsm.START;
           
         default:
           game_fsm.d = game_fsm.START;

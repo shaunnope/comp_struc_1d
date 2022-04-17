@@ -46,6 +46,7 @@ module tester_bop (
     
     tester.u_input = io_button[2:0];
     tester.start = io_button[0];
+    tester.toggle = io_button[3];
     
     led[7] = tester.st;       // blinker
     io_led[1][7] = tester.st;
