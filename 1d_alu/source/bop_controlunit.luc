@@ -54,7 +54,7 @@ module bop_controlunit (
       L1_SCORE_ADD,
       
       L2_SCORE_MUL,
-      L2_LSCORE_MUL,
+      L2_LSCORE_SHL,
       L2_SCORE_ADD,
       
       OSCORE_CHECK,
@@ -74,6 +74,7 @@ module bop_controlunit (
       RESET_LSCORE,
       CHECK_LEVEL,
       BRANCH_LEVEL,
+      AWAIT_START,
       RESET_TIMER,
 
       RESET_LEVEL,      
@@ -235,7 +236,7 @@ module bop_controlunit (
               if(aluflags.q[4] & 1) {
                 game_fsm.d = game_fsm.INC_TIMER;
               } else if(aluflags.q[2] & 1) {
-                game_fsm.d = game_fsm.L2_LSCORE_MUL;
+                game_fsm.d = game_fsm.L2_LSCORE_SHL;
               } else {
                 game_fsm.d = game_fsm.L2_SCORE_MUL;
               }
@@ -271,13 +272,13 @@ module bop_controlunit (
 
           game_fsm.d = game_fsm.INC_TIMER;
 
-        game_fsm.L2_LSCORE_MUL:
-          alufn = MUL;
+        game_fsm.L2_LSCORE_SHL:
+          alufn = SHL;
           asel = b0;
           bsel = b01;
-          lit = 8h02;
+          lit = 8h01;
           werf = b1;
-          ra = R7;
+          ra = LSCORE;
           rc = R7;
           wdsel = b0;
           bzsel = b0;
@@ -418,6 +419,11 @@ module bop_controlunit (
           if (aluflags.q[4] & 1) {
             game_fsm.d = game_fsm.RESET_LEVEL;
           } else {
+            game_fsm.d = game_fsm.AWAIT_START;
+          }
+          
+        game_fsm.AWAIT_START:
+          if (start) {
             game_fsm.d = game_fsm.RESET_TIMER;
           }
 
@@ -434,7 +440,7 @@ module bop_controlunit (
             game_fsm.d = game_fsm.INC_LEVEL;
           }
 
-        game_fsm.RESET_LEVEL:
+        game_fsm.GAME_END:
           alufn = B;
           bsel = b01;
           werf = b1;
@@ -442,13 +448,8 @@ module bop_controlunit (
           rc = LEVEL;
           wdsel = b0;
           bzsel = b0;
-
-          game_fsm.d = game_fsm.GAME_END;
-
-        game_fsm.GAME_END:
-          if (rst | start) {
-            game_fsm.d = game_fsm.START;
-          }
+          
+          game_fsm.d = game_fsm.START;
  
         game_fsm.TEST_SOUND:
           werf = b0;
