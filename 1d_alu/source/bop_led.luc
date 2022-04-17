@@ -10,11 +10,11 @@ module bop_led (
   
   const COLOR = { // GRB in reverse
     hf01000, // PURPLE
-    h001110, // ORANGE
+    h101000, // MAGENTA - bop
     h100000, // BLUE
     h100010, // CYAN    - pull
     h00f010, // YELLOW  - twist
-    h101000, // MAGENTA - bop
+    h0010f0, // ORANGE
     h000010, // GREEN   - correct
     h001000  // RED     - wrong
     };
