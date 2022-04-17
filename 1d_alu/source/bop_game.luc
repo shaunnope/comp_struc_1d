@@ -21,7 +21,6 @@ module bop_game (
     edge_detector signals[2](#RISE(1), #FALL(0));
       .rst(rst){
         bop_tester tester;
-        var_seven_seg display;
         bop_led led_strip;
       }
     }
@@ -42,26 +41,12 @@ module bop_game (
     
     signals.in = c{io_button[3], io_button[0]};
     
-    tester.reg_debug = io_dip[2][2:0];
-    tester.debug_write = c{8x{io_dip[1][7]}, io_dip[1]};
+    tester.reg_debug = 0;
+    tester.debug_write = 0;
     
     tester.u_input = io_button[2:0];
     tester.start = signals.out[0];
     tester.toggle = signals.out[1];
-    
-    led[7] = tester.st;       // blinker
-    
-    io_led[0][3:0] = tester.o_input;
-    io_led[2][7] = tester.o_start;
-    io_led[2][5:0] = tester.level;
-    
-    io_led[1][3:0] = tester.action;
-
-    display.value = c{{c{tester.st, 3b0, tester.debug_out[15:12]}},{c{4b0, tester.debug_out[11:8]}},
-                      {c{4b0, tester.debug_out[7:4]}},{c{4b0, tester.debug_out[3:0]}}};
-    
-    io_seg = display.seg;
-    io_sel = display.sel;
     
     action.in = tester.action;
     

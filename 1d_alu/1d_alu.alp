@@ -21,7 +21,6 @@
     <src>alu_bit_bool.luc</src>
     <src>bop_fsm.luc</src>
     <src>bop_buzzer.luc</src>
-    <component>wave.luc</component>
     <component>pwm.luc</component>
     <src>sixteen_bit_bool.luc</src>
     <src>sixteen_bit_shifter.luc</src>
