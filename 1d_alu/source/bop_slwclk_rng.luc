@@ -34,7 +34,7 @@ module bop_slwclk_rng #(
     tick_next.in = ticker.value;
     
     case(level) {
-      b00: slwclk = b0;
+      b00: slwclk = b1;
       b01: slwclk = slowClock.value[2];
       b10: slwclk = slowClock.value[1];
       b11: slwclk = slowClock.value[0];

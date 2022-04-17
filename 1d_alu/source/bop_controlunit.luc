@@ -59,7 +59,7 @@ module bop_controlunit (
       
       OSCORE_CHECK,
       OSCORE_BRANCH,
-      SET_OSCORE1,      
+      SET_OSCORE,      
       
       L3_SCORE_ROTL,
       
@@ -294,33 +294,20 @@ module bop_controlunit (
           rc = OSCORE;
           wdsel = b0;
           bzsel = b0;
+          aluflags.d = flags;
           
           game_fsm.d = game_fsm.OSCORE_CHECK;
           
        game_fsm.OSCORE_CHECK:
-          alufn = CMPLT;
-          asel = b0;
-          bsel = b01;
-          werf = b1;
-          lit = 8h01;
-          ra = OSCORE;
-          rc = R7;
-          wdsel = b0;
-          bzsel = b0;
-          aluflags.d = flags;
-          
-          game_fsm.d = game_fsm.OSCORE_BRANCH;
-          
-        game_fsm.OSCORE_BRANCH:
           bzsel = b0;
           
-          if (aluflags.q[4] & 1) {
-            game_fsm.d = game_fsm.INC_TIMER;
+          if (aluflags.q[4] | aluflags.q[2]) {
+            game_fsm.d = game_fsm.SET_OSCORE;
           } else {
-            game_fsm.d = game_fsm.SET_OSCORE1;
+            game_fsm.d = game_fsm.INC_TIMER;
           }
           
-       game_fsm.SET_OSCORE1:
+       game_fsm.SET_OSCORE:
           alufn = A;
           asel = b1;
           werf = b1;
@@ -443,7 +430,7 @@ module bop_controlunit (
           wdsel = b0;
           bzsel = b0;
 
-          if (inputs[0]) {
+          if (input_edges.out[0]) {
             game_fsm.d = game_fsm.INC_LEVEL;
           }
 

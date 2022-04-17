@@ -1,7 +1,9 @@
 /*
-  Interface game to IO components
+  Interface for game modules
+   
+   Note: condition external inputs before passing into this module
 */
-module tester_bop (
+module bop_game (
     input clk,              // 100MHz clock
     input rst,              // reset
     output led[8],          // 8 user controllable LEDs
@@ -77,7 +79,6 @@ module tester_bop (
       led_strip.color = 1;
     }
     
-    //led_strip.color = io_dip[1][2:0]; // debug - manual set color
     strip_led = led_strip.out;
     
     buzzout = tester.buzzout;
