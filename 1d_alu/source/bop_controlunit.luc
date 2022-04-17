@@ -45,7 +45,6 @@ module bop_controlunit (
       INPUT_STORE,
       INPUT_IDLE,
       INPUT_RST,
-      PLAY_SOUND,
       CHECK_ACTION,
       UPDATE_LSCORE,
       UPDATE_OSCORE,
@@ -198,10 +197,6 @@ module bop_controlunit (
         lit = 8h0;
         rc = INPUT;
         wdsel = b0;
-        game_fsm.d = game_fsm.PLAY_SOUND;
-       
-      game_fsm.PLAY_SOUND:
-        bzsel = b1;
         game_fsm.d = game_fsm.IDLE;
         
       game_fsm.CHECK_ACTION:
