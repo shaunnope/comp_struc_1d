@@ -28,6 +28,7 @@ module bop_game (
     }
   
   encoder action(#WIDTH(4));
+  encoder input_encoder(#WIDTH(4));
   
   always {
   
@@ -65,6 +66,7 @@ module bop_game (
     io_sel = display.sel;
     
     action.in = tester.action;
+    input_encoder.in = io_button[2:0];
     
     if (|tester.level[5:4] & ~tester.level[3]) {
       if (tester.st) {
@@ -75,8 +77,18 @@ module bop_game (
         led_strip.color = tester.correct;
       }
     } else {
-      led_strip.pixels = tester.score;
-      led_strip.color = 1;
+      //led_strip.pixels = tester.score;
+      //led_strip.color = 1;
+      
+      if (|io_button[2:0] & 1) {
+        led_strip.pixels = 16hffff;
+        led_strip.color = input_encoder.out + 2;
+        
+      } else {
+        led_strip.pixels = tester.score;
+        led_strip.color = 1;
+      }
+      
     }
     
     strip_led = led_strip.out;

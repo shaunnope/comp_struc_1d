@@ -27,7 +27,7 @@ module bop_tester #(
   .clk(clk) {
     edge_detector inputEdge[INPUTS](#RISE(1), #FALL(0));
     .rst(rst) {
-      bop_slwclk_rng slwclk(#FREQ(27), #INPUTS(INPUTS));
+      bop_slwclk_rng slwclk(#FREQ(26), #INPUTS(INPUTS));
       bop_regfile regfile;
       bop_pwm bop_pwm;
       
