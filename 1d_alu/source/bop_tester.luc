@@ -54,7 +54,7 @@ module bop_tester #(
     }
     
     slwclk.level = regfile.level_data;
-    slwclk.s_rst = ctrlunit.s_rst;
+    slwclk.s_rst = ctrlunit.s_rst | ctrlunit.t_rst;
     
     regfile.reg_abc = c{ctrlunit.ra, ctrlunit.rb, ctrlunit.rc};
     regfile.w_data = alu.out;

@@ -23,7 +23,8 @@ module bop_controlunit (
     output ra[3],
     output rb[3],
     output bzsel, // Used for sound buzzer
-    output s_rst  // soft reset
+    output s_rst, // soft reset
+    output t_rst  // slwclk reset
   ) {
   
   .clk(clk){
@@ -133,6 +134,7 @@ module bop_controlunit (
     rb = 0;
     bzsel = 0;
     s_rst = 0;
+    t_rst = 0;
 
     if (rst) {
       game_fsm.d = game_fsm.START;
@@ -424,6 +426,7 @@ module bop_controlunit (
           
         game_fsm.AWAIT_START:
           if (start) {
+            t_rst = 1;
             game_fsm.d = game_fsm.RESET_TIMER;
           } else if (toggle) {
             s_rst = 1;
