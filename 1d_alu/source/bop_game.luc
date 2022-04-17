@@ -49,10 +49,7 @@ module bop_game (
         led_strip.pixels = tester.score;
         led_strip.color = tester.correct;
       }
-    } else {
-      //led_strip.pixels = tester.score;
-      //led_strip.color = 1;
-      
+    } else {      
       if (|io_button[2:0] & 1) {
         led_strip.pixels = 16hffff;
         led_strip.color = input_encoder.out + 2;

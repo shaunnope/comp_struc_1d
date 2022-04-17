@@ -103,7 +103,6 @@ module bop_tester #(
     debug_out = regfile.debug_data;
     extra[3:0] = u_input;
     
-    
     bop_pwm.io_button = p_action[2:0];
     bop_pwm.bzsel = ctrlunit.bzsel & slwclk.st;
     buzzout = bop_pwm.out;

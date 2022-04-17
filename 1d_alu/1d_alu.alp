@@ -13,7 +13,6 @@
     <src>tester_bop.luc</src>
     <src>bop_alu_wdsel.luc</src>
     <src>sixteen_bit_mult.luc</src>
-    <src>bop_buzzer.luc</src>
     <component>reset_conditioner.luc</component>
     <src>alu.luc</src>
     <src>bop_slwclk_rng.luc</src>
