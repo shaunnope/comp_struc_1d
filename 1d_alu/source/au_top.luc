@@ -52,12 +52,12 @@ module au_top (
     // --------------  END INIT  --------------------
     
     game.io_button = button_io;
-    game.io_dip = io_dip;
+    //game.io_dip = io_dip;
     
-    io_seg = game.io_seg;
-    io_sel = game.io_sel;
-    io_led = game.io_led;
-    led = game.led;
+    //io_seg = game.io_seg;
+    //io_sel = game.io_sel;
+    //io_led = game.io_led;
+    //led = game.led;
     buzzout = game.buzzout;
     
     led_strip = game.strip_led;
