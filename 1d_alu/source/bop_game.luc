@@ -38,9 +38,13 @@ module bop_game (
     tester.start = signals.out[0];
     tester.toggle = signals.out[1];
     
+    
+    
+    // LED Strip Logic
     action.in = tester.action;
     input_encoder.in = io_button[2:0];
     
+    // mid-round: LED strip depends on ST CLK rise/fall
     if (|tester.level[5:4] & ~tester.level[3]) {
       if (tester.st) {
         led_strip.pixels = 16hffff;
@@ -49,20 +53,43 @@ module bop_game (
         led_strip.pixels = tester.score;
         led_strip.color = tester.correct;
       }
-    } else {      
-      if (|io_button[2:0] & 1) {
-        led_strip.pixels = 16hffff;
-        led_strip.color = input_encoder.out + 2;
-        
-      } else {
+    } else {     
+      // end-round: LED strip depends on score alone
+      if (tester.level[3]) {
         led_strip.pixels = tester.score;
         led_strip.color = 1;
-      }
+        
+      // start-round: start or freeplay
+      } else {
       
+        // If in freeplay mode: bzsel will be on
+        if (tester.bzsel & 1) {
+        
+          // If only a single button is pressed, turn on the corr. LED colour
+          if ( io_button[2:0] == b001 
+            || io_button[2:0] == b010 
+            || io_button[2:0] == b100
+          )  
+          {
+            led_strip.pixels = 16hffff;
+            led_strip.color = input_encoder.out + 2;
+        
+          }
+          
+        // In start mode: dont do anything
+        } else {
+        
+          led_strip.pixels = 0;
+          led_strip.color = 0;
+        }
+        
+
+      }
     }
     
-    strip_led = led_strip.out;
     
+    // External Output assignment
+    strip_led = led_strip.out;
     buzzout = tester.buzzout;
     
 }

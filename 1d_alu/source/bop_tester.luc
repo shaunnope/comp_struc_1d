@@ -20,6 +20,7 @@ module bop_tester #(
     output st,
     output correct,
     output score[16],
+    output bzsel,
     
     input debug_write[16],
     input reg_debug[3],
@@ -106,6 +107,7 @@ module bop_tester #(
     bop_pwm.io_button = p_action[2:0];
     bop_pwm.bzsel = ctrlunit.bzsel & slwclk.st;
     buzzout = bop_pwm.out;
+    bzsel = ctrlunit.bzsel;
     
   }
 }
