@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="1d_alu" board="Alchitry Au" language="Lucid" version="3">
+<project name="bit_op" board="Alchitry Au" language="Lucid" version="3">
   <files>
     <src>sixteen_bit_mult.luc</src>
     <src>sixteen_bit_full_adder.luc</src>
