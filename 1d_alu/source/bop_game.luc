@@ -1,95 +1,99 @@
 /*
-  Interface for game modules
-   
-   Note: condition external inputs before passing into this module
+  Interface for for game components
 */
-module bop_game (
-    input clk,              // 100MHz clock
-    input rst,              // reset
-    input io_button [5],    // 5 buttons on IO Shield
+module bop_game #(
+  INPUTS = 3 : INPUTS > 0
+  )(
+    input clk,  // clock
+    input rst,  // reset
+    input u_input[INPUTS],
+    input start,
+    input toggle,
     
-    output buzzout,
-    output strip_led
+    output action[4],
+    output level[6], // 2-bit level + 4-bit timer
+    output o_input[INPUTS],
+    output o_start,
+    output st,
+    output correct,
+    output score[16],
+    output bzsel,
+    
+    output buzzout
   ) {
-  
   .clk(clk) {
-    edge_detector signals[2](#RISE(1), #FALL(0));
-      .rst(rst){
-        bop_tester tester;
-        bop_led led_strip;
-      }
-    }
-  
-  encoder action(#WIDTH(4));
-  encoder input_encoder(#WIDTH(4));
-  
-  always {
-    
-    strip_led = 0;
-    
-    // ----------- Test circuit out --------
-    
-    signals.in = c{io_button[3], io_button[0]};
-    
-    tester.reg_debug = 0;
-    tester.debug_write = 0;
-    
-    tester.u_input = io_button[2:0];
-    tester.start = signals.out[0];
-    tester.toggle = signals.out[1];
-    
-    
-    
-    // LED Strip Logic
-    action.in = tester.action;
-    input_encoder.in = io_button[2:0];
-    
-    // mid-round: LED strip depends on ST CLK rise/fall
-    if (|tester.level[5:4] & ~tester.level[3]) {
-      if (tester.st) {
-        led_strip.pixels = 16hffff;
-        led_strip.color = action.out + 2;
-      } else {
-        led_strip.pixels = tester.score;
-        led_strip.color = tester.correct;
-      }
-    } else {     
-      // end-round: LED strip depends on score alone
-      if (tester.level[3]) {
-        led_strip.pixels = tester.score;
-        led_strip.color = 1;
-        
-      // start-round: start or freeplay
-      } else {
+    .rst(rst) {
+      bop_slwclk_rng slwclk(#FREQ(26), #INPUTS(INPUTS));
+      bop_regfile regfile;
+      bop_pwm bop_pwm;
       
-        // If in freeplay mode: bzsel will be on
-        if (tester.bzsel & 1) {
-        
-          // If only a single button is pressed, turn on the corr. LED colour
-          if ( io_button[2:0] == b001 
-            || io_button[2:0] == b010 
-            || io_button[2:0] == b100
-          )  
-          {
-            led_strip.pixels = 16hffff;
-            led_strip.color = input_encoder.out + 2;
-        
-          }
-          
-        // In start mode: dont do anything
-        } else {
-        
-          led_strip.pixels = 0;
-          led_strip.color = 0;
-        }
-        
+      bop_controlunit ctrlunit(.slwclk(slwclk.st), .tick(slwclk.tick));
+    }
+  }
+  
+  bop_alu_wdsel alu;
+  
+  sig p_action[INPUTS];
+  
 
-      }
+  always {
+      
+    if (~|regfile.level_data) {
+      p_action = u_input;
+    } else {
+      p_action = slwclk.action;
     }
     
+    slwclk.level = regfile.level_data;
+    slwclk.s_rst = ctrlunit.s_rst | ctrlunit.t_rst;
     
-    // External Output assignment
-    strip_led = led_strip.out;
-    buzzout = tester.buzzout;
+    regfile.reg_abc = c{ctrlunit.ra, ctrlunit.rb, ctrlunit.rc};
+    regfile.w_data = alu.out;
+    regfile.werf = ctrlunit.werf;
+    regfile.s_rst = ctrlunit.s_rst;
     
+    regfile.debug_write = 0;
+    regfile.wedb = 0;
+    
+    ctrlunit.level = regfile.level_data;
+    ctrlunit.start = start;
+    ctrlunit.toggle = toggle;
+    ctrlunit.inputs = u_input;
+    ctrlunit.flags = alu.aluflags;
+    
+    alu.alufn = ctrlunit.alufn;
+    alu.asel = ctrlunit.asel;
+    alu.bsel = ctrlunit.bsel;
+    alu.lit = ctrlunit.lit;
+    alu.action = p_action;
+    alu.timer = regfile.timer_data[4:0];
+    alu.wdsel = ctrlunit.wdsel;
+    alu.u_input = u_input;
+    alu.ra_data = regfile.ra_data;
+    alu.rb_data = regfile.rb_data;    
+    
+    regfile.reg_debug = 0;
+    
+    // ---- END SETUP ----
+    
+    level = c{regfile.level_data, regfile.timer_data[3:0]};
+    case(|regfile.level_data) {
+      b0: o_input = u_input;
+      b1: o_input = regfile.input_data[INPUTS-1:0];
+      default: o_input = regfile.input_data[INPUTS-1:0];
+    }
+    
+    o_start = start;
+    st = slwclk.st;
+    action = slwclk.action;
+    score = regfile.score_data;
+    
+    correct = regfile.correct;
+    
+    bop_pwm.io_button = p_action[2:0];
+    bop_pwm.bzsel = ctrlunit.bzsel & slwclk.st;
+    buzzout = bop_pwm.out;
+    bzsel = ctrlunit.bzsel;
+    
+  }
 }

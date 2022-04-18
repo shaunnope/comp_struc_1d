@@ -1,8 +1,5 @@
 /*
   Tester module
-   
-   TODO: convert to non-tester file
-   - remove debug ports/signals
 */
 module bop_tester #(
   INPUTS = 3 : INPUTS > 0
@@ -68,7 +65,6 @@ module bop_tester #(
     ctrlunit.level = regfile.level_data;
     ctrlunit.start = start;
     ctrlunit.toggle = toggle;
-    ctrlunit.rb_data = regfile.rb_data;
     ctrlunit.inputs = u_input;
     ctrlunit.flags = alu.aluflags;
     

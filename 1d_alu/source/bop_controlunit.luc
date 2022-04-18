@@ -4,13 +4,12 @@ module bop_controlunit (
     input tick, // stage transition
     input slwclk,   // Used for stages
     
-    input inputs[4], // 3 buttons, 1 nothing
+    input inputs[3], // 3 buttons
     
-    input start,     // start button need edge detector
-    input toggle,
-    input level[2], // 2 bit to represent 3 levels, 01 = level 1
+    input start,     // start rising edge
+    input toggle,    // toggle rising edge
+    input level[2],  // 2 bit to represent 3 levels, 01 = level 1
     
-    input rb_data[16],
     input flags[5], // zvnpc
 
     output alufn[5],
@@ -28,11 +27,9 @@ module bop_controlunit (
   ) {
   
   .clk(clk){
-    edge_detector input_edges[4] (#RISE(1), #FALL(0));
     edge_detector clk_edge[4] (#RISE(1), #FALL(0));
 
     .rst(rst) {
-      dff data_rb[16];
       dff aluflags[5];
     }
 
@@ -88,19 +85,11 @@ module bop_controlunit (
 
   // ALUFN[4:0] operations
   const ADD = 5b00000;
-  const SUB = 5b00001;
   const MUL = 5b00010;
-  const DIV = 5b00011;
   const SHL = 5b00100;
-  const SHR = 5b00101;
   const ROTL = 5b00110;
-  const SRA = 5b00111;
   const CMPEQ = 5b01011;
   const CMPLT = 5b01101;
-  const CMPLE = 5b01111;
-  const AND = 5b11000;
-  const OR = 5b11110;
-  const XOR = 5b10110;
   const A = 5b11010;
   const B = 5b11100;
 
@@ -117,7 +106,6 @@ module bop_controlunit (
   sig stf;
   
   always {
-    input_edges.in = inputs;
     clk_edge.in = c{tick, ~tick, slwclk, ~slwclk};
     str = clk_edge.out[1];
     stf = clk_edge.out[0];
