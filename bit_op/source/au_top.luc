@@ -24,7 +24,7 @@ module au_top (
     button_conditioner buttoncond[5];
     
     .rst(rst){
-      bop_game game;
+      bop_io game;
     }
   }
   

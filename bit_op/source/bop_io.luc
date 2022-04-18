@@ -1,9 +1,9 @@
 /*
-  Interface for game modules
+  Interface for game and IO components
    
    Note: condition external inputs before passing into this module
 */
-module bop_game (
+module bop_io (
     input clk,              // 100MHz clock
     input rst,              // reset
     input io_button [5],    // 5 buttons on IO Shield
@@ -15,7 +15,7 @@ module bop_game (
   .clk(clk) {
     edge_detector signals[2](#RISE(1), #FALL(0));
       .rst(rst){
-        bop_tester tester;
+        bop_game game;
         bop_led led_strip;
       }
     }
@@ -31,39 +31,34 @@ module bop_game (
     
     signals.in = c{io_button[3], io_button[0]};
     
-    tester.reg_debug = 0;
-    tester.debug_write = 0;
-    
-    tester.u_input = io_button[2:0];
-    tester.start = signals.out[0];
-    tester.toggle = signals.out[1];
-    
-    
+    game.u_input = io_button[2:0];
+    game.start = signals.out[0];
+    game.toggle = signals.out[1];
     
     // LED Strip Logic
-    action.in = tester.action;
+    action.in = game.action;
     input_encoder.in = io_button[2:0];
     
     // mid-round: LED strip depends on ST CLK rise/fall
-    if (|tester.level[5:4] & ~tester.level[3]) {
-      if (tester.st) {
+    if (|game.level[5:4] & ~game.level[3]) {
+      if (game.st) {
         led_strip.pixels = 16hffff;
         led_strip.color = action.out + 2;
       } else {
-        led_strip.pixels = tester.score;
-        led_strip.color = tester.correct;
+        led_strip.pixels = game.score;
+        led_strip.color = game.correct;
       }
     } else {     
       // end-round: LED strip depends on score alone
-      if (tester.level[3]) {
-        led_strip.pixels = tester.score;
+      if (game.level[3]) {
+        led_strip.pixels = game.score;
         led_strip.color = 1;
         
       // start-round: start or freeplay
       } else {
       
         // If in freeplay mode: bzsel will be on
-        if (tester.bzsel & 1) {
+        if (game.bzsel & 1) {
         
           // If only a single button is pressed, turn on the corr. LED colour
           if ( io_button[2:0] == b001 
@@ -73,7 +68,6 @@ module bop_game (
           {
             led_strip.pixels = 16hffff;
             led_strip.color = input_encoder.out + 2;
-        
           }
           
         // In start mode: dont do anything
@@ -82,14 +76,11 @@ module bop_game (
           led_strip.pixels = 0;
           led_strip.color = 0;
         }
-        
-
       }
     }
     
-    
     // External Output assignment
     strip_led = led_strip.out;
-    buzzout = tester.buzzout;
+    buzzout = game.buzzout;
     
 }

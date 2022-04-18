@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bit_op" board="Alchitry Au" language="Lucid" version="3">
+  <files>
+    <src>sixteen_bit_mult.luc</src>
+    <src>sixteen_bit_full_adder.luc</src>
+    <component>pipeline.luc</component>
+    <src>alu.luc</src>
+    <src>bop_slwclk_rng.luc</src>
+    <component>counter.luc</component>
+    <src>bop_tester.luc</src>
+    <src>var_seven_seg.luc</src>
+    <src>tester_top.luc</src>
+    <src>bop_pwm.luc</src>
+    <src>bop_regfile.luc</src>
+    <src>bop_led.luc</src>
+    <src>tester_bop.luc</src>
+    <component>reset_conditioner.luc</component>
+    <src>sixteen_bit_compare.luc</src>
+    <component>button_conditioner.luc</component>
+    <component>encoder.luc</component>
+    <src>bop_fsm.luc</src>
+    <src>alu_bit_bool.luc</src>
+    <component>pwm.luc</component>
+    <src>sixteen_bit_bool.luc</src>
+    <src>sixteen_bit_shifter.luc</src>
+    <src top="true">au_top.luc</src>
+    <component>decoder.luc</component>
+    <src>bop_alu_wdsel.luc</src>
+    <src>bop_game.luc</src>
+    <src>ws2812b_writer.luc</src>
+    <component>pn_gen.luc</component>
+    <src>seven_seg.luc</src>
+    <src>bop_controlunit.luc</src>
+    <src>op_flags.luc</src>
+    <component>edge_detector.luc</component>
+    <src>bop_io.luc</src>
+    <constraint>custom.acf</constraint>
+    <constraint>br_io.xdc</constraint>
+  </files>
+</project>

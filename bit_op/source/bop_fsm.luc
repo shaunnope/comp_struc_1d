@@ -1,3 +1,6 @@
+/*
+  Tester ctrlunit
+*/
 module bop_fsm (
     input clk,  // clock
     input rst,  // reset

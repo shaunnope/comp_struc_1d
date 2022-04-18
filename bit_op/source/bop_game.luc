@@ -1,10 +1,7 @@
 /*
-  Tester module
-   
-   TODO: convert to non-tester file
-   - remove debug ports/signals
+  Interface for for game components
 */
-module bop_tester #(
+module bop_game #(
   INPUTS = 3 : INPUTS > 0
   )(
     input clk,  // clock
@@ -22,15 +19,9 @@ module bop_tester #(
     output score[16],
     output bzsel,
     
-    input debug_write[16],
-    input reg_debug[3],
-    output extra[8],
-    output debug_out[16],
-    
     output buzzout
   ) {
   .clk(clk) {
-    edge_detector inputEdge[INPUTS](#RISE(1), #FALL(0));
     .rst(rst) {
       bop_slwclk_rng slwclk(#FREQ(26), #INPUTS(INPUTS));
       bop_regfile regfile;
@@ -46,8 +37,7 @@ module bop_tester #(
   
 
   always {
-    inputEdge.in = u_input;
-    
+      
     if (~|regfile.level_data) {
       p_action = u_input;
     } else {
@@ -62,13 +52,12 @@ module bop_tester #(
     regfile.werf = ctrlunit.werf;
     regfile.s_rst = ctrlunit.s_rst;
     
-    regfile.debug_write = debug_write;
+    regfile.debug_write = 0;
     regfile.wedb = 0;
     
     ctrlunit.level = regfile.level_data;
     ctrlunit.start = start;
     ctrlunit.toggle = toggle;
-    ctrlunit.rb_data = regfile.rb_data;
     ctrlunit.inputs = u_input;
     ctrlunit.flags = alu.aluflags;
     
@@ -83,7 +72,7 @@ module bop_tester #(
     alu.ra_data = regfile.ra_data;
     alu.rb_data = regfile.rb_data;    
     
-    regfile.reg_debug = reg_debug;
+    regfile.reg_debug = 0;
     
     // ---- END SETUP ----
     
@@ -100,9 +89,6 @@ module bop_tester #(
     score = regfile.score_data;
     
     correct = regfile.correct;
-    
-    debug_out = regfile.debug_data;
-    extra[3:0] = u_input;
     
     bop_pwm.io_button = p_action[2:0];
     bop_pwm.bzsel = ctrlunit.bzsel & slwclk.st;
